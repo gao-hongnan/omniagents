@@ -71,22 +71,32 @@ claude plugin install omniagents-python@omniagents --scope project
 
 ## Uninstall
 
-Remove a plugin with `claude plugin uninstall`. If you installed with a
-specific scope, pass the same `--scope` flag:
+The default scope is `user`. A bare uninstall command removes from user scope
+without needing a flag. Add `--prune` to also drop any orphaned auto-installed
+dependencies left behind:
 
 ```bash
-claude plugin uninstall omniagents-python@omniagents
-claude plugin uninstall omniagents-typescript@omniagents
-claude plugin uninstall omniagents-design-patterns@omniagents
-claude plugin uninstall omniagents-writing@omniagents
-claude plugin uninstall code-review-graph@omniagents
-claude plugin uninstall context7@omniagents
+claude plugin uninstall omniagents-python@omniagents --prune
+claude plugin uninstall omniagents-typescript@omniagents --prune
+claude plugin uninstall omniagents-design-patterns@omniagents --prune
+claude plugin uninstall omniagents-writing@omniagents --prune
+claude plugin uninstall code-review-graph@omniagents --prune
+claude plugin uninstall context7@omniagents --prune
 ```
 
-Example — remove a project-scoped plugin:
+If the plugin was installed with a non-default scope, pass the matching
+`--scope` flag:
 
 ```bash
-claude plugin uninstall omniagents-python@omniagents --scope project
+claude plugin uninstall omniagents-python@omniagents --scope project --prune
+claude plugin uninstall omniagents-python@omniagents --scope local --prune
+```
+
+Use `--keep-data` to preserve the plugin's data directory if you plan to
+reinstall:
+
+```bash
+claude plugin uninstall omniagents-python@omniagents --prune --keep-data
 ```
 
 ---

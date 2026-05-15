@@ -14,18 +14,21 @@ code should depend on structural behavior. Keep `@runtime_checkable` at the
 boundary, not on every Protocol.
 
 ```python
-from dataclasses import dataclass
 from typing import Protocol, TypeIs, runtime_checkable
 
+from pydantic import BaseModel, ConfigDict, Field
 
-@dataclass(frozen=True)
-class JobRequest:
+
+class JobRequest(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     job_id: str
-    payload: dict[str, object]
+    payload: dict[str, object] = Field(default_factory=dict)
 
 
-@dataclass(frozen=True)
-class JobResult:
+class JobResult(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     job_id: str
     status: str
 
@@ -53,27 +56,36 @@ Use this when the common case has an obvious type parameter but callers can
 still specialize it. Do not add defaults when they hide an ambiguous API.
 
 ```python
-from dataclasses import dataclass
+from pydantic import BaseModel, ConfigDict
 
 
-@dataclass(frozen=True)
-class Ok[ValueT]:
+class ErrorInfo(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    code: str
+    message: str
+
+
+class Ok[ValueT](BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     value: ValueT
 
 
-@dataclass(frozen=True)
-class Err[ErrorT = Exception]:
+class Err[ErrorT = ErrorInfo](BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     error: ErrorT
 
 
-type Result[ValueT, ErrorT = Exception] = Ok[ValueT] | Err[ErrorT]
+type Result[ValueT, ErrorT = ErrorInfo] = Ok[ValueT] | Err[ErrorT]
 
 
-def parse_int(raw: str) -> Result[int, ValueError]:
+def parse_int(raw: str) -> Result[int]:
     try:
-        return Ok(int(raw))
+        return Ok(value=int(raw))
     except ValueError as exc:
-        return Err(exc)
+        return Err(error=ErrorInfo(code="invalid_int", message=str(exc)))
 ```
 
 ## ParamSpec Decorator Preserving Signature
@@ -106,6 +118,32 @@ def timed[**P, ReturnT](
     return decorate
 ```
 
+## Self For Fluent APIs And Constructors
+
+Use `Self` when a method returns the current instance or when a classmethod
+constructs `cls`. If `cls` is annotated explicitly, use `type[Self]` so
+subclasses keep their precise return type.
+
+```python
+from typing import Self
+
+from pydantic import BaseModel, ConfigDict
+
+
+class Query(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    table: str
+    limit: int | None = None
+
+    @classmethod
+    def from_table(cls: type[Self], table: str) -> Self:
+        return cls(table=table)
+
+    def with_limit(self, limit: int) -> Self:
+        return self.model_copy(update={"limit": limit})
+```
+
 ## TypeIs For Bidirectional Narrowing
 
 Use `TypeIs` for predicates whose `False` result also carries information.
@@ -113,19 +151,22 @@ Fall back to `TypeGuard` only when the narrowed type is not a subtype of the
 input type or the negative branch cannot be narrowed soundly.
 
 ```python
-from dataclasses import dataclass
 from typing import Literal, TypeIs, assert_never
 
+from pydantic import BaseModel, ConfigDict
 
-@dataclass(frozen=True)
-class Started:
-    kind: Literal["started"]
+
+class Started(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    kind: Literal["started"] = "started"
     job_id: str
 
 
-@dataclass(frozen=True)
-class Finished:
-    kind: Literal["finished"]
+class Finished(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    kind: Literal["finished"] = "finished"
     job_id: str
     exit_code: int
 
@@ -188,6 +229,43 @@ class TaskRequest(BaseModel):
     name: Annotated[str, Field(min_length=1, max_length=64)]
     retries: Annotated[int, Field(ge=0, le=10)] = 0
     tags: Annotated[list[str], Field(default_factory=list, max_length=20)]
+```
+
+## Pydantic Discriminated Union Boundary
+
+Use a Pydantic discriminated union when an external payload chooses between
+model variants. The discriminator belongs at the boundary model, not scattered
+through `if` statements after validation.
+
+```python
+from typing import Annotated, Literal
+
+from pydantic import BaseModel, Field
+
+
+class StartedPayload(BaseModel):
+    kind: Literal["started"]
+    job_id: str
+
+
+class FinishedPayload(BaseModel):
+    kind: Literal["finished"]
+    job_id: str
+    exit_code: int
+
+
+type JobPayload = Annotated[
+    StartedPayload | FinishedPayload,
+    Field(discriminator="kind"),
+]
+
+
+class WebhookEnvelope(BaseModel):
+    event: JobPayload
+
+
+def parse_webhook(raw: dict[str, object]) -> WebhookEnvelope:
+    return WebhookEnvelope.model_validate(raw)
 ```
 
 ## Alias Versus NewType Versus LiteralString

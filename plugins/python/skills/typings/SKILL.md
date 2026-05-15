@@ -64,6 +64,9 @@ chosen and which they have rejected.
   fix the code; do not cast, `Any`, or `# type: ignore` your way out.
 - Use `Self` from [PEP 673](https://peps.python.org/pep-0673/) for fluent,
   builder, and classmethod constructors that return the current class.
+  When annotating `cls` explicitly in a classmethod, write
+  `cls: type[Self]`, not `cls: type[BaseClass]`; the latter breaks subclass
+  return inference.
   String-quoted forward references like `-> "QueryBuilder"` are forbidden in
   new code.
 
