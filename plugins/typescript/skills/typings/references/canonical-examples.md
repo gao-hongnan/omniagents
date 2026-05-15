@@ -346,6 +346,11 @@ Use `using` instead of `try/finally` for any resource that implements
 `[Symbol.dispose]()`. For async teardown use `await using` with
 `[Symbol.asyncDispose]()`.
 
+Compiler/runtime note: projects whose selected `lib` does not include
+`Disposable`, `AsyncDisposable`, `Symbol.dispose`, and `Symbol.asyncDispose`
+must add `esnext.disposable` or `esnext`. Runtimes that do not implement those
+symbols need polyfills.
+
 ```typescript
 class DatabaseConnection implements Disposable {
     private readonly url: string;

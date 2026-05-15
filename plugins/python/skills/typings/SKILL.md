@@ -113,9 +113,11 @@ chosen and which they have rejected.
   Defaults for `TypeVar`, `ParamSpec`, and `TypeVarTuple` are appropriate
   when the default preserves the obvious common case. Do not use defaults to
   hide ambiguous APIs or to make partial specialization harder to see.
-- **Protocol over ABC.** Extension points are structural, not nominal. Use an
-  ABC only when sharing default method implementations is the actual reason to
-  subclass.
+- **Protocols for extension contracts.** Prefer `Protocol` for public and
+  plugin-facing contracts where independent implementations should satisfy a
+  structural shape. Use an ABC when shared default behavior, nominal
+  registration, or runtime subclass checks are part of the design. Do not add
+  either for one-off internal code when a concrete type is clearer.
 - **`@runtime_checkable` only when `isinstance` is genuinely needed.** Protocol
   conformance is a static check by default; runtime-checkable Protocols are
   for plugin loaders and dynamic dispatch, not the default decoration.
@@ -141,10 +143,14 @@ chosen and which they have rejected.
   project's base error type and pass `context: dict[str, object]` to the base.
   Bare-string `Exception` subclasses are reserved for genuinely contextless
   failures.
-- **Pydantic at boundaries, dataclasses inside.** `pydantic.BaseModel` is for
-  values crossing an I/O boundary. `@dataclass` is for in-process domain
-  types. `TypedDict` is for structured dictionaries when validation is not the
-  type's job.
+- **Choose the smallest shape that preserves the contract.**
+  Prefer `pydantic.BaseModel` for structured values that benefit from
+  validation, defaults, serialization, or an explicit schema, including but not
+  limited to I/O boundaries. `TypedDict` is for values that must remain
+  dict-shaped, such as typed `**kwargs`, JSON-like payloads, or interop with
+  mapping APIs. Use `@dataclass` only for lightweight internal records where
+  Pydantic behavior would add no value. Plain classes are fine when behavior,
+  invariants, or construction rules matter more than record syntax.
 - **Use [`ReadOnly`](https://docs.python.org/3/library/typing.html#typing.ReadOnly)
   for immutable `TypedDict` keys.** A `TypedDict` field that consumers must not
   mutate should be annotated with `ReadOnly[...]` from
@@ -212,6 +218,25 @@ chosen and which they have rejected.
   and [Python 3.14 `annotationlib` docs](https://docs.python.org/3/library/annotationlib.html)
   are the runtime references. PEPs are historical design records; prefer the
   current docs when they disagree.
+
+## Freshness
+
+This skill is project policy, not a complete upstream reference. When applying
+it to unfamiliar APIs, version-sensitive behavior, tool/checker disagreement,
+or anything that may have changed since the skill was written, verify current
+behavior against primary docs. Prefer Context7 MCP when available. If it is
+unavailable, use web search restricted to official sources.
+
+Primary sources:
+
+- [Python typing docs](https://docs.python.org/3/library/typing.html)
+- [Python annotationlib docs](https://docs.python.org/3/library/annotationlib.html)
+- [PEPs](https://peps.python.org/)
+- [mypy](https://mypy.readthedocs.io/)
+- [pyright](https://microsoft.github.io/pyright/)
+- [pyrefly](https://pyrefly.org/)
+- [ty](https://docs.astral.sh/ty/)
+- [ruff](https://docs.astral.sh/ruff/)
 
 ## What This Skill Is Not
 

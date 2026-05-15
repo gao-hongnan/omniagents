@@ -131,8 +131,9 @@ this skill have chosen, and which they have rejected.
   5.0 shipped decorators per the TC39 Stage 3 proposal. Do not enable
   `experimentalDecorators` in new code; the two systems are incompatible.
   Standard decorators receive typed context objects (`ClassMethodDecoratorContext`,
-  `ClassFieldDecoratorContext`, `ClassDecoratorContext`) and return `void` or
-  the same type they decorate. Remove `emitDecoratorMetadata` alongside
+  `ClassFieldDecoratorContext`, `ClassDecoratorContext`, etc.) alongside the
+  decorated value. Decorator functions return `void` or a replacement value
+  compatible with the decorated declaration. Remove `emitDecoratorMetadata` alongside
   `experimentalDecorators` when migrating.
 - **`using` declarations (TS 5.2) — prefer over manual `try/finally` cleanup.**
   `using resource = acquire()` calls `resource[Symbol.dispose]()` at end of
@@ -212,8 +213,8 @@ this skill have chosen, and which they have rejected.
   The canonical replacement is an `as const` object plus a derived value
   union: `const TaskStatus = { Pending: "pending", … } as const;` followed by
   `type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus];`. This
-  gives compile-time exhaustiveness, zero runtime cost, and tree-shakeable
-  members.
+  gives compile-time exhaustiveness, avoids enum-specific emit and reverse
+  mappings, and keeps members easy to tree-shake.
 - **`satisfies` over `as` for type-checked literals.** Use
   `const config = { … } satisfies AppConfig;` when validating a literal
   against a type without widening it. `as` casts are reserved for the
@@ -243,8 +244,10 @@ this skill have chosen, and which they have rejected.
 - **Standard decorators for cross-cutting class concerns only.** Use decorators
   for logging, validation, dependency injection, and instrumentation that is
   genuinely orthogonal to the class body. Decorator factories must be explicitly
-  typed — return `ClassMethodDecorator`, `ClassFieldDecorator`, or
-  `ClassDecorator` from the standard context types, never `any`.
+  typed with the decorated value parameter and matching standard context type
+  (`ClassMethodDecoratorContext`, `ClassFieldDecoratorContext`,
+  `ClassDecoratorContext`, etc.). Return `void` or a compatible replacement
+  value; do not use legacy decorator aliases or `any`.
 - **`using` for all resource lifetimes.** Any object with a cleanup step (file
   handles, database connections, timers, observers) must implement
   `[Symbol.dispose]()` and be acquired with `using`. Bare `try/finally` blocks

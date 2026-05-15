@@ -1,77 +1,311 @@
-# TypeScript Type-Safety — Decision Trees
+# TypeScript Type-Safety Decision Trees
 
-Reach-for guides for the recurring "which form do I use here?" questions
-inside TypeScript code that the consuming project type-checks under
-`tsc --strict` plus type-aware ESLint rules such as `strictTypeChecked`.
-Companion to `../SKILL.md`; the rules there are non-negotiable, the choices
-below are decision pairs.
+Reach-for guides for recurring "which form do I use here?" questions in
+TypeScript code that the consuming project type-checks under `tsc --strict`
+plus type-aware ESLint rules such as `strictTypeChecked`.
 
-## When in doubt
+This is a companion to `../SKILL.md`. The rules there are non-negotiable; this
+file explains how to choose between valid forms.
 
-- **`interface` vs `type`** → `interface` for object shapes (extendable,
-  declaration-mergeable). `type` for unions, primitives, mapped types,
-  conditional types, and tuple types. The two are not interchangeable for
-  these cases.
-- **`null` vs `undefined`** → `undefined` for "not set" / optional /
-  "field never assigned". `null` only when "explicitly empty" carries
-  semantics distinct from "not set" (e.g., a JSON column that the database
-  returns as `null`, not absent). When in doubt, `undefined`.
-- **`Result<T, E>` vs `throw`** → throw at API boundaries where the caller is
-  expected to handle exceptions; `Result` when the caller wants pattern-matched
-  outcomes (typically internal pipelines, parsing, validation). Throw across
-  package boundaries; return `Result` within them.
-- **Branded type vs class wrapper for IDs** → branded type when string
-  operations on the ID still matter (formatting, comparison, serialization,
-  URL building). Class wrapper when behavior is attached to the identifier
-  (validation, normalization on construction).
-- **Inferred vs explicit return types** → explicit on public surfaces;
-  inferred on private one-liners. Inference for non-trivial bodies leaks
-  implementation detail into the type signature and breaks consumer types
-  when the implementation changes.
-- **`enum` vs `as const` object** → always `as const` object. The reasons
-  (runtime cost, tree-shaking, reverse mappings on numeric enums) are not
-  tradeoffs to balance — they are language-design problems with `enum`. The
-  `as const` form is strictly better for almost every case.
-- **`as` vs `satisfies`** → `satisfies` unless you are deliberately narrowing
-  a wider type to a specific value (rare). `as Foo` widens the erasure and
-  silences the checker; `satisfies Foo` validates without losing the
-  narrower inferred type.
-- **Type guard (`x is T`) vs assertion function (`asserts x is T`)** →
-  type guard when the caller wants to *branch* on the result; assertion
-  function when the caller wants a runtime invariant that *throws* on
-  violation. The two are not interchangeable.
-- **`using` declaration vs manual `try/finally`** → `using` whenever the
-  acquired value implements (or can implement) `Disposable` /
-  `AsyncDisposable`. Reserve `try/finally` for interop with third-party APIs
-  that cannot be modified to add `[Symbol.dispose]()`. If you control the
-  resource type, implementing `Symbol.dispose` is always preferable to
-  scattering `try/finally` at every acquisition site.
-- **NodeNext vs bundler module resolution** → `nodenext` when emitted code runs
-  directly in Node.js and must follow Node's package exports / extension
-  rules. `bundler` when Vite, Next.js, esbuild, Rollup, Webpack, Bun, or
-  another bundler resolves imports. Never use `node`, `node10`, or `classic`
-  in new TS 6.0 configs.
-- **`paths` with `baseUrl` vs explicit path targets** → explicit path targets.
-  Write `"@app/*": ["./src/app/*"]`; do not use `"baseUrl": "./src"` as a
-  lookup root. A catch-all `"*": ["./src/*"]` is a migration-only choice when
-  preserving old baseUrl behavior is deliberate.
-- **Explicit `types` vs implicit globals** → explicit `types`. TS 6.0 defaults
-  `types` to `[]`, so list only ambient packages used by the project:
-  `["node"]`, `["vitest/globals"]`, `["jest"]`, etc. Use `["*"]` only as a
-  temporary migration escape hatch.
-- **Explicit `rootDir` vs inferred emit root** → explicit `rootDir` for
-  emitting projects, usually `"./src"`. TS 6.0 defaults `rootDir` to the
-  tsconfig directory, so relying on old common-source-directory inference can
-  change output layout.
-- **Import attributes `with` vs import assertions `assert`** → `with`.
-  `import data from "./data.json" with { type: "json" }` is the TS 6.0 shape;
-  `assert { type: "json" }` is deprecated.
-- **Explicit type predicate (`x is T`) vs inferred predicate** →
-  omit the annotation and let TypeScript infer it whenever the predicate
-  body is a narrowing expression (`typeof`, `instanceof`, discriminant check).
-  Add an explicit `x is T` annotation when: (a) the function is on a public
-  API surface whose predicate signature must not change under refactors,
-  (b) inference produces a different type than intended, or (c) the compiler
-  version target is TS 5.4 or older. Never add explicit predicates for
-  documentation only — they add a type assertion that drifts if the body
-  changes.
+## Type Shapes
+
+### Interface vs Type
+
+Default to `interface` for object shapes.
+
+Use `interface` when:
+
+- The type describes an object shape.
+- Extension with `extends` is expected.
+- Declaration merging is useful or intentionally allowed.
+- The shape is part of a public object contract.
+
+Use `type` when:
+
+- The type is a union.
+- The type is a primitive alias.
+- The type is a mapped, conditional, or template literal type.
+- The type is a tuple.
+
+These forms are not interchangeable for the cases above; use each for what it
+does best.
+
+### Inferred vs Explicit Return Types
+
+Default to explicit return types on public surfaces.
+
+Use explicit return types when:
+
+- The function is exported.
+- The function is part of an interface, class, or callback contract.
+- The body is non-trivial.
+- Consumers should not observe implementation-detail changes.
+
+Use inferred return types when:
+
+- The function is private.
+- The body is a one-liner.
+- The inferred type is obvious and not part of a public API.
+
+Inference for non-trivial bodies can leak implementation detail into the
+signature and break consumers when the implementation changes.
+
+### As Const Object vs Enum
+
+Default to an `as const` object.
+
+Use `as const` objects when:
+
+- You need a closed value set.
+- You want derived value unions.
+- Tree-shaking and zero extra runtime machinery matter.
+- `verbatimModuleSyntax` compatibility matters.
+
+Do not use TypeScript `enum` in new code. Runtime cost, reverse mappings on
+numeric enums, tree-shaking issues, and module semantics are language-design
+problems with `enum`, not tradeoffs to rebalance per call site.
+
+## Absence And Unknown Values
+
+### Null vs Undefined
+
+Default to `undefined` for absence.
+
+Use `undefined` when:
+
+- A value is not set.
+- A field is optional.
+- A field has never been assigned.
+- The distinction between "absent" and "explicitly empty" does not matter.
+
+Use `null` only when:
+
+- "Explicitly empty" has semantics distinct from "not set".
+- An external system returns `null`, such as a JSON column or database field.
+- The wire format requires `null`.
+
+When in doubt, use `undefined`.
+
+### Unknown vs Any
+
+Default to `unknown`.
+
+Use `unknown` when:
+
+- Input type is genuinely not known yet.
+- A runtime check, type guard, or Zod schema will narrow the value.
+- You are modeling untrusted input.
+
+Use `any` only for documented interop escape hatches, and keep the leak at the
+smallest possible narrowing site.
+
+## Errors And Results
+
+### Result vs Throw
+
+Default deliberately per function; do not mix both in one error path.
+
+Use `throw` when:
+
+- The function is at an API or package boundary.
+- Callers are expected to handle exceptions.
+- The failure is exceptional rather than a normal branch in a pipeline.
+
+Use `Result<T, E>` when:
+
+- Callers want pattern-matched outcomes.
+- The function is part of an internal pipeline.
+- Parsing, validation, or domain branching is the normal control flow.
+
+Throw across package boundaries; return `Result` within internal pipelines.
+
+## Identifiers And Brands
+
+### Branded Type vs Class Wrapper For IDs
+
+Default to a branded primitive for identifiers.
+
+Use a branded type when:
+
+- The runtime representation should remain a string or number.
+- Formatting, comparison, serialization, or URL building should keep working
+  like the underlying primitive.
+- The checker must prevent mixing semantically different IDs.
+
+Use a class wrapper when:
+
+- Behavior is attached to the identifier.
+- Construction performs validation or normalization.
+- Runtime identity or methods matter.
+
+## Checking And Assertion
+
+### Satisfies vs As
+
+Default to `satisfies` for type-checked literals.
+
+Use `satisfies` when:
+
+- You want to validate a literal against a type.
+- You want to preserve the narrower inferred literal type.
+- You are checking configuration objects, route maps, or registry tables.
+
+Use `as` only when:
+
+- You are at a deliberate narrowing site.
+- A wider runtime value has already been validated.
+- Branding requires a cast after parsing.
+
+A bare `as Foo` on a wider value silences the checker; it does not prove the
+value satisfies `Foo`.
+
+### Type Guard vs Assertion Function
+
+Default to a type guard when the caller wants to branch.
+
+Use a type guard (`x is T`) when:
+
+- The caller needs an `if` / `else` branch.
+- Both success and failure are normal outcomes.
+- The function answers a predicate question.
+
+Use an assertion function (`asserts x is T`) when:
+
+- The caller expects the function to throw on failure.
+- The function establishes an invariant for the rest of the scope.
+- The alternative would be a guard plus repeated manual throws.
+
+### Explicit Type Predicate vs Inferred Predicate
+
+Default to inferred predicates on the TS 6.0 baseline.
+
+Omit the explicit `x is T` annotation when:
+
+- The function body is a narrowing expression.
+- The predicate uses `typeof`, `instanceof`, or a discriminant check.
+- The inferred predicate is the intended public behavior.
+
+Add an explicit `x is T` annotation when:
+
+- The function is exported and the predicate signature must remain stable
+  across refactors.
+- Inference produces a different type than intended.
+- The compiler target is TS 5.4 or older.
+
+Do not add explicit predicates for documentation only; they act like type
+assertions and can drift from the body.
+
+## Resources
+
+### Using Declaration vs Manual Try/Finally
+
+Default to `using` or `await using`.
+
+Use `using` when:
+
+- The acquired value implements `Disposable`.
+- You control the resource type and can add `[Symbol.dispose]()`.
+- Cleanup should happen at the end of scope on normal and exceptional exits.
+
+Use `await using` when:
+
+- The acquired value implements `AsyncDisposable`.
+- Cleanup is asynchronous.
+
+Use manual `try/finally` only when:
+
+- You are integrating with a third-party API that cannot implement
+  `[Symbol.dispose]()` or `[Symbol.asyncDispose]()`.
+- The cleanup shape cannot be represented by `Disposable` / `AsyncDisposable`.
+
+If you control the resource type, implementing `Symbol.dispose` is preferable
+to scattering `try/finally` at every acquisition site.
+
+## TS Config
+
+### NodeNext vs Bundler Module Resolution
+
+Choose based on who resolves imports at runtime.
+
+Use `nodenext` when:
+
+- Emitted code runs directly in Node.js.
+- Node package exports and extension rules must apply.
+- Relative ESM imports need explicit `.js` paths.
+
+Use `bundler` when:
+
+- Vite, Next.js, esbuild, Rollup, Webpack, Bun, or another bundler resolves
+  imports.
+- The project is an app or package compiled through a bundling step.
+
+Do not use `node`, `node10`, or `classic` in new TS 6.0 configs.
+
+### Paths With BaseUrl vs Explicit Path Targets
+
+Default to explicit path targets.
+
+Use explicit path targets:
+
+```json
+{
+  "paths": {
+    "@app/*": ["./src/app/*"]
+  }
+}
+```
+
+Avoid `baseUrl` as a lookup root:
+
+```json
+{
+  "baseUrl": "./src",
+  "paths": {
+    "@app/*": ["app/*"]
+  }
+}
+```
+
+A catch-all `"*": ["./src/*"]` is a migration-only choice when preserving old
+`baseUrl` behavior is deliberate.
+
+### Explicit Types vs Implicit Globals
+
+Default to explicit `types`.
+
+List only ambient packages used by the project:
+
+- `["node"]`
+- `["vitest/globals"]`
+- `["jest"]`
+
+Use `["*"]` only as a temporary migration escape hatch.
+
+### Explicit RootDir vs Inferred Emit Root
+
+Default to explicit `rootDir` for emitting projects, usually `"./src"`.
+
+Set `rootDir` when:
+
+- The project emits JavaScript or declarations.
+- Output layout must stay stable as files move.
+- The package is a library or app that writes to `dist`.
+
+Relying on old common-source-directory inference can change output layout under
+TS 6.0 defaults.
+
+### Import Attributes With vs Import Assertions Assert
+
+Default to `with`.
+
+Use import attributes:
+
+```ts
+import data from "./data.json" with { type: "json" };
+```
+
+Do not use deprecated import assertions:
+
+```ts
+import data from "./data.json" assert { type: "json" };
+```
