@@ -1,0 +1,43 @@
+{
+  "name": "omniagents",
+  "owner": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "metadata": {
+    "description": "Coding conventions, writing style, and design pattern skills",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "python",
+      "source": "./plugins/python",
+      "description": "Python conventions: NumPy/Sphinx docstrings + strict typing + performance rules"
+    },
+    {
+      "name": "typescript",
+      "source": "./plugins/typescript",
+      "description": "TypeScript conventions: TSDoc + strict typing rules"
+    },
+    {
+      "name": "design-patterns",
+      "source": "./plugins/design-patterns",
+      "description": "Strict-typed Python 3.13+ design pattern catalogue (software + system patterns)"
+    },
+    {
+      "name": "writing",
+      "source": "./plugins/writing",
+      "description": "Measured-persuasion writing skill + markdown conventions"
+    },
+    {
+      "name": "code-review-graph",
+      "source": "./plugins/code-review-graph",
+      "description": "Code Review Graph MCP: tree-sitter knowledge graph tooling for impact analysis"
+    },
+    {
+      "name": "context7",
+      "source": "./plugins/context7",
+      "description": "Context7 MCP: up-to-date library documentation lookup (requires CONTEXT7_API_KEY)"
+    }
+  ]
+}

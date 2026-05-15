@@ -6,6 +6,11 @@
       "headers": {
         "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
       }
+    },
+    "code-review-graph": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["code-review-graph", "serve"]
     }
   }
 }

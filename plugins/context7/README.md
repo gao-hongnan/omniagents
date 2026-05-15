@@ -1,6 +1,7 @@
 # Context7 MCP Plugin
 
-This plugin adds the hosted Context7 MCP server to Claude Code so agents can look up current library and framework documentation.
+This plugin adds the hosted Context7 MCP server to Claude Code so agents can
+look up current library and framework documentation.
 
 ## Configuration
 
@@ -20,15 +21,18 @@ The plugin MCP config is in `.mcp.json`:
 }
 ```
 
-`type: "http"` is required for Claude Code to recognize this as a remote HTTP MCP server.
+`type: "http"` is required for Claude Code to recognize this as a remote HTTP
+MCP server.
 
 ## API Key
 
-Context7 can work without an API key at lower rate limits, but this plugin is configured to use one. Create a key from:
+Context7 can work without an API key at lower rate limits, but this plugin is
+configured to use one. Create a key from:
 
-https://context7.com/dashboard
+<https://context7.com/dashboard>
 
-Keep the key out of this repository. Set it in your shell before launching Claude Code:
+Keep the key out of this repository. Set it in your shell before launching
+Claude Code:
 
 ```bash
 export CONTEXT7_API_KEY="ctx7sk-your-key-here"
@@ -69,3 +73,9 @@ Inside Claude Code, test with a prompt such as:
 ```text
 use context7 mcp to search pydantic
 ```
+
+## References
+
+- [Claude Code MCP configuration](https://code.claude.com/docs/en/mcp)
+- [Context7 installation guide](https://context7.com/docs/installation)
+- [Context7 API guide](https://context7.com/docs/api-guide)
