@@ -69,6 +69,45 @@ claude plugin install omniagents-python@omniagents --scope project
 
 ---
 
+## Updating installed plugins
+
+If a plugin is already installed, running `claude plugin install ...` again is
+expected to report that it is already installed. Install is not the update
+path.
+
+Marketplace update only refreshes the catalogue; it does not install plugins
+that are not already installed.
+
+Refresh the marketplace, then update the installed plugin:
+
+```bash
+claude plugin marketplace update omniagents
+claude plugin update omniagents-python@omniagents
+claude plugin update omniagents-typescript@omniagents
+claude plugin update omniagents-design-patterns@omniagents
+claude plugin update omniagents-writing@omniagents
+claude plugin update code-review-graph@omniagents
+claude plugin update context7@omniagents
+```
+
+Inside Claude Code, the equivalent commands are:
+
+```text
+/plugin marketplace update omniagents
+/plugin update omniagents-python@omniagents
+/plugin update omniagents-typescript@omniagents
+/reload-plugins
+```
+
+Claude Code uses the plugin version as the cache key. Because these plugins set
+`version` in each `.claude-plugin/plugin.json`, maintainers must bump that
+version whenever published skill contents change. Pushing new commits without a
+version bump will make updates look current to already-installed users. For
+fast-moving internal plugins, omit `version` from both `plugin.json` and the
+marketplace entry so Claude Code uses the git commit SHA as the version.
+
+---
+
 ## Uninstall
 
 The default scope is `user`. A bare uninstall command removes from user scope
