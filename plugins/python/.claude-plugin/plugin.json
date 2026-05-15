@@ -1,0 +1,14 @@
+{
+  "name": "python",
+  "version": "0.1.0",
+  "description": "Python conventions: NumPy/Sphinx docstrings + strict typing + performance rules",
+  "author": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "homepage": "https://github.com/gao-hongnan/omniagents",
+  "repository": "https://github.com/gao-hongnan/omniagents",
+  "license": "MIT",
+  "keywords": ["python", "docstrings", "typing", "conventions"],
+  "skills": "./skills/"
+}

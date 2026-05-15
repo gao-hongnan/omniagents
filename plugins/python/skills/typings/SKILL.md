@@ -6,9 +6,21 @@ description: >-
   Protocol vs ABC, ParamSpec decorators, TypeIs / TypeGuard narrowing,
   TypedDict / ReadOnly, Literal vs StrEnum, NewType vs aliases, or any time
   mypy / pyright / pyrefly / ty is configured, run, or failing.
+when_to_use: >-
+  Trigger for Python files, pyproject typing configuration, strict checker
+  failures, type annotation design, runtime annotation introspection,
+  PEP 695 generics, PEP 696 defaults, PEP 705 ReadOnly TypedDict keys,
+  PEP 742 TypeIs predicates, PEP 649 / PEP 749 deferred annotations, decorator
+  signatures, Protocol boundaries, NewType identifiers, enum/literal choices,
+  or public API typing reviews.
+disable-model-invocation: false
+user-invocable: true
+allowed-tools: []
+model: inherit
 paths:
   - "**/*.py"
   - "**/pyproject.toml"
+shell: bash
 ---
 
 # Python Type-Safety Rules
@@ -37,9 +49,8 @@ chosen and which they have rejected.
 ## Non-negotiables
 
 - All configured type checkers pass clean. No errors, no warnings, whether
-  invoked individually (`uv run mypy`, `uv run pyright`, `uv run pyrefly`) or
-  together through the project typecheck target. The set of checkers may grow;
-  the bar does not.
+  invoked individually (`uv run mypy`, `uv run pyright`, `uv run pyrefly`,
+  `uv run ty check`) or together through the project typecheck target. The set of checkers may grow; the bar does not.
 - New `# type: ignore` requires both an error code and an inline reason:
   `# type: ignore[arg-type]  # third-party stub missing field X`. Bare
   `# type: ignore` is rejected on review.
