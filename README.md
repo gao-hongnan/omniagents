@@ -7,14 +7,14 @@ server integrations packaged as installable skills.
 
 ## Plugin catalogue
 
-| Plugin              | Type        | Skills / tools                                                | Requires           |
-| ------------------- | ----------- | ------------------------------------------------------------- | ------------------ |
-| `python`            | Skills      | `python-typings`, `python-docstrings`, `python-performance`   | —                  |
-| `typescript`        | Skills      | `typescript-typings`, `typescript-docstrings`                 | —                  |
-| `design-patterns`   | Skills      | `design-patterns:software`, `design-patterns:system`          | —                  |
-| `writing`           | Skills      | `writing:measured-persuasion`, `writing:markdown-conventions` | —                  |
-| `code-review-graph` | MCP (stdio) | Tree-sitter knowledge graph tools                             | `uv` on PATH       |
-| `context7`          | MCP (HTTP)  | Library documentation lookup                                  | `CONTEXT7_API_KEY` |
+| Plugin                       | Type        | Skills                                                                                       | Requires           |
+| ---------------------------- | ----------- | -------------------------------------------------------------------------------------------- | ------------------ |
+| `omniagents-python`          | Skills      | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance` | —                  |
+| `omniagents-typescript`      | Skills      | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                          | —                  |
+| `omniagents-design-patterns` | Skills      | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                   | —                  |
+| `omniagents-writing`         | Skills      | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`          | —                  |
+| `code-review-graph`          | MCP (stdio) | Tree-sitter knowledge graph tools                                                            | `uv` on PATH       |
+| `context7`                   | MCP (HTTP)  | Library documentation lookup                                                                 | `CONTEXT7_API_KEY` |
 
 ---
 
@@ -31,13 +31,13 @@ server integrations packaged as installable skills.
 ### Add the marketplace
 
 ```bash
-claude plugin marketplace add github:gao-hongnan/omniagents
+claude plugin marketplace add gao-hongnan/omniagents
 ```
 
 Or from inside Claude Code:
 
 ```text
-/plugin marketplace add github:gao-hongnan/omniagents
+/plugin marketplace add gao-hongnan/omniagents
 ```
 
 ### Install plugins
@@ -45,10 +45,10 @@ Or from inside Claude Code:
 Install individually:
 
 ```bash
-claude plugin install python@omniagents
-claude plugin install typescript@omniagents
-claude plugin install design-patterns@omniagents
-claude plugin install writing@omniagents
+claude plugin install omniagents-python@omniagents
+claude plugin install omniagents-typescript@omniagents
+claude plugin install omniagents-design-patterns@omniagents
+claude plugin install omniagents-writing@omniagents
 claude plugin install code-review-graph@omniagents
 claude plugin install context7@omniagents
 ```
@@ -61,10 +61,32 @@ claude plugin install context7@omniagents
 | `--scope project` | Project scope — committed to `.claude/`, shared |
 | `--scope local`   | Local scope — gitignored, machine-local only    |
 
-Example — install `python` for the whole team:
+Example — install `omniagents-python` for the whole team:
 
 ```bash
-claude plugin install python@omniagents --scope project
+claude plugin install omniagents-python@omniagents --scope project
+```
+
+---
+
+## Uninstall
+
+Remove a plugin with `claude plugin uninstall`. If you installed with a
+specific scope, pass the same `--scope` flag:
+
+```bash
+claude plugin uninstall omniagents-python@omniagents
+claude plugin uninstall omniagents-typescript@omniagents
+claude plugin uninstall omniagents-design-patterns@omniagents
+claude plugin uninstall omniagents-writing@omniagents
+claude plugin uninstall code-review-graph@omniagents
+claude plugin uninstall context7@omniagents
+```
+
+Example — remove a project-scoped plugin:
+
+```bash
+claude plugin uninstall omniagents-python@omniagents --scope project
 ```
 
 ---
@@ -157,8 +179,8 @@ To install from a local clone instead of GitHub:
 
 ```bash
 git clone https://github.com/gao-hongnan/omniagents
-/plugin marketplace add ./omniagents
-claude plugin install python@omniagents --scope local
+claude plugin marketplace add ./omniagents
+claude plugin install omniagents-python@omniagents --scope local
 ```
 
 ---

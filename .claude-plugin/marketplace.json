@@ -10,22 +10,22 @@
   },
   "plugins": [
     {
-      "name": "python",
+      "name": "omniagents-python",
       "source": "./plugins/python",
       "description": "Python conventions: NumPy/Sphinx docstrings + strict typing + performance rules"
     },
     {
-      "name": "typescript",
+      "name": "omniagents-typescript",
       "source": "./plugins/typescript",
       "description": "TypeScript conventions: TSDoc + strict typing rules"
     },
     {
-      "name": "design-patterns",
+      "name": "omniagents-design-patterns",
       "source": "./plugins/design-patterns",
       "description": "Strict-typed Python 3.13+ design pattern catalogue (software + system patterns)"
     },
     {
-      "name": "writing",
+      "name": "omniagents-writing",
       "source": "./plugins/writing",
       "description": "Measured-persuasion writing skill + markdown conventions"
     },
