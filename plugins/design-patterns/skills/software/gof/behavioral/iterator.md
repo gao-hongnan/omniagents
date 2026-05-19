@@ -76,6 +76,6 @@ A class with `__iter__(self)` returning `self` and `__next__` walking an interna
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 257-271.
+- Gamma et al., *Design Patterns* (1994), pp. 257-272.
 - Refactoring Guru, [Iterator](https://refactoring.guru/design-patterns/iterator).
 - Python documentation for `collections.abc.Iterator`.

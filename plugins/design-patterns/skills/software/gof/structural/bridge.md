@@ -148,6 +148,6 @@ conditional.
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 151-161.
+- Gamma et al., *Design Patterns* (1994), pp. 151-162.
 - Refactoring Guru, [Bridge](https://refactoring.guru/design-patterns/bridge).
 - Freeman & Robson, *Head First Design Patterns* (2nd ed., 2020), ch. 12.

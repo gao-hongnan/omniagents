@@ -153,6 +153,6 @@ functions, or services when they are not intrinsic to the tree.
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 163-173.
+- Gamma et al., *Design Patterns* (1994), pp. 163-174.
 - Refactoring Guru, [Composite](https://refactoring.guru/design-patterns/composite).
 - Brandon Rhodes, [*python-patterns.guide*, "Composite"](https://python-patterns.guide/gang-of-four/composite/).

@@ -163,7 +163,7 @@ arrives; the codebase pays the indirection cost forever.
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 87-95.
+- Gamma et al., *Design Patterns* (1994), pp. 87-96.
 - Refactoring Guru, [Abstract Factory](https://refactoring.guru/design-patterns/abstract-factory).
 - Brandon Rhodes, [The Factory Method Pattern](https://python-patterns.guide/gang-of-four/factory-method/),
   for the Pythonic pressure toward factories as functions and protocols.

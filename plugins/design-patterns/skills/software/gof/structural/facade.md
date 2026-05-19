@@ -153,6 +153,6 @@ usable, not more.
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 185-193.
+- Gamma et al., *Design Patterns* (1994), pp. 185-194.
 - Refactoring Guru, [Facade](https://refactoring.guru/design-patterns/facade).
 - Freeman & Robson, *Head First Design Patterns* (2nd ed., 2020), ch. 7.

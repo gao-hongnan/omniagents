@@ -138,5 +138,5 @@ bypass the access control and couples them to the implementation the proxy was m
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 207-217.
+- Gamma et al., *Design Patterns* (1994), pp. 207-218.
 - Refactoring Guru, [Proxy](https://refactoring.guru/design-patterns/proxy).

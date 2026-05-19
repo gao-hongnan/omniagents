@@ -137,5 +137,5 @@ A memento that exposes mutable references back to the originator's internal data
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 283-291.
+- Gamma et al., *Design Patterns* (1994), pp. 283-292.
 - Refactoring Guru, [Memento](https://refactoring.guru/design-patterns/memento).

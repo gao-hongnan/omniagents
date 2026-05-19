@@ -124,6 +124,6 @@ Parameterize the bus by event type: one bus per event, or generic `EventBus[Even
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 293-303.
+- Gamma et al., *Design Patterns* (1994), pp. 293-304.
 - Refactoring Guru, [Observer](https://refactoring.guru/design-patterns/observer).
 - Freeman and Robson, *Head First Design Patterns*, 2nd ed., ch. 2.

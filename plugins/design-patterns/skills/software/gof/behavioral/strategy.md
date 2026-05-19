@@ -170,6 +170,6 @@ A Strategy hierarchy with one concrete class and a comment promising flexibility
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 315-323.
+- Gamma et al., *Design Patterns* (1994), pp. 315-324.
 - Refactoring Guru, [Strategy](https://refactoring.guru/design-patterns/strategy).
 - Freeman and Robson, *Head First Design Patterns*, 2nd ed., ch. 1.

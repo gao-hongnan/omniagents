@@ -131,6 +131,6 @@ A `status: str` field with thirty `if status == "X"` checks scattered through th
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 305-313.
+- Gamma et al., *Design Patterns* (1994), pp. 305-314.
 - Refactoring Guru, [State](https://refactoring.guru/design-patterns/state).
 - Brandon Rhodes, *python-patterns.guide*, "State."
