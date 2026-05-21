@@ -56,18 +56,46 @@ In your project, enable each of these APIs:
 - <https://console.cloud.google.com/apis/library/calendar-json.googleapis.com>
 - <https://console.cloud.google.com/apis/library/docs.googleapis.com>
 
-### 3. Create an OAuth 2.0 Client ID
+### 3. Configure the OAuth consent screen
+
+Google requires an OAuth consent screen before you can create the Desktop app
+OAuth client. For personal testing with your own Google account, configure the
+app as an external test app:
+
+1. Go to **Google Auth platform → Branding**.
+2. If prompted that the Google Auth platform is not configured, click
+   **Get Started**.
+3. Under **App Information**:
+   - Set **App name** to `workspace-mcp`.
+   - Set **User support email** to your Google email, ideally the same address
+     you will use for `USER_GOOGLE_EMAIL`.
+4. Under **Audience**:
+   - Choose **External**.
+   - Keep the app in **Testing** mode.
+5. Under **Contact Information**, enter your Google email again for project and
+   app notices.
+6. Under **Finish**, accept the Google API Services User Data Policy and click
+   **Create**.
+7. If you chose **External**, go to **Google Auth platform → Audience** and add
+   your Google email as a **Test user**.
+
+See the official Google Workspace guide for detail:
+<https://developers.google.com/workspace/guides/configure-oauth-consent>
+
+### 4. Create an OAuth 2.0 Client ID
+
+After the consent screen exists:
 
 1. Go to **APIs & Services → Credentials → Create Credentials →
    OAuth client ID**.
 2. Choose **Desktop app** as the application type.
-3. Name it (e.g. `workspace-mcp`).
+3. Name it `workspace-mcp`.
 4. Click **Create** and note the **Client ID** and **Client Secret**.
 
 See the official guide for screenshots and detail:
 <https://developers.google.com/identity/protocols/oauth2/native-app>
 
-### 4. Export the environment variables
+### 5. Export the environment variables
 
 Add these lines to your shell profile (`~/.zshrc` on macOS with zsh):
 
@@ -83,7 +111,7 @@ Then reload:
 source ~/.zshrc
 ```
 
-### 5. Authenticate on first run
+### 6. Authenticate on first run
 
 On first launch the server opens a browser for the OAuth consent flow. Approve
 access; the token is cached locally and subsequent starts do not prompt again.
@@ -128,6 +156,7 @@ uvx workspace-mcp
 
 - [workspace-mcp on PyPI](https://pypi.org/project/workspace-mcp/)
 - [google_workspace_mcp source and docs](https://github.com/taylorwilsdon/google_workspace_mcp)
+- [Google OAuth consent screen configuration](https://developers.google.com/workspace/guides/configure-oauth-consent)
 - [Google OAuth 2.0 for Desktop Apps](https://developers.google.com/identity/protocols/oauth2/native-app)
 - [Google Cloud Console credentials](https://console.cloud.google.com/apis/credentials)
 - [Claude Code MCP configuration](https://docs.anthropic.com/en/docs/claude-code/mcp)
