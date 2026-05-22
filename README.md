@@ -7,22 +7,26 @@ server integrations packaged as installable skills.
 
 ## Plugin catalogue
 
-| Plugin                       | Type        | Skills                                                                                       | Requires           |
-| ---------------------------- | ----------- | -------------------------------------------------------------------------------------------- | ------------------ |
-| `omniagents-python`          | Skills      | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance` | —                  |
-| `omniagents-typescript`      | Skills      | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                          | —                  |
-| `omniagents-design-patterns` | Skills      | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                   | —                  |
-| `omniagents-writing`         | Skills      | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`          | —                  |
-| `code-review-graph`          | MCP (stdio) | Tree-sitter knowledge graph tools                                                            | `uv` on PATH       |
-| `context7`                   | MCP (HTTP)  | Library documentation lookup                                                                 | `CONTEXT7_API_KEY` |
+| Plugin                       | Type        | Skills / Tools                                                                               | Requires                          |
+| ---------------------------- | ----------- | -------------------------------------------------------------------------------------------- | --------------------------------- |
+| `omniagents-python`          | Skills      | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance` | —                                 |
+| `omniagents-typescript`      | Skills      | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                          | —                                 |
+| `omniagents-design-patterns` | Skills      | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                   | —                                 |
+| `omniagents-writing`         | Skills      | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`          | —                                 |
+| `code-review-graph`          | MCP (stdio) | Tree-sitter knowledge graph tools                                                            | `uv` on PATH                      |
+| `context7`                   | MCP (HTTP)  | Library documentation lookup                                                                 | `CONTEXT7_API_KEY`                |
+| `google-workspace`           | MCP (stdio) | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                          | `uv` on PATH + Google OAuth creds |
+| `notifications`              | Hooks       | macOS banner + sound when Claude needs attention                                             | macOS                             |
 
 ---
 
 ## Prerequisites
 
 - Claude Code CLI — `claude --version`
-- For `code-review-graph`: `uv` installed — `uvx --version`
+- For `code-review-graph` and `google-workspace`: `uv` installed — `uvx --version`
 - For `context7`: a Context7 API key from <https://context7.com/dashboard>
+- For `google-workspace`: Google OAuth credentials — see `plugins/google-workspace/README.md`
+- For `notifications`: macOS (uses built-in `osascript`)
 
 ---
 
@@ -51,6 +55,8 @@ claude plugin install omniagents-design-patterns@omniagents
 claude plugin install omniagents-writing@omniagents
 claude plugin install code-review-graph@omniagents
 claude plugin install context7@omniagents
+claude plugin install google-workspace@omniagents
+claude plugin install notifications@omniagents
 ```
 
 ### Scope options
@@ -88,6 +94,8 @@ claude plugin update omniagents-design-patterns@omniagents
 claude plugin update omniagents-writing@omniagents
 claude plugin update code-review-graph@omniagents
 claude plugin update context7@omniagents
+claude plugin update google-workspace@omniagents
+claude plugin update notifications@omniagents
 ```
 
 Inside Claude Code, the equivalent commands are:
@@ -121,6 +129,8 @@ claude plugin uninstall omniagents-design-patterns@omniagents --prune
 claude plugin uninstall omniagents-writing@omniagents --prune
 claude plugin uninstall code-review-graph@omniagents --prune
 claude plugin uninstall context7@omniagents --prune
+claude plugin uninstall google-workspace@omniagents --prune
+claude plugin uninstall notifications@omniagents --prune
 ```
 
 If the plugin was installed with a non-default scope, pass the matching
@@ -204,6 +214,52 @@ URL: https://mcp.context7.com/mcp
 Context7 works without an API key at reduced rate limits, but the plugin is
 configured to send one when present.
 
+### google-workspace
+
+The plugin starts the MCP server via `uvx workspace-mcp`. Three environment
+variables must be exported before launching Claude Code:
+
+```bash
+export GOOGLE_OAUTH_CLIENT_ID="<your-client-id>.apps.googleusercontent.com"
+export GOOGLE_OAUTH_CLIENT_SECRET="<your-client-secret>"
+export USER_GOOGLE_EMAIL="your.email@gmail.com"
+```
+
+Full credential setup (Google Cloud project, OAuth consent screen, client ID)
+is documented in `plugins/google-workspace/README.md`.
+
+On first run the server opens a browser for the OAuth consent flow. The token
+is cached locally; subsequent starts do not prompt again.
+
+Verify:
+
+```bash
+claude mcp get google_workspace
+```
+
+Expected output:
+
+```text
+Scope: Project config (shared via .mcp.json)
+Type: stdio
+Command: uvx
+Args: workspace-mcp
+```
+
+### notifications
+
+No configuration is required beyond installing the plugin on macOS. The hook
+fires automatically via `osascript` whenever Claude Code needs your attention.
+
+Grant notification permission to your terminal app the first time it fires:
+**System Settings → Notifications → [Terminal / iTerm2]**.
+
+Validate the plugin structure:
+
+```bash
+claude plugin validate ./plugins/notifications
+```
+
 ---
 
 ## Verification
@@ -214,7 +270,7 @@ List all active MCP servers:
 claude mcp list
 ```
 
-Both MCP plugins should appear. Inside Claude Code, smoke-test context7 with:
+All MCP plugins should appear. Inside Claude Code, smoke-test context7 with:
 
 ```text
 use context7 mcp to search pydantic
