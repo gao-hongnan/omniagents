@@ -38,6 +38,16 @@
       "name": "context7",
       "source": "./plugins/context7",
       "description": "Context7 MCP: up-to-date library documentation lookup (requires CONTEXT7_API_KEY)"
+    },
+    {
+      "name": "google-workspace",
+      "source": "./plugins/google-workspace",
+      "description": "Google Workspace MCP: Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat (requires uv + Google OAuth creds)"
+    },
+    {
+      "name": "notifications",
+      "source": "./plugins/notifications",
+      "description": "macOS notifications on permission prompts, idle waits, and task completion via Notification + Stop hooks"
     }
   ]
 }
