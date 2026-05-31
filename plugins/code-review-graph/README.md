@@ -25,14 +25,25 @@ The plugin MCP config is in `.mcp.json`:
     "code-review-graph": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["code-review-graph", "serve"]
+      "args": ["--upgrade", "code-review-graph", "serve"]
     }
   }
 }
 ```
 
 `type: "stdio"` makes the transport explicit for Claude Code. Claude starts the
-server process with `uvx code-review-graph serve`.
+server process with `uvx --upgrade code-review-graph serve`.
+
+The `--upgrade` flag tells `uvx` to check PyPI for a newer version before
+launching. If already at the latest version, it starts immediately from cache
+(fast path). This ensures the server auto-updates whenever a new release is
+published without any manual action required.
+
+To force an upgrade outside of Claude:
+
+```bash
+uv tool upgrade code-review-graph
+```
 
 ## Verification
 
