@@ -1,0 +1,19 @@
+{
+  "name": "omniagents-reviewer",
+  "version": "0.1.0",
+  "description": "Multi-specialist code review plugin: parallel correctness, security, performance, design, and testing agents with orchestrator dispatch and verification layer",
+  "author": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "homepage": "https://github.com/gao-hongnan/omniagents",
+  "repository": "https://github.com/gao-hongnan/omniagents",
+  "license": "MIT",
+  "keywords": ["code-review", "security", "performance", "correctness", "design", "testing", "multi-agent"],
+  "dependencies": [
+    { "name": "code-review-graph" },
+    { "name": "omniagents-python" },
+    { "name": "omniagents-typescript" },
+    { "name": "omniagents-design-patterns" }
+  ]
+}

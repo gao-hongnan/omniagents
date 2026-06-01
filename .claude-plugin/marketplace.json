@@ -48,6 +48,16 @@
       "name": "notifications",
       "source": "./plugins/notifications",
       "description": "macOS notifications on permission prompts, idle waits, and task completion via Notification + Stop hooks"
+    },
+    {
+      "name": "omniagents-reviewer",
+      "source": "./plugins/reviewer",
+      "description": "Multi-specialist code reviewer: parallel correctness, security, performance, design, and testing agents with orchestrator dispatch and verification layer"
+    },
+    {
+      "name": "doc-drift",
+      "source": "./plugins/doc-drift",
+      "description": "Documentation drift detection hook: prompts Claude to review docs for stale references after code changes"
     }
   ]
 }

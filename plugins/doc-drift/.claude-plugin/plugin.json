@@ -1,0 +1,13 @@
+{
+  "name": "doc-drift",
+  "version": "0.1.0",
+  "description": "Documentation drift detection hook: alerts when code changes may have stale line numbers, broken file references, or outdated code snippets in docs",
+  "author": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "homepage": "https://github.com/gao-hongnan/omniagents",
+  "repository": "https://github.com/gao-hongnan/omniagents",
+  "license": "MIT",
+  "keywords": ["documentation", "drift", "hooks", "code-review", "maintenance"]
+}
