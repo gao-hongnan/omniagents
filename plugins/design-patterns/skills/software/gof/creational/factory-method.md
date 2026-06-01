@@ -2,24 +2,26 @@
 
 ## Intent
 
-Define an interface for creating an object, but let subclasses or a registered factory function
-decide which class to instantiate. The pattern lets a class defer instantiation without exposing
-the conditional itself.
+Define an interface for creating an object, but let subclasses or a registered
+factory function decide which class to instantiate. The pattern lets a class
+defer instantiation without exposing the conditional itself.
 
 ## Use When
 
-A caller knows it wants "a parser" or "a document" but not which concrete parser or document.
-The decision depends on configuration, input shape, or a framework hook.
+A caller knows it wants "a parser" or "a document" but not which concrete parser
+or document. The decision depends on configuration, input shape, or a framework
+hook.
 
-In Python, the inheritance shape is rarely the right default. Reach for the class-hook form only
-when an external framework demands the Template-Method-style hook. Otherwise, a top-level
-function or registry is clearer.
+In Python, the inheritance shape is rarely the right default. Reach for the
+class-hook form only when an external framework demands the
+Template-Method-style hook. Otherwise, a top-level function or registry is
+clearer.
 
 ## Prefer A Simpler Python Shape When
 
-Factory Method exists because Smalltalk needs the receiver of `new` to be a class, and the only
-way to swap classes was subclassing. Python lets a function return any class, so the factory can
-usually be just a function:
+Factory Method exists because Smalltalk needs the receiver of `new` to be a
+class, and the only way to swap classes was subclassing. Python lets a function
+return any class, so the factory can usually be just a function:
 
 ```python
 from collections.abc import Callable
@@ -63,12 +65,13 @@ def parser_for_dynamic(content_type: str) -> Parser:
     return factory()
 ```
 
-The `match` form keeps dispatch local and obvious; the registry trades exhaustiveness for
-runtime extensibility.
+The `match` form keeps dispatch local and obvious; the registry trades
+exhaustiveness for runtime extensibility.
 
-For plugin or parser registries that dispatch over Pydantic models, prefer a discriminated
-union. Pydantic v2 does the dispatch via `Field(discriminator=...)`; no manual
-`dict[str, type[BaseModel]]` registry is needed.
+For plugin or parser registries that dispatch over Pydantic models, prefer a
+discriminated union. Pydantic v2 does the dispatch via
+`Field(discriminator=...)`; no manual `dict[str, type[BaseModel]]` registry is
+needed.
 
 ```python
 from typing import Annotated, Final, Literal
@@ -125,8 +128,8 @@ classDiagram
 
 ## Strict-Typed Python Sketch
 
-This is the inheritance shape for a framework-imposed hook: subclasses provide the concrete
-document while the base class owns the export algorithm.
+This is the inheritance shape for a framework-imposed hook: subclasses provide
+the concrete document while the base class owns the export algorithm.
 
 ```python
 from abc import ABC, abstractmethod
@@ -170,32 +173,39 @@ class PdfExporter(DocumentExporter):
 
 ## Type-Safety Notes
 
-`@override` catches a misspelled hook, such as `_make_doc` instead of `_make_document`, at
-type-check time. With `mypy --strict` or pyright's `reportImplicitOverride`, missing
-`@override` itself becomes an error. Return the abstract product type from the hook; subclasses
-provide the concrete product.
+`@override` catches a misspelled hook, such as `_make_doc` instead of
+`_make_document`, at type-check time. With `mypy --strict` or pyright's
+`reportImplicitOverride`, missing `@override` itself becomes an error. Return
+the abstract product type from the hook; subclasses provide the concrete
+product.
 
-Discriminated-union dispatch beats a hand-rolled Pydantic registry: invalid discriminator values
-raise `ValidationError` at parse time, and the union shape lets callers `match` exhaustively.
+Discriminated-union dispatch beats a hand-rolled Pydantic registry: invalid
+discriminator values raise `ValidationError` at parse time, and the union shape
+lets callers `match` exhaustively.
 
 ## Common Misuse
 
-A `BaseFactory` with one subclass, called from one site, is accidental architecture. The
-flexibility is theoretical; the cost is real. Inline the construction or commit to the registry
-form.
+A `BaseFactory` with one subclass, called from one site, is accidental
+architecture. The flexibility is theoretical; the cost is real. Inline the
+construction or commit to the registry form.
 
-The inheritance form is also a poor substitute for a plain function. If the creator has no
-algorithm to protect and no framework hook to satisfy, the class hierarchy is noise.
+The inheritance form is also a poor substitute for a plain function. If the
+creator has no algorithm to protect and no framework hook to satisfy, the class
+hierarchy is noise.
 
 ## Real-World Examples
 
-- `unittest.TestLoader.loadTestsFromModule` constructs `TestCase` subclasses by class name.
-- `xml.etree.ElementTree.SubElement(parent, tag)` returns a new element whose concrete class
-  depends on the document's parser configuration.
-- `logging.getLogger(name)` is a factory function with caching: same instance per name.
+- `unittest.TestLoader.loadTestsFromModule` constructs `TestCase` subclasses by
+  class name.
+- `xml.etree.ElementTree.SubElement(parent, tag)` returns a new element whose
+  concrete class depends on the document's parser configuration.
+- `logging.getLogger(name)` is a factory function with caching: same instance
+  per name.
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 107-116.
-- Refactoring Guru, [Factory Method](https://refactoring.guru/design-patterns/factory-method).
-- Brandon Rhodes, [The Factory Method Pattern](https://python-patterns.guide/gang-of-four/factory-method/).
+- Gamma et al., _Design Patterns_ (1994), pp. 107-116.
+- Refactoring Guru,
+  [Factory Method](https://refactoring.guru/design-patterns/factory-method).
+- Brandon Rhodes,
+  [The Factory Method Pattern](https://python-patterns.guide/gang-of-four/factory-method/).

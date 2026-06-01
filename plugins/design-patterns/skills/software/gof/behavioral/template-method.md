@@ -2,19 +2,28 @@
 
 ## Intent
 
-Define the skeleton of an algorithm in an operation, deferring some steps to subclasses. Template Method lets subclasses redefine certain steps without changing the algorithm's structure.
+Define the skeleton of an algorithm in an operation, deferring some steps to
+subclasses. Template Method lets subclasses redefine certain steps without
+changing the algorithm's structure.
 
 ## Use When
 
-Use Template Method when several variants share the same workflow but differ in a few well-defined steps. In modern Python, prefer the composition form unless an external framework or inherited contract forces the inheritance shape.
+Use Template Method when several variants share the same workflow but differ in
+a few well-defined steps. In modern Python, prefer the composition form unless
+an external framework or inherited contract forces the inheritance shape.
 
 ## Prefer A Simpler Python Shape When
 
-Prefer injection/composition for pipelines. A frozen dataclass of callables lets you mix `weekly_aggregate` with `markdown_format` without writing a subclass for every combination. Use Strategy for each varying step when subclassing starts producing `WeeklyMarkdownReport`, `WeeklyCsvReport`, `MonthlyMarkdownReport`, and `MonthlyCsvReport`.
+Prefer injection/composition for pipelines. A frozen dataclass of callables lets
+you mix `weekly_aggregate` with `markdown_format` without writing a subclass for
+every combination. Use Strategy for each varying step when subclassing starts
+producing `WeeklyMarkdownReport`, `WeeklyCsvReport`, `MonthlyMarkdownReport`,
+and `MonthlyCsvReport`.
 
 ## Structure
 
-The base class owns the skeleton; the subclass fills in the abstract steps. The order of calls is fixed by the base.
+The base class owns the skeleton; the subclass fills in the abstract steps. The
+order of calls is fixed by the base.
 
 ```mermaid
 sequenceDiagram
@@ -102,20 +111,31 @@ class ReportPipeline:
 
 ## Type-Safety Notes
 
-`@override` catches misspelled hook methods at type-check time. Strict mypy or pyright can require it. Make abstract hooks return concrete domain types, not `object` or untyped values; the entire point of Template Method is that the skeleton is typed and only the steps vary in known ways.
+`@override` catches misspelled hook methods at type-check time. Strict mypy or
+pyright can require it. Make abstract hooks return concrete domain types, not
+`object` or untyped values; the entire point of Template Method is that the
+skeleton is typed and only the steps vary in known ways.
 
 ## Common Misuse
 
-A base class with twenty hooks, half of which are `raise NotImplementedError` defaults. Subclasses override only three; the rest are silent landmines. Either make hooks `@abstractmethod` or remove the unused ones. Avoid Template Method when subclasses need to override the skeleton itself; that is regular subclassing.
+A base class with twenty hooks, half of which are `raise NotImplementedError`
+defaults. Subclasses override only three; the rest are silent landmines. Either
+make hooks `@abstractmethod` or remove the unused ones. Avoid Template Method
+when subclasses need to override the skeleton itself; that is regular
+subclassing.
 
 ## Real-World Examples
 
-- `unittest.TestCase`: `setUp`, `tearDown`, and `runTest` are Template Method hooks; the runner owns the skeleton.
-- `json.JSONEncoder.default(o)`: the encoder owns the serialization workflow; subclasses override `default` to handle custom types.
-- `http.server.BaseHTTPRequestHandler.handle()` calls `do_GET`, `do_POST`, and related hooks by HTTP method.
+- `unittest.TestCase`: `setUp`, `tearDown`, and `runTest` are Template Method
+  hooks; the runner owns the skeleton.
+- `json.JSONEncoder.default(o)`: the encoder owns the serialization workflow;
+  subclasses override `default` to handle custom types.
+- `http.server.BaseHTTPRequestHandler.handle()` calls `do_GET`, `do_POST`, and
+  related hooks by HTTP method.
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 325-330.
-- Refactoring Guru, [Template Method](https://refactoring.guru/design-patterns/template-method).
-- Freeman and Robson, *Head First Design Patterns*, 2nd ed., ch. 8.
+- Gamma et al., _Design Patterns_ (1994), pp. 325-330.
+- Refactoring Guru,
+  [Template Method](https://refactoring.guru/design-patterns/template-method).
+- Freeman and Robson, _Head First Design Patterns_, 2nd ed., ch. 8.

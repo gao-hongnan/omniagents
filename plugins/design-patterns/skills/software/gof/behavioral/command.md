@@ -2,15 +2,22 @@
 
 ## Intent
 
-Encapsulate a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations. Command turns "call a method" into "construct a value that represents calling a method later."
+Encapsulate a request as an object, thereby letting you parameterize clients
+with different requests, queue or log requests, and support undoable operations.
+Command turns "call a method" into "construct a value that represents calling a
+method later."
 
 ## Use When
 
-Use Command when at least one requirement is real: queueing work, recording what happened for audit, supporting undo, supporting multiple invokers such as CLI/HTTP/gRPC against the same action, or retrying with idempotency.
+Use Command when at least one requirement is real: queueing work, recording what
+happened for audit, supporting undo, supporting multiple invokers such as
+CLI/HTTP/gRPC against the same action, or retrying with idempotency.
 
 ## Prefer A Simpler Python Shape When
 
-Use a synchronous method call when the action does not need queuing, audit, undo, retry, or multi-invoker support. `service.place_order(...)` is fine; promote it to a Command only when one of those requirements becomes real.
+Use a synchronous method call when the action does not need queuing, audit,
+undo, retry, or multi-invoker support. `service.place_order(...)` is fine;
+promote it to a Command only when one of those requirements becomes real.
 
 ## Structure
 
@@ -39,9 +46,13 @@ sequenceDiagram
 
 ## Strict-Typed Python Sketch
 
-Command has two genuinely different flavors. Pick by where the command originates.
+Command has two genuinely different flavors. Pick by where the command
+originates.
 
-Boundary commands are Pydantic-primary because most real commands cross a trust boundary: they arrive as JSON on a queue, an HTTP body, or a CLI argument set. Pydantic v2 with `Annotated[T, Field(...)]` enforces invariants at parse time, so the handler can trust its input.
+Boundary commands are Pydantic-primary because most real commands cross a trust
+boundary: they arrive as JSON on a queue, an HTTP body, or a CLI argument set.
+Pydantic v2 with `Annotated[T, Field(...)]` enforces invariants at parse time,
+so the handler can trust its input.
 
 ```python
 from dataclasses import dataclass
@@ -130,9 +141,14 @@ def dispatch(
             assert_never(command)
 ```
 
-`_ORDER_COMMAND.validate_json(payload)` raises `pydantic.ValidationError` on a malformed payload before a handler ever runs. The `match` is exhaustive because the discriminated union is closed; adding `RefundOrderCommand` triggers a checker error at `assert_never`.
+`_ORDER_COMMAND.validate_json(payload)` raises `pydantic.ValidationError` on a
+malformed payload before a handler ever runs. The `match` is exhaustive because
+the discriminated union is closed; adding `RefundOrderCommand` triggers a
+checker error at `assert_never`.
 
-For in-process undo commands, use frozen dataclasses. When the command never crosses a boundary, the dataclass form is simpler and faster: no validator overhead, no schema, no JSON round-trip.
+For in-process undo commands, use frozen dataclasses. When the command never
+crosses a boundary, the dataclass form is simpler and faster: no validator
+overhead, no schema, no JSON round-trip.
 
 ```python
 from dataclasses import dataclass
@@ -157,24 +173,42 @@ class InsertText:
         return state[: self.position] + state[end :]
 ```
 
-Pick `BaseModel` when the command originates outside the process: queue, HTTP, CLI, or file. Pick `@dataclass(frozen=True)` when the command is constructed and consumed in-process: undo stack, in-memory replay, or GUI command queue. Mixing is fine: `OrderCommand` may sit at the boundary while a `History[InsertText]` undo stack lives entirely in-process.
+Pick `BaseModel` when the command originates outside the process: queue, HTTP,
+CLI, or file. Pick `@dataclass(frozen=True)` when the command is constructed and
+consumed in-process: undo stack, in-memory replay, or GUI command queue. Mixing
+is fine: `OrderCommand` may sit at the boundary while a `History[InsertText]`
+undo stack lives entirely in-process.
 
 ## Type-Safety Notes
 
-Pydantic-primary commands give you parse-time invariants: `Annotated[int, Field(gt=0)]` is checked at `validate_json`, not at handler entry. Use a `Literal` discriminator field plus `Field(discriminator=...)` so `match` over the union is exhaustive and `assert_never` catches missing cases. Keep `extra="forbid"` on every command model to reject unknown fields in payloads. PEP 695 generic protocols (`CommandHandler[CommandT, ResultT]`) keep handler-command pairs aligned; the `match`-over-discriminated-union form removes the legacy `cast` that a `type[Command] -> Handler` registry would otherwise need.
+Pydantic-primary commands give you parse-time invariants:
+`Annotated[int, Field(gt=0)]` is checked at `validate_json`, not at handler
+entry. Use a `Literal` discriminator field plus `Field(discriminator=...)` so
+`match` over the union is exhaustive and `assert_never` catches missing cases.
+Keep `extra="forbid"` on every command model to reject unknown fields in
+payloads. PEP 695 generic protocols (`CommandHandler[CommandT, ResultT]`) keep
+handler-command pairs aligned; the `match`-over-discriminated-union form removes
+the legacy `cast` that a `type[Command] -> Handler` registry would otherwise
+need.
 
 ## Common Misuse
 
-A "Command" class that is just function-call indirection, with no queuing, audit, undo, retry, or multi-invoker requirement. That adds Command and Handler classes where one function would do. Do not make in-process commands `BaseModel` "for consistency"; you pay validator cost on every construction for invariants already enforced upstream.
+A "Command" class that is just function-call indirection, with no queuing,
+audit, undo, retry, or multi-invoker requirement. That adds Command and Handler
+classes where one function would do. Do not make in-process commands `BaseModel`
+"for consistency"; you pay validator cost on every construction for invariants
+already enforced upstream.
 
 ## Real-World Examples
 
 - Celery tasks: each `@task` is a Command; the queue is the invoker.
-- Click `Command` and `Group`: each subcommand is a callable Command parameterized by parsed arguments.
-- `concurrent.futures.Executor.submit(fn, *args)`: the submitted call is a Command; the future is the result handle.
+- Click `Command` and `Group`: each subcommand is a callable Command
+  parameterized by parsed arguments.
+- `concurrent.futures.Executor.submit(fn, *args)`: the submitted call is a
+  Command; the future is the result handle.
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 233-242.
+- Gamma et al., _Design Patterns_ (1994), pp. 233-242.
 - Refactoring Guru, [Command](https://refactoring.guru/design-patterns/command).
-- Freeman and Robson, *Head First Design Patterns*, 2nd ed., ch. 6.
+- Freeman and Robson, _Head First Design Patterns_, 2nd ed., ch. 6.

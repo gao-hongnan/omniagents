@@ -2,19 +2,27 @@
 
 ## Intent
 
-Define a family of algorithms, encapsulate each one, and make them interchangeable. Strategy lets the algorithm vary independently from the clients that use it.
+Define a family of algorithms, encapsulate each one, and make them
+interchangeable. Strategy lets the algorithm vary independently from the clients
+that use it.
 
 ## Use When
 
-Use Strategy whenever behavior varies along an axis the caller should control: sort order, pricing rule, retry policy, compression algorithm, or serialization format. If the variation is "what code runs," you probably have a Strategy.
+Use Strategy whenever behavior varies along an axis the caller should control:
+sort order, pricing rule, retry policy, compression algorithm, or serialization
+format. If the variation is "what code runs," you probably have a Strategy.
 
 ## Prefer A Simpler Python Shape When
 
-Do not pre-invent an interface when only one strategy exists. Write the concrete code and extract a strategy when the second case shows up. If the strategy has zero parameters and no behavior beyond returning a fixed value, it is a constant, not a strategy.
+Do not pre-invent an interface when only one strategy exists. Write the concrete
+code and extract a strategy when the second case shows up. If the strategy has
+zero parameters and no behavior beyond returning a fixed value, it is a
+constant, not a strategy.
 
 ## Structure
 
-Caller delegates the algorithm to the strategy without knowing which strategy it is.
+Caller delegates the algorithm to the strategy without knowing which strategy it
+is.
 
 ```mermaid
 sequenceDiagram
@@ -30,7 +38,8 @@ sequenceDiagram
 
 ## Strict-Typed Python Sketch
 
-A plain `Callable` is the right strategy in Python. Save `Protocol` for when the strategy has state, multiple methods, or associated data.
+A plain `Callable` is the right strategy in Python. Save `Protocol` for when the
+strategy has state, multiple methods, or associated data.
 
 ```python
 from collections.abc import Callable
@@ -73,7 +82,8 @@ def checkout(order: Order, price: PricingStrategy) -> int:
     return price(order)
 ```
 
-Use a Protocol when the strategy has setup, teardown, shared state, or multiple related methods.
+Use a Protocol when the strategy has setup, teardown, shared state, or multiple
+related methods.
 
 ```python
 from typing import Protocol
@@ -111,7 +121,9 @@ class ZstdStrategy:
         return zstandard.ZstdDecompressor().decompress(data)
 ```
 
-When strategy configuration crosses a boundary, validate the configuration with Pydantic, then construct the strategy from it. Do not make the strategy callable itself a `BaseModel`.
+When strategy configuration crosses a boundary, validate the configuration with
+Pydantic, then construct the strategy from it. Do not make the strategy callable
+itself a `BaseModel`.
 
 ```python
 from pydantic import BaseModel, ConfigDict, Field
@@ -133,7 +145,8 @@ def make_retry_strategy(policy: RetryPolicy) -> Callable[[int], float]:
     return delay_for
 ```
 
-Rust contrast: when strategies form a closed set, Rust prefers an `enum` over `Box<dyn Trait>`.
+Rust contrast: when strategies form a closed set, Rust prefers an `enum` over
+`Box<dyn Trait>`.
 
 ```rust
 enum CompressionStrategy {
@@ -151,25 +164,36 @@ impl CompressionStrategy {
 }
 ```
 
-In Python, the analogue is discriminated union plus `match` for closed strategies, and `Protocol` for open ones. Closed sets get exhaustiveness; open sets get extensibility.
+In Python, the analogue is discriminated union plus `match` for closed
+strategies, and `Protocol` for open ones. Closed sets get exhaustiveness; open
+sets get extensibility.
 
 ## Type-Safety Notes
 
-`type PricingStrategy = Callable[[Order], int]` documents the shape at every call site. Protocols earn their cost when the strategy has multiple methods, configuration, or state. Avoid creating a Protocol with one `apply()` method; that is just a `Callable` with extra ceremony.
+`type PricingStrategy = Callable[[Order], int]` documents the shape at every
+call site. Protocols earn their cost when the strategy has multiple methods,
+configuration, or state. Avoid creating a Protocol with one `apply()` method;
+that is just a `Callable` with extra ceremony.
 
 ## Common Misuse
 
-A Strategy hierarchy with one concrete class and a comment promising flexibility. Either delete the abstraction or commit to adding the second strategy now.
+A Strategy hierarchy with one concrete class and a comment promising
+flexibility. Either delete the abstraction or commit to adding the second
+strategy now.
 
 ## Real-World Examples
 
 - `sorted(items, key=lambda x: x.priority)`: `key` is a Strategy.
-- `requests.Session(adapter=HTTPAdapter(...))`: the adapter is the connection-handling Strategy.
-- `pandas.DataFrame.merge(how="left" | "right" | "inner" | "outer")`: internally dispatched by Strategy.
-- `re.sub(pattern, repl, ...)` where `repl` is a function: Strategy for replacement.
+- `requests.Session(adapter=HTTPAdapter(...))`: the adapter is the
+  connection-handling Strategy.
+- `pandas.DataFrame.merge(how="left" | "right" | "inner" | "outer")`: internally
+  dispatched by Strategy.
+- `re.sub(pattern, repl, ...)` where `repl` is a function: Strategy for
+  replacement.
 
 ## References
 
-- Gamma et al., *Design Patterns* (1994), pp. 315-324.
-- Refactoring Guru, [Strategy](https://refactoring.guru/design-patterns/strategy).
-- Freeman and Robson, *Head First Design Patterns*, 2nd ed., ch. 1.
+- Gamma et al., _Design Patterns_ (1994), pp. 315-324.
+- Refactoring Guru,
+  [Strategy](https://refactoring.guru/design-patterns/strategy).
+- Freeman and Robson, _Head First Design Patterns_, 2nd ed., ch. 1.
