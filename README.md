@@ -1,32 +1,36 @@
 # omniagents
 
-A Claude Code plugin suite — coding conventions, design patterns, and MCP
-server integrations packaged as installable skills.
+A Claude Code plugin suite — coding conventions, design patterns, and MCP server
+integrations packaged as installable skills.
 
 ---
 
 ## Plugin catalogue
 
-| Plugin                       | Type        | Skills / Tools                                                                               | Requires                          |
-| ---------------------------- | ----------- | -------------------------------------------------------------------------------------------- | --------------------------------- |
-| `omniagents-python`          | Skills      | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance` | —                                 |
-| `omniagents-typescript`      | Skills      | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                          | —                                 |
-| `omniagents-design-patterns` | Skills      | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                   | —                                 |
-| `omniagents-writing`         | Skills      | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`          | —                                 |
-| `code-review-graph`          | MCP (stdio) | Tree-sitter knowledge graph tools                                                            | `uv` on PATH                      |
-| `context7`                   | MCP (HTTP)  | Library documentation lookup                                                                 | `CONTEXT7_API_KEY`                |
-| `google-workspace`           | MCP (stdio) | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                          | `uv` on PATH + Google OAuth creds |
-| `notifications`              | Hooks       | macOS banner + sound when Claude needs attention                                             | macOS                             |
+| Plugin                       | Type        | Skills / Tools                                                                                                   | Requires                          |
+| ---------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `omniagents-python`          | Skills      | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                     | —                                 |
+| `omniagents-typescript`      | Skills      | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                              | —                                 |
+| `omniagents-design-patterns` | Skills      | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                       | —                                 |
+| `omniagents-writing`         | Skills      | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`                              | —                                 |
+| `code-review-graph`          | MCP (stdio) | Tree-sitter knowledge graph tools                                                                                | `uv` on PATH                      |
+| `context7`                   | MCP (HTTP)  | Library documentation lookup                                                                                     | `CONTEXT7_API_KEY`                |
+| `google-workspace`           | MCP (stdio) | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                              | `uv` on PATH + Google OAuth creds |
+| `notifications`              | Hooks       | macOS banner + sound when Claude needs attention                                                                 | macOS                             |
+| `doc-drift`                  | Hooks       | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams) | `git` + `bash`                    |
 
 ---
 
 ## Prerequisites
 
 - Claude Code CLI — `claude --version`
-- For `code-review-graph` and `google-workspace`: `uv` installed — `uvx --version`
+- For `code-review-graph` and `google-workspace`: `uv` installed —
+  `uvx --version`
 - For `context7`: a Context7 API key from <https://context7.com/dashboard>
-- For `google-workspace`: Google OAuth credentials — see `plugins/google-workspace/README.md`
+- For `google-workspace`: Google OAuth credentials — see
+  `plugins/google-workspace/README.md`
 - For `notifications`: macOS (uses built-in `osascript`)
+- For `doc-drift`: `git` and `bash` (standard on macOS/Linux)
 
 ---
 
@@ -57,6 +61,7 @@ claude plugin install code-review-graph@omniagents
 claude plugin install context7@omniagents
 claude plugin install google-workspace@omniagents
 claude plugin install notifications@omniagents
+claude plugin install doc-drift@omniagents
 ```
 
 ### Scope options
@@ -78,8 +83,7 @@ claude plugin install omniagents-python@omniagents --scope project
 ## Updating installed plugins
 
 If a plugin is already installed, running `claude plugin install ...` again is
-expected to report that it is already installed. Install is not the update
-path.
+expected to report that it is already installed. Install is not the update path.
 
 Marketplace update only refreshes the catalogue; it does not install plugins
 that are not already installed.
@@ -96,6 +100,7 @@ claude plugin update code-review-graph@omniagents
 claude plugin update context7@omniagents
 claude plugin update google-workspace@omniagents
 claude plugin update notifications@omniagents
+claude plugin update doc-drift@omniagents
 ```
 
 Inside Claude Code, the equivalent commands are:
@@ -131,6 +136,7 @@ claude plugin uninstall code-review-graph@omniagents --prune
 claude plugin uninstall context7@omniagents --prune
 claude plugin uninstall google-workspace@omniagents --prune
 claude plugin uninstall notifications@omniagents --prune
+claude plugin uninstall doc-drift@omniagents --prune
 ```
 
 If the plugin was installed with a non-default scope, pass the matching
@@ -154,8 +160,8 @@ claude plugin uninstall omniagents-python@omniagents --prune --keep-data
 
 ### code-review-graph
 
-The plugin starts the server automatically via `uvx code-review-graph serve`.
-No extra configuration is needed beyond having `uv` on your PATH.
+The plugin starts the server automatically via `uvx code-review-graph serve`. No
+extra configuration is needed beyond having `uv` on your PATH.
 
 Verify:
 
@@ -225,11 +231,11 @@ export GOOGLE_OAUTH_CLIENT_SECRET="<your-client-secret>"
 export USER_GOOGLE_EMAIL="your.email@gmail.com"
 ```
 
-Full credential setup (Google Cloud project, OAuth consent screen, client ID)
-is documented in `plugins/google-workspace/README.md`.
+Full credential setup (Google Cloud project, OAuth consent screen, client ID) is
+documented in `plugins/google-workspace/README.md`.
 
-On first run the server opens a browser for the OAuth consent flow. The token
-is cached locally; subsequent starts do not prompt again.
+On first run the server opens a browser for the OAuth consent flow. The token is
+cached locally; subsequent starts do not prompt again.
 
 Verify:
 
@@ -258,6 +264,20 @@ Validate the plugin structure:
 
 ```bash
 claude plugin validate ./plugins/notifications
+```
+
+### doc-drift
+
+No configuration is required. A single **Stop** hook checks `git diff` for
+uncommitted source-file changes; if found, it prompts Claude to review
+documentation for stale references and fix any drift.
+
+Requirements: `git` and `bash` (standard on macOS/Linux).
+
+Validate the plugin structure:
+
+```bash
+claude plugin validate ./plugins/doc-drift
 ```
 
 ---
