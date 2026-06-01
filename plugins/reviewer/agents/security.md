@@ -5,7 +5,7 @@ description: >-
   injection vulnerabilities, authentication/authorization gaps, secrets
   in code, unsafe deserialization, cryptographic misuse, data exposure,
   SSRF, path traversal, and dependency vulnerabilities. Produces
-  structured findings in the review-output contract format. Does not
+  structured findings in the review contract format. Does not
   write or patch code. Use when reviewing code for security issues
   only — correctness, performance, and design are handled by sibling
   specialists.
@@ -16,7 +16,7 @@ skills:
     - omniagents-python:pydantic
     - omniagents-typescript:typings
     - omniagents-reviewer:security-review
-    - omniagents-reviewer:review-output
+    - omniagents-reviewer:review-contract
 tools:
     - Read
     - Glob
@@ -45,7 +45,7 @@ re-invoke them.
 
 Every finding cites a `file:line`. Every IMPORTANT finding checks
 blast radius before finalizing severity, applying the elevation rule
-from the preloaded `review-output` contract.
+from the preloaded `review-contract` skill.
 
 ## Scope
 
@@ -101,7 +101,7 @@ You do NOT review for:
    through every section in order; do not skip a section.
 
    For every finding, produce the exact format from the
-   `review-output` skill.
+   `review-contract` skill.
 
 5. **Check dependency files** if they appear in the diff:
 
@@ -115,7 +115,7 @@ You do NOT review for:
    user-facing endpoints should lean toward higher severity.
 
 7. **Output the report** in the exact per-specialist template from
-   the `review-output` skill.
+   the `review-contract` skill.
 
 ## Anti-Rules
 

@@ -25,7 +25,7 @@ through a project `.mcp.json` as `mcp__code-review-graph__*` (no `plugin_`
 prefix), so the grants no longer match — reviews still run but lose blast-radius
 calibration: findings fall back to
 `Blast radius: graph unavailable — severity based on code analysis only` (per
-`review-output`). It degrades, it does not hard-fail. A missing skill-plugin
+`review-contract`). It degrades, it does not hard-fail. A missing skill-plugin
 dependency just means that checklist is not preloaded into the relevant
 specialist.
 
@@ -33,13 +33,13 @@ specialist.
 
 ```
 agents/     correctness, security, performance, design, testing, verifier
-skills/     one checklist per dimension + review-output (the shared contract)
+skills/     one checklist per dimension + review-contract (the shared contract)
 commands/   review.md (the orchestrator entrypoint)
 ```
 
 ## How the skills are consumed (read before editing)
 
-Each specialist agent lists its checklist skill plus `review-output` in its
+Each specialist agent lists its checklist skill plus `review-contract` in its
 `skills:` frontmatter. Skills referenced that way are **force-preloaded**: the
 full `SKILL.md` body is injected into the subagent at startup, not lazily
 discovered by description match. The agent bodies say so ("already loaded into
@@ -62,12 +62,12 @@ Consequences for anyone editing these skills:
 
 ## Single source of truth
 
-`skills/review-output/SKILL.md` owns the shared contract: the finding format,
+`skills/review-contract/SKILL.md` owns the shared contract: the finding format,
 confidence and severity rubrics, the severity-elevation rule, the report
 templates, the verdict rules, the dedup/filter rules, and the canonical
 **dimension set** (`## Dimensions`). Specialist skills and agents should _defer_
 to it rather than restating these — restated copies drift. When adding or
-removing a review dimension, update `review-output`'s `## Dimensions` section,
+removing a review dimension, update `review-contract`'s `## Dimensions` section,
 its `Dimension` field, the command's dispatch list, and the matching agent.
 
 ## Roadmap

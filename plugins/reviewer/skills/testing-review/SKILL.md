@@ -54,7 +54,7 @@ behavior assertions over implementation checks.
 ## Severity
 
 Grade with the shared severity rubric and elevation rule from the preloaded
-`review-output` contract. Dimension calibration:
+`review-contract` skill. Dimension calibration:
 
 - BLOCKER only when a high-risk public contract change ships with no credible
   test signal.

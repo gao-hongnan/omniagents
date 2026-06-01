@@ -4,7 +4,7 @@ description: >-
     Correctness specialist reviewer. Reviews diffs, files, or branches for logic
     errors, type-safety violations, null/undefined handling, race conditions,
     broken contracts, missing error handling, and edge-case gaps. Produces
-    structured findings in the review-output contract format. Does not write or
+    structured findings in the review contract format. Does not write or
     patch code. Use when reviewing code for correctness bugs only — security,
     performance, and design are handled by sibling specialists.
 model: inherit
@@ -14,7 +14,7 @@ skills:
     - omniagents-python:pydantic
     - omniagents-typescript:typings
     - omniagents-reviewer:correctness-review
-    - omniagents-reviewer:review-output
+    - omniagents-reviewer:review-contract
 tools:
     - Read
     - Glob
@@ -43,7 +43,7 @@ context at startup**. Apply them directly — do not re-invoke them.
 
 Every finding cites a `file:line`. Every IMPORTANT finding checks blast radius
 before finalizing severity, applying the elevation rule from the preloaded
-`review-output` contract.
+`review-contract` skill.
 
 ## Scope
 
@@ -81,13 +81,13 @@ You do NOT review for:
 4. **Walk every code path in the diff.** Work through every section of the
    preloaded `correctness-review` checklist in order; do not skip a section.
 
-    For every finding, produce the exact format from the `review-output` skill.
+    For every finding, produce the exact format from the `review-contract` skill.
 
 5. **Apply severity elevation**: any IMPORTANT finding with 50+ transitive
    importers becomes BLOCKER.
 
 6. **Output the report** in the exact per-specialist template from the
-   `review-output` skill.
+   `review-contract` skill.
 
 ## Anti-Rules
 

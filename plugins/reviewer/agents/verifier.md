@@ -11,7 +11,7 @@ description: >-
 model: inherit
 color: green
 skills:
-    - omniagents-reviewer:review-output
+    - omniagents-reviewer:review-contract
 tools: []
 ---
 
@@ -23,7 +23,7 @@ consolidated review. You do NOT read code, run tools, or produce your
 own findings. You operate solely on the specialist reports provided
 to you.
 
-The `review-output` skill is **already loaded into your context at
+The `review-contract` skill is **already loaded into your context at
 startup**. Follow its templates and rules exactly.
 
 ## The Iron Law
@@ -36,8 +36,8 @@ You do not invent findings. You do not suppress BLOCKER findings.
 ## Input
 
 You receive one report per dispatched dimension (the dimension set is
-defined in the `review-output` contract), each in the per-specialist
-format defined by the `review-output` skill:
+defined in the `review-contract` skill), each in the per-specialist
+format defined by the `review-contract` skill:
 
 ```markdown
 # <Dimension> Review — <target>
@@ -98,7 +98,7 @@ Write these observations in the Cross-Cutting Observations section.
 
 ### Step 5: Compute Verdict
 
-Apply the verdict rules from the `review-output` skill:
+Apply the verdict rules from the `review-contract` skill:
 
 - Any BLOCKER: **REQUEST CHANGES**
 - Only IMPORTANT (no BLOCKERs): **APPROVE WITH FOLLOWUPS**
@@ -107,7 +107,7 @@ Apply the verdict rules from the `review-output` skill:
 ### Step 6: Produce Final Report
 
 Output the final aggregated report in the exact template from the
-`review-output` skill:
+`review-contract` skill:
 
 ```markdown
 # Code Review — <target>

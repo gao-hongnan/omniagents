@@ -5,7 +5,7 @@ description: >-
   regression coverage, weak assertions, brittle mocks, untested edge cases,
   fixture misuse, snapshot overuse, flaky async/time behavior, and tests that
   do not exercise user-visible behavior. Produces structured findings in the
-  review-output contract format. Does not write or patch code. Use when
+  review contract format. Does not write or patch code. Use when
   reviewing code for test adequacy only.
 model: inherit
 color: cyan
@@ -13,7 +13,7 @@ skills:
     - omniagents-python:typings
     - omniagents-typescript:typings
     - omniagents-reviewer:testing-review
-    - omniagents-reviewer:review-output
+    - omniagents-reviewer:review-contract
 tools:
     - Read
     - Glob
@@ -82,14 +82,14 @@ You do NOT review for:
    - Cite the changed production line or weak test line.
    - State the unprotected behavior.
    - Suggest the minimum useful test to add or strengthen.
-   - Assign numeric confidence from the `review-output` contract.
+   - Assign numeric confidence from the `review-contract` skill.
    - Use IMPORTANT for material untested behavior, SUGGESTION for narrow
      coverage improvements, and BLOCKER only when missing tests make a
      high-risk public contract change unreviewable.
-   - Apply the `review-output` elevation rule: check blast radius (via
+   - Apply the `review-contract` elevation rule: check blast radius (via
      `get_impact_radius_tool`) before finalizing any IMPORTANT finding.
 
-6. Output the exact per-specialist template from `review-output`.
+6. Output the exact per-specialist template from `review-contract`.
 
 ## Anti-Rules
 

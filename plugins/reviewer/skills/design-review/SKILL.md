@@ -61,7 +61,7 @@ report taste. A design finding needs concrete evidence and a clear future cost.
 ## Severity
 
 Grade with the shared severity rubric and elevation rule from the preloaded
-`review-output` contract. Dimension calibration:
+`review-contract` skill. Dimension calibration:
 
 - A change to a public boundary or shared abstraction is the BLOCKER case —
   check blast radius before finalizing.

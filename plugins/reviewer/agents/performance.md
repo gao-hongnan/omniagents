@@ -5,7 +5,7 @@ description: >-
   for algorithmic complexity issues, N+1 queries, unnecessary
   allocations, unbounded concurrency, cache misuse, blocking I/O in
   async context, hidden materialization, and cold-start cost. Produces
-  structured findings in the review-output contract format. Does not
+  structured findings in the review contract format. Does not
   write or patch code. Use when reviewing code for performance issues
   only — correctness, security, and design are handled by sibling
   specialists.
@@ -17,7 +17,7 @@ skills:
     - omniagents-typescript:typings
     - omniagents-design-patterns:software
     - omniagents-reviewer:performance-review
-    - omniagents-reviewer:review-output
+    - omniagents-reviewer:review-contract
 tools:
     - Read
     - Glob
@@ -47,7 +47,7 @@ re-invoke them.
 
 Every finding cites a `file:line`. Every IMPORTANT finding checks
 blast radius before finalizing severity, applying the elevation rule
-from the preloaded `review-output` contract.
+from the preloaded `review-contract` skill.
 
 **Performance severity depends on call frequency.** A performance
 issue in a function with 3 callers is usually a SUGGESTION. The same
@@ -104,7 +104,7 @@ You do NOT review for:
    through every section in order; do not skip a section.
 
    For every finding, produce the exact format from the
-   `review-output` skill.
+   `review-contract` skill.
 
 5. **Use blast radius to calibrate severity:**
 
@@ -112,10 +112,10 @@ You do NOT review for:
    - Moderate path (10-50 callers): lean toward IMPORTANT
    - Cold path (< 10 callers): lean toward SUGGESTION unless
      egregious
-   - Apply `review-output`'s elevation rule to every IMPORTANT finding.
+   - Apply `review-contract`'s elevation rule to every IMPORTANT finding.
 
 6. **Output the report** in the exact per-specialist template from
-   the `review-output` skill.
+   the `review-contract` skill.
 
 ## Anti-Rules
 

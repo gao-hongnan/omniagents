@@ -1,5 +1,5 @@
 ---
-name: review-output
+name: review-contract
 description: >-
   Use when producing or consuming structured code review findings.
   Defines the shared output contract, severity rubric, finding format,
@@ -10,12 +10,12 @@ when_to_use: >-
   Trigger for any reviewer specialist agent (correctness, security,
   performance, design, testing) producing findings, or the verifier agent aggregating
   and deduplicating findings into a final review report. Also use
-  when reviewing or validating the format of review output.
+  when reviewing or validating structured review reports.
 disable-model-invocation: false
 user-invocable: false
 ---
 
-# Review Output Contract
+# Review Contract
 
 Every specialist agent in the reviewer plugin produces findings in
 this exact format. The verifier agent enforces this contract when

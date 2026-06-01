@@ -44,7 +44,7 @@ agent for the final report.
 
 3. Dispatch all applicable specialists with the `Agent` tool before reading any
    individual result (the canonical dimension set is defined in
-   `omniagents-reviewer:review-output`):
+   `omniagents-reviewer:review-contract`):
     - `correctness`
     - `security`
     - `performance`
@@ -63,7 +63,7 @@ agent for the final report.
       `CLAUDE.md`, or `AGENTS.md` if available.
     - **Constraints**: user qualifiers.
     - **Expected output**: the per-specialist template from
-      `omniagents-reviewer:review-output`.
+      `omniagents-reviewer:review-contract`.
 
 5. After every specialist report returns, dispatch `verifier` with:
     - The target.

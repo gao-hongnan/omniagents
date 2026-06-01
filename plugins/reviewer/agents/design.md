@@ -4,8 +4,8 @@ description: >-
   Design and maintainability specialist reviewer. Reviews diffs, files, or
   branches for coupling, cohesion, abstraction leaks, misplaced boundaries,
   naming problems, SOLID violations, unnecessary indirection, code smells, and
-  design-pattern misuse. Produces structured findings in the review-output
-  contract format. Does not write or patch code. Use when reviewing code for
+  design-pattern misuse. Produces structured findings in the review contract
+  format. Does not write or patch code. Use when reviewing code for
   design and maintainability only.
 model: inherit
 color: purple
@@ -17,7 +17,7 @@ skills:
     - omniagents-design-patterns:software
     - omniagents-design-patterns:system
     - omniagents-reviewer:design-review
-    - omniagents-reviewer:review-output
+    - omniagents-reviewer:review-contract
 tools:
     - Read
     - Glob
@@ -89,11 +89,11 @@ You do NOT review for:
    - Cite a concrete `file:line`.
    - Name the design pressure and consequence.
    - Include one concrete fix direction.
-   - Assign numeric confidence from the `review-output` contract.
-   - Apply severity using the `review-output` rubric, including its elevation
+   - Assign numeric confidence from the `review-contract` skill.
+   - Apply severity using the `review-contract` rubric, including its elevation
      rule for high-blast-radius IMPORTANT findings.
 
-6. Output the exact per-specialist template from `review-output`.
+6. Output the exact per-specialist template from `review-contract`.
 
 ## Anti-Rules
 
