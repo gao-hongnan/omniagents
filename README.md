@@ -7,17 +7,18 @@ integrations packaged as installable skills.
 
 ## Plugin catalogue
 
-| Plugin                       | Type        | Skills / Tools                                                                                                   | Requires                          |
-| ---------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| `omniagents-python`          | Skills      | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                     | —                                 |
-| `omniagents-typescript`      | Skills      | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                              | —                                 |
-| `omniagents-design-patterns` | Skills      | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                       | —                                 |
-| `omniagents-writing`         | Skills      | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`                              | —                                 |
-| `code-review-graph`          | MCP (stdio) | Tree-sitter knowledge graph tools                                                                                | `uv` on PATH                      |
-| `context7`                   | MCP (HTTP)  | Library documentation lookup                                                                                     | `CONTEXT7_API_KEY`                |
-| `google-workspace`           | MCP (stdio) | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                              | `uv` on PATH + Google OAuth creds |
-| `notifications`              | Hooks       | macOS banner + sound when Claude needs attention                                                                 | macOS                             |
-| `doc-drift`                  | Hooks       | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams) | `git` + `bash`                    |
+| Plugin                       | Type             | Skills / Tools                                                                                                   | Requires                                                                                        |
+| ---------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `omniagents-python`          | Skills           | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                     | —                                                                                               |
+| `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                              | —                                                                                               |
+| `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                       | —                                                                                               |
+| `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`                              | —                                                                                               |
+| `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — parallel correctness, security, performance, design, testing agents + verifier   | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
+| `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                | `uv` on PATH                                                                                    |
+| `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                     | `CONTEXT7_API_KEY`                                                                              |
+| `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                              | `uv` on PATH + Google OAuth creds                                                               |
+| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                 | macOS                                                                                           |
+| `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams) | `git` + `bash`                                                                                  |
 
 ---
 
@@ -57,6 +58,7 @@ claude plugin install omniagents-python@omniagents
 claude plugin install omniagents-typescript@omniagents
 claude plugin install omniagents-design-patterns@omniagents
 claude plugin install omniagents-writing@omniagents
+claude plugin install omniagents-reviewer@omniagents
 claude plugin install code-review-graph@omniagents
 claude plugin install context7@omniagents
 claude plugin install google-workspace@omniagents
@@ -96,6 +98,7 @@ claude plugin update omniagents-python@omniagents
 claude plugin update omniagents-typescript@omniagents
 claude plugin update omniagents-design-patterns@omniagents
 claude plugin update omniagents-writing@omniagents
+claude plugin update omniagents-reviewer@omniagents
 claude plugin update code-review-graph@omniagents
 claude plugin update context7@omniagents
 claude plugin update google-workspace@omniagents
@@ -132,6 +135,7 @@ claude plugin uninstall omniagents-python@omniagents --prune
 claude plugin uninstall omniagents-typescript@omniagents --prune
 claude plugin uninstall omniagents-design-patterns@omniagents --prune
 claude plugin uninstall omniagents-writing@omniagents --prune
+claude plugin uninstall omniagents-reviewer@omniagents --prune
 claude plugin uninstall code-review-graph@omniagents --prune
 claude plugin uninstall context7@omniagents --prune
 claude plugin uninstall google-workspace@omniagents --prune
