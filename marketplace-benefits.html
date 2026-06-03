@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Marketplaces &amp; Plugins for Organizations — Claude Code</title>
+<meta name="description" content="Why a plugin marketplace plus plugins is the right way to distribute AI-engineering capability across an organization. Grounded in the official Claude Code documentation." />
+<style>
+  /* ============================================================
+     Engineering-blueprint aesthetic.
+     Dark desaturated ground, faint grid, ochre accent, refined
+     system serif display + humanist sans body + mono labels.
+     Self-contained: no CDN, no JS, renders fully offline.
+     ============================================================ */
+  :root {
+    --ink:        #0b0e14;   /* page ground            */
+    --ink-2:      #0e121b;   /* alt band               */
+    --surface:    #141a26;   /* cards                  */
+    --surface-2:  #1b2230;   /* raised / hover         */
+    --line:       #2b3445;   /* hairlines              */
+    --line-soft:  #20283600; /* transparent helper     */
+    --paper:      #e9e4d6;   /* primary text (warm)    */
+    --muted:      #98a2b6;   /* secondary text         */
+    --faint:      #5d6678;   /* tertiary / captions    */
+    --gold:       #f4b942;   /* primary accent (ochre) */
+    --gold-deep:  #c98a1e;
+    --cyan:       #5fd3c4;   /* marketplace accent     */
+    --rule:       #313b4d;
+    --serif: "Hoefler Text", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans:  "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono:  ui-monospace, "SF Mono", "Menlo", "Cascadia Code", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* blueprint grid + soft glow + grain, all generated, no assets */
+    background-image:
+      radial-gradient(900px 520px at 78% -8%, rgba(244,185,66,0.10), transparent 60%),
+      radial-gradient(700px 520px at 8% 4%, rgba(95,211,196,0.06), transparent 55%),
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: auto, auto, 46px 46px, 46px 46px;
+    background-position: 0 0, 0 0, -1px -1px, -1px -1px;
+    background-attachment: fixed, fixed, fixed, fixed;
+  }
+  body::before {
+    /* grain overlay via inline SVG noise — offline safe */
+    content: "";
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  a { color: var(--gold); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+  /* ---- top brand bar ---- */
+  .topbar {
+    border-bottom: 1px solid var(--line);
+    background: rgba(11,14,20,0.72);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 5;
+  }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .brand { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .brand b { color: var(--gold); font-weight: 600; }
+  .topnav { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; display: flex; gap: 22px; }
+  .topnav a { color: var(--faint); }
+  .topnav a:hover { color: var(--paper); text-decoration: none; }
+  @media (max-width: 720px) { .topnav { display: none; } }
+
+  /* ---- hero ---- */
+  .hero { padding: 92px 0 56px; }
+  .kicker {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: var(--gold);
+    display: inline-flex; align-items: center; gap: 12px; margin-bottom: 30px;
+  }
+  .kicker::before { content: ""; width: 38px; height: 1px; background: var(--gold); display: inline-block; }
+  h1 {
+    font-family: var(--serif); font-weight: 600;
+    font-size: clamp(2.7rem, 6.4vw, 5rem);
+    line-height: 1.02; letter-spacing: -0.015em; margin: 0 0 26px;
+  }
+  h1 .em { font-style: italic; color: var(--gold); }
+  .lede { font-size: clamp(1.05rem, 2.1vw, 1.3rem); color: var(--muted); max-width: 60ch; margin: 0 0 38px; }
+  .hero-defs { display: flex; flex-wrap: wrap; gap: 14px; }
+  .pill {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em;
+    border: 1px solid var(--line); border-radius: 999px; padding: 9px 16px;
+    color: var(--muted); background: var(--surface);
+  }
+  .pill b { color: var(--paper); font-weight: 600; }
+
+  /* ---- section scaffolding ---- */
+  section { padding: 66px 0; border-top: 1px solid var(--line); }
+  .band { background: var(--ink-2); }
+  .sec-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 40px; }
+  .sec-num { font-family: var(--mono); font-size: 13px; color: var(--gold); letter-spacing: 0.1em; }
+  .sec-title { font-family: var(--serif); font-weight: 600; font-size: clamp(1.7rem, 3.6vw, 2.5rem); letter-spacing: -0.01em; margin: 0; }
+  .sec-intro { color: var(--muted); max-width: 64ch; margin: -22px 0 40px 0; }
+
+  /* ---- definitions two-up ---- */
+  .defs { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 760px) { .defs { grid-template-columns: 1fr; } }
+  .def {
+    border: 1px solid var(--line); border-radius: 14px; padding: 30px 28px;
+    background: linear-gradient(180deg, var(--surface), var(--ink-2));
+    position: relative; overflow: hidden;
+  }
+  .def::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; }
+  .def.market::after { background: var(--cyan); }
+  .def.plugin::after { background: var(--gold); }
+  .def h3 { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.2em; text-transform: uppercase; margin: 0 0 6px; }
+  .def.market h3 { color: var(--cyan); }
+  .def.plugin h3 { color: var(--gold); }
+  .def .term { font-family: var(--serif); font-size: 1.65rem; margin: 0 0 14px; }
+  .def p { margin: 0 0 14px; color: var(--muted); }
+  .def code, .mono { font-family: var(--mono); font-size: 0.84em; color: var(--paper); background: var(--surface-2); padding: 2px 7px; border-radius: 6px; border: 1px solid var(--line); }
+
+  /* ---- relationship diagram ---- */
+  .diagram {
+    border: 1px solid var(--line); border-radius: 16px;
+    padding: 44px 24px 38px; background:
+      radial-gradient(420px 220px at 50% 0%, rgba(95,211,196,0.10), transparent 70%),
+      var(--ink-2);
+    text-align: center;
+  }
+  .dgm-node {
+    display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+    border-radius: 12px; padding: 16px 26px; background: var(--surface);
+    border: 1px solid var(--rule);
+  }
+  .dgm-market { border-color: var(--cyan); box-shadow: 0 0 0 1px rgba(95,211,196,0.18), 0 14px 40px -20px rgba(95,211,196,0.5); }
+  .dgm-node .role { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cyan); }
+  .dgm-node .name { font-family: var(--serif); font-size: 1.25rem; }
+  .dgm-node .path { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .dgm-trunk { width: 2px; height: 34px; background: var(--rule); margin: 0 auto; }
+  .dgm-bus { height: 2px; background: var(--rule); width: min(760px, 92%); margin: 0 auto; }
+  .dgm-plugins { display: flex; flex-wrap: wrap; gap: 14px 18px; justify-content: center; margin-top: 26px; }
+  .dgm-plugin {
+    position: relative; font-family: var(--mono); font-size: 12px;
+    padding: 11px 15px; border-radius: 9px; background: var(--surface-2);
+    border: 1px solid var(--rule); color: var(--paper);
+  }
+  .dgm-plugin::before { content: ""; position: absolute; top: -26px; left: 50%; transform: translateX(-50%); width: 2px; height: 26px; background: var(--rule); }
+  .dgm-plugin .role { display: block; font-size: 9.5px; letter-spacing: 0.16em; color: var(--gold); margin-bottom: 2px; }
+  .dgm-plugin.more { background: transparent; border-style: dashed; color: var(--faint); }
+  @media (max-width: 640px) { .dgm-plugin::before { display: none; } .dgm-bus { display: none; } .dgm-trunk { height: 22px; } }
+  .dgm-caption { font-family: var(--mono); font-size: 11.5px; color: var(--faint); margin-top: 24px; letter-spacing: 0.04em; }
+
+  .split-note { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 26px; }
+  @media (max-width: 760px) { .split-note { grid-template-columns: 1fr; } }
+  .src {
+    border: 1px solid var(--line); border-left-width: 3px; border-radius: 10px;
+    padding: 18px 20px; background: var(--surface);
+  }
+  .src.m { border-left-color: var(--cyan); }
+  .src.p { border-left-color: var(--gold); }
+  .src h4 { margin: 0 0 6px; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .src p { margin: 0; color: var(--muted); font-size: 0.96rem; }
+
+  /* ---- benefit cards ---- */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 920px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+  .card {
+    border: 1px solid var(--line); border-radius: 14px; padding: 26px 24px 24px;
+    background: var(--surface); position: relative;
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, background .25s ease;
+  }
+  .card:hover { transform: translateY(-4px); border-color: var(--gold-deep); background: var(--surface-2); box-shadow: 0 24px 50px -28px rgba(244,185,66,0.45); }
+  .card .ix { font-family: var(--mono); font-size: 11px; color: var(--faint); letter-spacing: 0.14em; }
+  .card h3 { font-family: var(--serif); font-size: 1.35rem; margin: 10px 0 10px; line-height: 1.2; }
+  .card p { margin: 0 0 14px; color: var(--muted); font-size: 0.97rem; }
+  .card .mecho { font-family: var(--mono); font-size: 11px; color: var(--gold); border-top: 1px dashed var(--rule); padding-top: 12px; display: block; }
+  sup.ref { font-family: var(--mono); font-size: 0.62em; vertical-align: super; }
+  sup.ref a { color: var(--cyan); }
+
+  /* ---- comparison table ---- */
+  .tbl-wrap { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.96rem; }
+  thead th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding: 16px 20px; background: var(--ink-2); border-bottom: 1px solid var(--line); }
+  tbody td { padding: 15px 20px; border-bottom: 1px solid var(--line); color: var(--muted); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody td:first-child { color: var(--paper); font-weight: 600; }
+  tbody tr:hover td { background: rgba(244,185,66,0.04); }
+  .tag-plug { color: var(--gold); font-family: var(--mono); font-size: 11px; }
+  .tag-std { color: var(--cyan); font-family: var(--mono); font-size: 11px; }
+
+  /* ---- repo mapping ---- */
+  .repo-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 22px; align-items: center; }
+  @media (max-width: 800px) { .repo-grid { grid-template-columns: 1fr; } }
+  pre.code {
+    margin: 0; font-family: var(--mono); font-size: 12.5px; line-height: 1.8;
+    background: var(--ink-2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 22px 22px; color: var(--paper); overflow-x: auto;
+  }
+  pre.code .c { color: var(--faint); }
+  pre.code .k { color: var(--cyan); }
+  pre.code .g { color: var(--gold); }
+
+  /* ---- get started + references ---- */
+  .start-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+  @media (max-width: 820px) { .start-grid { grid-template-columns: 1fr; } }
+  .steps { counter-reset: s; list-style: none; margin: 0; padding: 0; }
+  .steps li { position: relative; padding: 0 0 22px 44px; }
+  .steps li::before {
+    counter-increment: s; content: counter(s, decimal-leading-zero);
+    position: absolute; left: 0; top: 0; font-family: var(--mono); font-size: 12px;
+    color: var(--ink); background: var(--gold); width: 28px; height: 28px;
+    border-radius: 7px; display: grid; place-items: center; font-weight: 700;
+  }
+  .steps li b { display: block; margin-bottom: 4px; }
+  .steps li span { color: var(--muted); font-size: 0.95rem; }
+  .steps code { font-family: var(--mono); font-size: 0.82em; background: var(--surface-2); border: 1px solid var(--line); padding: 2px 7px; border-radius: 6px; }
+
+  .refs { list-style: none; margin: 0; padding: 0; counter-reset: r; }
+  .refs li { padding: 14px 0; border-bottom: 1px solid var(--line); display: flex; gap: 14px; }
+  .refs li:last-child { border-bottom: 0; }
+  .refs .rn { font-family: var(--mono); color: var(--gold); font-size: 13px; flex: 0 0 auto; }
+  .refs .rb b { display: block; }
+  .refs .rb a { font-family: var(--mono); font-size: 12px; word-break: break-all; }
+  .official { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); margin-bottom: 18px; }
+
+  footer { border-top: 1px solid var(--line); padding: 40px 0 64px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center; }
+  footer p { margin: 0; color: var(--faint); font-size: 0.86rem; }
+  footer .mono { background: none; border: 0; padding: 0; color: var(--muted); }
+
+  /* ---- entrance motion: one orchestrated load ---- */
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(16px); animation: rise .7s cubic-bezier(.2,.7,.2,1) forwards; }
+    .hero .kicker { animation-delay: .05s; }
+    .hero h1 { animation-delay: .14s; }
+    .hero .lede { animation-delay: .26s; }
+    .hero .hero-defs { animation-delay: .38s; }
+  }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand"><b>omniagents</b> · marketplace + plugins</div>
+    <nav class="topnav">
+      <a href="#relationship">Relationship</a>
+      <a href="#benefits">Benefits</a>
+      <a href="#start">Get started</a>
+      <a href="#references">Docs</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker reveal">Claude Code · Platform Enablement</div>
+    <h1 class="reveal">One catalog.<br />Every team on the <span class="em">same tools.</span></h1>
+    <p class="lede reveal">
+      A <strong>plugin</strong> packages a capability — skills, agents, hooks, MCP and LSP servers.
+      A <strong>marketplace</strong> is the catalog that distributes those plugins. Together they turn
+      ad-hoc, copy-pasted AI configuration into governed, versioned, organization-wide infrastructure.
+    </p>
+    <div class="hero-defs reveal">
+      <span class="pill"><b>Plugin</b> &nbsp;= unit of capability</span>
+      <span class="pill"><b>Marketplace</b> &nbsp;= catalog that distributes plugins</span>
+      <span class="pill">1 marketplace &nbsp;→&nbsp; many plugins</span>
+    </div>
+  </div>
+</header>
+
+<!-- 00 — DEFINITIONS -->
+<section id="what">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">00</span>
+      <h2 class="sec-title">Two concepts, one supply chain</h2>
+    </div>
+    <p class="sec-intro">
+      The distinction matters because each solves a different organizational problem. A plugin answers
+      <em>“what capability?”</em>; a marketplace answers <em>“how does it reach every engineer, and who controls that?”</em>
+    </p>
+    <div class="defs">
+      <div class="def market">
+        <h3>The catalog</h3>
+        <div class="term">Marketplace</div>
+        <p>
+          “A plugin marketplace is a catalog that lets you distribute plugins to others.”<sup class="ref"><a href="#ref-2">[2]</a></sup>
+          It provides centralized discovery, version tracking, automatic updates, and multiple source types.
+        </p>
+        <p>Defined by a single <code>.claude-plugin/marketplace.json</code> that lists plugins by <code>name</code> and <code>source</code>.</p>
+      </div>
+      <div class="def plugin">
+        <h3>The capability</h3>
+        <div class="term">Plugin</div>
+        <p>
+          A self-contained directory of skills, agents, hooks, MCP servers or LSP servers, optionally
+          alongside a <code>.claude-plugin/plugin.json</code> manifest.<sup class="ref"><a href="#ref-1">[1]</a></sup>
+        </p>
+        <p>Its skills are namespaced — <code>/plugin-name:skill</code> — so two plugins never collide.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 01 — RELATIONSHIP -->
+<section id="relationship" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2 class="sec-title">The relationship</h2>
+    </div>
+    <p class="sec-intro">
+      A marketplace does not <em>contain</em> a plugin's code so much as <em>point</em> to it. One catalog
+      references many plugins, and each plugin can be fetched from a different place — a folder in the same
+      repo, another GitHub repo, a git subdirectory, or npm.<sup class="ref"><a href="#ref-2">[2]</a></sup>
+    </p>
+
+    <div class="diagram" role="img" aria-label="One marketplace catalog connects down to many plugins">
+      <div class="dgm-node dgm-market">
+        <span class="role">Marketplace · catalog</span>
+        <span class="name">omniagents</span>
+        <span class="path">.claude-plugin/marketplace.json</span>
+      </div>
+      <div class="dgm-trunk"></div>
+      <div class="dgm-bus"></div>
+      <div class="dgm-plugins">
+        <div class="dgm-plugin"><span class="role">plugin</span>omniagents-python</div>
+        <div class="dgm-plugin"><span class="role">plugin</span>omniagents-typescript</div>
+        <div class="dgm-plugin"><span class="role">plugin</span>omniagents-reviewer</div>
+        <div class="dgm-plugin"><span class="role">plugin</span>code-review-graph</div>
+        <div class="dgm-plugin"><span class="role">plugin</span>google-workspace</div>
+        <div class="dgm-plugin more">+ 5 more</div>
+      </div>
+      <div class="dgm-caption">each node = one plugin · each with its own <span class="mono" style="background:none;border:0;padding:0;color:var(--gold)">.claude-plugin/plugin.json</span></div>
+    </div>
+
+    <div class="split-note">
+      <div class="src m">
+        <h4>Marketplace source</h4>
+        <p>Where the <em>catalog</em> lives. Set when a user runs <span class="mono">/plugin marketplace add</span>. Supports a branch/tag <span class="mono">ref</span>.<sup class="ref"><a href="#ref-2">[2]</a></sup></p>
+      </div>
+      <div class="src p">
+        <h4>Plugin source</h4>
+        <p>Where an <em>individual plugin</em> is fetched, set per entry inside <span class="mono">marketplace.json</span>. Supports both <span class="mono">ref</span> and an exact <span class="mono">sha</span>.<sup class="ref"><a href="#ref-2">[2]</a></sup></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 — BENEFITS -->
+<section id="benefits">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2 class="sec-title">Why this matters for an organization</h2>
+    </div>
+    <p class="sec-intro">
+      Every benefit below maps to a concrete, documented capability — not a slogan. This is what changes
+      when AI-engineering practice stops living in private dotfiles and becomes a shared, governed catalog.
+    </p>
+    <div class="cards">
+      <div class="card">
+        <span class="ix">01 / Consistency</span>
+        <h3>One standard, everywhere</h3>
+        <p>Coding conventions, review agents, and docstring rules ship as plugins “reusable across projects,” so every repo and every engineer inherits the same behavior instead of re-deriving it.<sup class="ref"><a href="#ref-1">[1]</a></sup></p>
+        <span class="mecho">use plugins to share with your team &amp; community</span>
+      </div>
+      <div class="card">
+        <span class="ix">02 / Onboarding</span>
+        <h3>Set up in one command</h3>
+        <p>A new hire runs <span class="mono" style="font-size:11px">marketplace add org/repo</span> once. Install at <span class="mono" style="font-size:11px">--scope project</span> and the toolset is committed to <span class="mono" style="font-size:11px">.claude/</span> and shared with the whole team.<sup class="ref"><a href="#ref-4">[4]</a></sup></p>
+        <span class="mecho">extraKnownMarketplaces auto-prompts on project trust</span>
+      </div>
+      <div class="card">
+        <span class="ix">03 / Reproducibility</span>
+        <h3>Versioned, deliberate updates</h3>
+        <p>Pin a plugin to a <span class="mono" style="font-size:11px">version</span> or a commit <span class="mono" style="font-size:11px">sha</span>; users only update when you bump it. Run stable and latest as separate release channels.<sup class="ref"><a href="#ref-2">[2]</a></sup></p>
+        <span class="mecho">version → cache key → predictable rollouts</span>
+      </div>
+      <div class="card">
+        <span class="ix">04 / Governance</span>
+        <h3>Control what can be installed</h3>
+        <p><span class="mono" style="font-size:11px">strictKnownMarketplaces</span> in managed settings locks the allowed sources — an empty array is full lockdown, an allowlist permits only approved catalogs. Users can't override it.<sup class="ref"><a href="#ref-5">[5]</a></sup></p>
+        <span class="mecho">security &amp; compliance by policy, not trust</span>
+      </div>
+      <div class="card">
+        <span class="ix">05 / Privacy</span>
+        <h3>Keep it internal</h3>
+        <p>Host the marketplace in a private repository; Claude Code uses your git credentials, and a <span class="mono" style="font-size:11px">GITHUB_TOKEN</span> / <span class="mono" style="font-size:11px">GITLAB_TOKEN</span> enables background auto-updates in CI.<sup class="ref"><a href="#ref-2">[2]</a></sup></p>
+        <span class="mecho">no public exposure of proprietary tooling</span>
+      </div>
+      <div class="card">
+        <span class="ix">06 / Scale</span>
+        <h3>Bake into images &amp; CI</h3>
+        <p>Pre-populate plugins at build time with <span class="mono" style="font-size:11px">CLAUDE_CODE_PLUGIN_SEED_DIR</span> so containers start fully equipped — no runtime cloning, fully reproducible across the fleet.<sup class="ref"><a href="#ref-2">[2]</a></sup></p>
+        <span class="mecho">read-only seed, zero cold-start fetch</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 — PLUGIN VS STANDALONE -->
+<section id="vs" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2 class="sec-title">Plugin vs. standalone <span class="mono" style="font-size:0.6em;background:none;border:0;color:var(--gold)">.claude/</span></h2>
+    </div>
+    <p class="sec-intro">
+      Standalone <span class="mono">.claude/</span> configuration is perfect for a single project or quick
+      experiment. Packaging the same skills and hooks as a plugin is what makes them shareable, versioned,
+      and governable — the official guidance recommends starting standalone, then converting to a plugin
+      when you're ready to share.<sup class="ref"><a href="#ref-1">[1]</a></sup>
+    </p>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Concern</th><th>Standalone <span class="tag-std">.claude/</span></th><th>Plugin via marketplace <span class="tag-plug">@org</span></th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Reach</td><td>Available in one project only</td><td>Shared across projects, teams, and the org</td></tr>
+          <tr><td>Distribution</td><td>Manually copied to share</td><td>Installed with <span class="mono" style="font-size:11px">/plugin install</span> from a catalog</td></tr>
+          <tr><td>Updates</td><td>Hand-managed, drift-prone</td><td>Versioned; <span class="mono" style="font-size:11px">/plugin update</span> or auto-update</td></tr>
+          <tr><td>Naming</td><td>Bare names like <span class="mono" style="font-size:11px">/deploy</span></td><td>Namespaced <span class="mono" style="font-size:11px">/plugin:deploy</span> — no collisions</td></tr>
+          <tr><td>Governance</td><td>Per-machine, invisible to the org</td><td>Allowlisted &amp; enabled via managed settings</td></tr>
+          <tr><td>Best for</td><td>Personal workflows, experiments</td><td>Sharing, versioned releases, reuse at scale</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 04 — REPO MAPPING -->
+<section id="map">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2 class="sec-title">How this repo is wired</h2>
+    </div>
+    <div class="repo-grid">
+      <pre class="code"><span class="c"># this repository IS the marketplace</span>
+omniagents/
+├─ <span class="k">.claude-plugin/marketplace.json</span>   <span class="c"># the catalog</span>
+└─ plugins/
+   ├─ python/        <span class="g">.claude-plugin/plugin.json</span>
+   ├─ typescript/    <span class="g">.claude-plugin/plugin.json</span>
+   ├─ reviewer/      <span class="g">.claude-plugin/plugin.json</span>
+   ├─ code-review-graph/  <span class="g">…</span>
+   └─ <span class="c">… 10 plugins total</span>
+
+<span class="c"># each plugin entry just points at a folder</span>
+{ "name": "omniagents-python",
+  "source": <span class="g">"./plugins/python"</span> }</pre>
+      <div>
+        <p style="color:var(--muted)">
+          The catalog at <span class="mono">.claude-plugin/marketplace.json</span> lists ten plugins; each
+          <span class="mono">source</span> is a relative path resolved against the marketplace root.<sup class="ref"><a href="#ref-2">[2]</a></sup>
+          Because the marketplace is git-hosted, a plugin can omit <span class="mono">version</span> entirely and
+          every commit becomes a new version — the simplest setup for actively-developed internal tooling.<sup class="ref"><a href="#ref-2">[2]</a></sup>
+        </p>
+        <p style="color:var(--muted)">
+          That single design choice is the whole value proposition: add the catalog once, and ten governed,
+          versioned, namespaced capabilities arrive together.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 — GET STARTED + REFERENCES -->
+<section id="start" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2 class="sec-title">Stand one up</h2>
+    </div>
+    <div class="start-grid">
+      <div>
+        <ol class="steps">
+          <li><b>Create a plugin</b><span>A directory + <code>.claude-plugin/plugin.json</code> + a <code>skills/</code> folder. Test it with <code>claude --plugin-dir ./my-plugin</code>.<sup class="ref"><a href="#ref-1">[1]</a></sup></span></li>
+          <li><b>Write the catalog</b><span>Add <code>.claude-plugin/marketplace.json</code> with <code>name</code>, <code>owner</code>, and a <code>plugins</code> array of <code>name</code> + <code>source</code>.<sup class="ref"><a href="#ref-2">[2]</a></sup></span></li>
+          <li><b>Host it</b><span>Push to GitHub (recommended), GitLab, or any git host — public or private.<sup class="ref"><a href="#ref-2">[2]</a></sup></span></li>
+          <li><b>Share it</b><span>Teammates run <code>/plugin marketplace add org/repo</code>, then <code>/plugin install name@marketplace</code>.<sup class="ref"><a href="#ref-4">[4]</a></sup></span></li>
+          <li><b>Govern it</b><span>Use <code>extraKnownMarketplaces</code> + <code>strictKnownMarketplaces</code> in managed settings to require and restrict sources org-wide.<sup class="ref"><a href="#ref-5">[5]</a></sup></span></li>
+        </ol>
+      </div>
+      <div id="references">
+        <div class="official">Cited — Claude Code official documentation</div>
+        <ol class="refs">
+          <li id="ref-1"><span class="rn">[1]</span><span class="rb"><b>Create plugins</b><a href="https://code.claude.com/docs/en/plugins" target="_blank" rel="noopener">code.claude.com/docs/en/plugins</a></span></li>
+          <li id="ref-2"><span class="rn">[2]</span><span class="rb"><b>Create &amp; distribute a plugin marketplace</b><a href="https://code.claude.com/docs/en/plugin-marketplaces" target="_blank" rel="noopener">code.claude.com/docs/en/plugin-marketplaces</a></span></li>
+          <li id="ref-3"><span class="rn">[3]</span><span class="rb"><b>Plugins reference</b><a href="https://code.claude.com/docs/en/plugins-reference" target="_blank" rel="noopener">code.claude.com/docs/en/plugins-reference</a></span></li>
+          <li id="ref-4"><span class="rn">[4]</span><span class="rb"><b>Discover &amp; install plugins</b><a href="https://code.claude.com/docs/en/discover-plugins" target="_blank" rel="noopener">code.claude.com/docs/en/discover-plugins</a></span></li>
+          <li id="ref-5"><span class="rn">[5]</span><span class="rb"><b>Settings · managed &amp; strictKnownMarketplaces</b><a href="https://code.claude.com/docs/en/settings" target="_blank" rel="noopener">code.claude.com/docs/en/settings</a></span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Quotations and capabilities sourced from the <span class="mono">code.claude.com</span> documentation. Not an official Anthropic publication.</p>
+    <p class="mono">omniagents · marketplace + plugins</p>
+  </div>
+</footer>
+
+</body>
+</html>
