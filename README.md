@@ -5,6 +5,65 @@ integrations packaged as installable skills.
 
 ---
 
+## Marketplace and plugins: how they relate
+
+A **plugin** is a self-contained unit of capability — skills, agents, hooks, MCP
+servers, or LSP servers — optionally described by a `.claude-plugin/plugin.json`
+manifest. A **marketplace** is the catalog that distributes plugins:
+["A plugin marketplace is a catalog that lets you distribute plugins to others."](https://code.claude.com/docs/en/plugin-marketplaces)
+One marketplace lists many plugins, and each plugin entry only needs a `name`
+and a `source` telling Claude Code where to fetch it from.
+
+This repository _is_ a marketplace. The catalog lives at
+`.claude-plugin/marketplace.json`; each of the ten plugins under `plugins/*`
+carries its own `.claude-plugin/plugin.json`:
+
+| Layer       | File                                        | Role                                |
+| ----------- | ------------------------------------------- | ----------------------------------- |
+| Marketplace | `.claude-plugin/marketplace.json`           | Catalog — lists plugins and sources |
+| Plugin      | `plugins/<name>/.claude-plugin/plugin.json` | Capability — skills, agents, hooks  |
+
+The **marketplace source** and the **plugin source** are distinct concepts. The
+marketplace source is where the catalog itself lives (set when you run
+`/plugin marketplace add`). Each **plugin source** is where an individual plugin
+is fetched (the `source` field inside `marketplace.json`). They are pinned
+independently: marketplace sources support a branch/tag `ref`; plugin sources
+support both `ref` and an exact commit `sha`.
+
+For a visual overview of why this model pays off across an organization, open
+[`marketplace-benefits.html`](./marketplace-benefits.html) in a browser.
+
+---
+
+## Creating a marketplace and a plugin
+
+The two artifacts are authored in the order capability → catalog. The steps
+below condense the official Claude Code guides; see [References](#references)
+for the authoritative pages.
+
+1. **Create a plugin.** Make a directory containing a `skills/` folder (and
+   optionally `agents/`, `hooks/`, `.mcp.json`, `.lsp.json`), plus a
+   `.claude-plugin/plugin.json` manifest with at least a `name`. Test it without
+   installing via `claude --plugin-dir ./my-plugin`. See
+   [Create plugins](https://code.claude.com/docs/en/plugins).
+2. **Write the marketplace catalog.** Create `.claude-plugin/marketplace.json`
+   at the repo root with `name`, `owner`, and a `plugins` array. Each entry
+   needs a `name` and a `source` — a relative path, or a `github`, `url`,
+   `git-subdir`, or `npm` source. See
+   [Create and distribute a plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces).
+3. **Validate.** Run `claude plugin validate .` against the marketplace, and
+   `claude plugin validate ./plugins/<name>` against each plugin.
+4. **Host it.** Push to GitHub (recommended), GitLab, or any git host — public
+   or private. Private marketplaces work with your existing git credentials, and
+   a `GITHUB_TOKEN` / `GITLAB_TOKEN` enables background auto-updates.
+5. **Share and govern.** Users add it with `/plugin marketplace add owner/repo`,
+   then install with `/plugin install name@marketplace`. For org-wide control,
+   require it via `extraKnownMarketplaces` and restrict the allowed sources with
+   `strictKnownMarketplaces` in managed settings. See
+   [Plugin settings](https://code.claude.com/docs/en/settings).
+
+---
+
 ## Plugin catalogue
 
 | Plugin                       | Type             | Skills / Tools                                                                                                   | Requires                                                                                        |
@@ -311,6 +370,18 @@ git clone https://github.com/gao-hongnan/omniagents
 claude plugin marketplace add ./omniagents
 claude plugin install omniagents-python@omniagents --scope local
 ```
+
+---
+
+## References
+
+Claude Code official documentation cited above:
+
+1. [Create plugins](https://code.claude.com/docs/en/plugins)
+2. [Create and distribute a plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces)
+3. [Plugins reference](https://code.claude.com/docs/en/plugins-reference)
+4. [Discover and install plugins](https://code.claude.com/docs/en/discover-plugins)
+5. [Plugin settings — managed settings & `strictKnownMarketplaces`](https://code.claude.com/docs/en/settings)
 
 ---
 
