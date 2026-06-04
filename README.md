@@ -183,6 +183,79 @@ marketplace entry so Claude Code uses the git commit SHA as the version.
 
 ---
 
+## Versioning and release channels
+
+This marketplace uses **lockstep [Semantic Versioning](https://semver.org/)**:
+every plugin shares one version, bumped together on each release. One number to
+cite and one tag to roll back to — at the cost that editing one plugin bumps
+them all (unchanged plugins simply do a no-op refresh). Because Claude Code keys
+its plugin cache on the version string and **delivers a release only when that
+string changes**, the version must advance on every published change. The
+`make release` target enforces this by bumping all manifests at once.
+
+### Bump rule
+
+| Bump  | When                                                               |
+| ----- | ------------------------------------------------------------------ |
+| patch | Wording, typos, formatting — Claude's behavior is unchanged        |
+| minor | A new skill/agent, or new guidance that changes output             |
+| major | A broken contract: renamed/removed a skill, command, or convention |
+
+### Channels — how users choose a version
+
+A "channel" is simply this repo added at a different git ref. Users select a
+version at `marketplace add` time (`/plugin install` has no version flag), and
+re-adding the marketplace at a different ref **replaces** the prior registration
+(same `name`):
+
+| Channel           | Add command                                             | Tracks                   |
+| ----------------- | ------------------------------------------------------- | ------------------------ |
+| Bleeding edge     | `/plugin marketplace add gao-hongnan/omniagents`        | `main`                   |
+| Stable            | `/plugin marketplace add gao-hongnan/omniagents@stable` | `stable` (vetted only)   |
+| Pinned / rollback | `/plugin marketplace add gao-hongnan/omniagents@v0.1.0` | an immutable version tag |
+
+After switching or rolling back, run `/plugin marketplace update omniagents` and
+`/reload-plugins`.
+
+### Cutting a release (maintainers)
+
+Accumulate notes under `## [Unreleased]` in `CHANGELOG.md` as you work, then:
+
+```bash
+make release VERSION=0.2.0   # bumps every manifest, stamps CHANGELOG, validates, commits, tags v0.2.0
+git push origin main && git push origin v0.2.0
+
+make stable VERSION=0.2.0    # once vetted, move the stable channel forward
+git push origin stable
+```
+
+First-time bootstrap (one-off, before the first `make release`):
+
+```bash
+git tag -a v0.1.0 -m "omniagents v0.1.0 — baseline" && git push origin v0.1.0
+git branch stable v0.1.0 && git push origin stable
+```
+
+### Rolling back
+
+On a published marketplace, **revert — never `reset` + force-push** (a
+force-push breaks commit-SHA pins and anyone who already pulled):
+
+```bash
+git revert --no-edit <bad-sha>
+make release VERSION=0.2.1    # the revert reaches users only once the version changes
+git push origin main && git push origin v0.2.1
+```
+
+To move the **stable** channel back to a known-good release without touching
+`main` — also the fast path if a bad commit reached stable:
+
+```bash
+make stable VERSION=0.1.0 && git push origin stable
+```
+
+---
+
 ## Uninstall
 
 The default scope is `user`. A bare uninstall command removes from user scope

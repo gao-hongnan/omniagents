@@ -12,52 +12,72 @@
     {
       "name": "omniagents-python",
       "source": "./plugins/python",
-      "description": "Python conventions: NumPy/Sphinx docstrings + strict typing + performance rules"
+      "description": "Python conventions: NumPy/Sphinx docstrings + strict typing + performance rules",
+      "category": "language-conventions",
+      "keywords": ["python", "docstrings", "typing", "performance"]
     },
     {
       "name": "omniagents-typescript",
       "source": "./plugins/typescript",
-      "description": "TypeScript conventions: TSDoc + strict typing rules"
+      "description": "TypeScript conventions: TSDoc + strict typing rules",
+      "category": "language-conventions",
+      "keywords": ["typescript", "tsdoc", "typing"]
     },
     {
       "name": "omniagents-design-patterns",
       "source": "./plugins/design-patterns",
-      "description": "Strict-typed Python 3.13+ design pattern catalogue (software + system patterns)"
+      "description": "Strict-typed Python 3.13+ design pattern catalogue (software + system patterns)",
+      "category": "architecture",
+      "keywords": ["design-patterns", "python", "architecture", "system-design"]
     },
     {
       "name": "omniagents-writing",
       "source": "./plugins/writing",
-      "description": "Measured-persuasion writing skill + markdown conventions"
+      "description": "Measured-persuasion writing skill + markdown conventions",
+      "category": "writing",
+      "keywords": ["writing", "markdown", "persuasion"]
     },
     {
       "name": "code-review-graph",
       "source": "./plugins/code-review-graph",
-      "description": "Code Review Graph MCP: tree-sitter knowledge graph tooling for impact analysis"
+      "description": "Code Review Graph MCP: tree-sitter knowledge graph tooling for impact analysis",
+      "category": "code-review",
+      "keywords": ["code-review", "knowledge-graph", "mcp", "impact-analysis"]
     },
     {
       "name": "context7",
       "source": "./plugins/context7",
-      "description": "Context7 MCP: up-to-date library documentation lookup (requires CONTEXT7_API_KEY)"
+      "description": "Context7 MCP: up-to-date library documentation lookup (requires CONTEXT7_API_KEY)",
+      "category": "documentation",
+      "keywords": ["mcp", "documentation", "library-docs"]
     },
     {
       "name": "google-workspace",
       "source": "./plugins/google-workspace",
-      "description": "Google Workspace MCP: Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat (requires uv + Google OAuth creds)"
+      "description": "Google Workspace MCP: Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat (requires uv + Google OAuth creds)",
+      "category": "integrations",
+      "keywords": ["mcp", "google", "gmail", "drive", "calendar"]
     },
     {
       "name": "notifications",
       "source": "./plugins/notifications",
-      "description": "macOS notifications on permission prompts, idle waits, and task completion via Notification + Stop hooks"
+      "description": "macOS notifications on permission prompts, idle waits, and task completion via Notification + Stop hooks",
+      "category": "productivity",
+      "keywords": ["notifications", "hooks", "macos"]
     },
     {
       "name": "omniagents-reviewer",
       "source": "./plugins/reviewer",
-      "description": "Multi-specialist code reviewer: parallel correctness, security, performance, design, and testing agents with orchestrator dispatch and verification layer"
+      "description": "Multi-specialist code reviewer: parallel correctness, security, performance, design, and testing agents with orchestrator dispatch and verification layer",
+      "category": "code-review",
+      "keywords": ["code-review", "security", "performance", "testing", "multi-agent"]
     },
     {
       "name": "doc-drift",
       "source": "./plugins/doc-drift",
-      "description": "Documentation drift detection hook: prompts Claude to review docs for stale references after code changes"
+      "description": "Documentation drift detection hook: prompts Claude to review docs for stale references after code changes",
+      "category": "documentation",
+      "keywords": ["documentation", "drift", "hooks"]
     }
   ]
 }
