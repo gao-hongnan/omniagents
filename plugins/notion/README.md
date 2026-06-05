@@ -30,14 +30,14 @@ The MCP server is defined in [`.mcp.json`](./.mcp.json):
 
 ## Setup
 
-### 1. Create a Notion internal integration
+### 1. Create a Notion connection
 
-1. Go to <https://www.notion.so/profile/integrations>
-2. Click **"New integration"** → select your workspace
-3. Under **Configuration**, note the **Internal Integration Secret** (format
-   `ntn_****`)
-4. Under **Access**, select the pages and databases the integration should be
-   able to access
+1. Go to <https://app.notion.com/developers/connections>
+2. Click **"+ New connection"**
+3. Enter a **Connection name**, select **Access token** as the authentication
+   method, confirm your workspace in **Installable in**, then click **"Create
+   connection"**
+4. Copy the token (format `ntn_****`)
 
 ### 2. Export the token
 

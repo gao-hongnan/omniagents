@@ -78,6 +78,13 @@
       "description": "Documentation drift detection hook: prompts Claude to review docs for stale references after code changes",
       "category": "documentation",
       "keywords": ["documentation", "drift", "hooks"]
+    },
+    {
+      "name": "omniagents-pedagogy",
+      "source": "./plugins/pedagogy",
+      "description": "Incremental teaching skill: structured Socratic dialogue for deep code understanding via /coding-teacher",
+      "category": "learning",
+      "keywords": ["teaching", "pedagogy", "learning", "debugging", "code-review"]
     }
   ]
 }

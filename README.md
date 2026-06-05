@@ -78,6 +78,7 @@ for the authoritative pages.
 | `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                              | `uv` on PATH + Google OAuth creds                                                               |
 | `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                 | macOS                                                                                           |
 | `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams) | `git` + `bash`                                                                                  |
+| `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session | —                                                                                               |
 
 ---
 
@@ -123,6 +124,7 @@ claude plugin install context7@omniagents
 claude plugin install google-workspace@omniagents
 claude plugin install notifications@omniagents
 claude plugin install doc-drift@omniagents
+claude plugin install omniagents-pedagogy@omniagents
 ```
 
 ### Scope options
@@ -163,6 +165,7 @@ claude plugin update context7@omniagents
 claude plugin update google-workspace@omniagents
 claude plugin update notifications@omniagents
 claude plugin update doc-drift@omniagents
+claude plugin update omniagents-pedagogy@omniagents
 ```
 
 Inside Claude Code, the equivalent commands are:
@@ -273,6 +276,7 @@ claude plugin uninstall context7@omniagents --prune
 claude plugin uninstall google-workspace@omniagents --prune
 claude plugin uninstall notifications@omniagents --prune
 claude plugin uninstall doc-drift@omniagents --prune
+claude plugin uninstall omniagents-pedagogy@omniagents --prune
 ```
 
 If the plugin was installed with a non-default scope, pass the matching
