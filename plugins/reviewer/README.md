@@ -5,6 +5,11 @@ dispatches five specialist subagents in parallel — `correctness`, `security`,
 `performance`, `design`, `testing` — then a `verifier` subagent deduplicates and
 aggregates their findings into one report.
 
+Findings are produced as **JSON** (every finding carries a required `file` +
+`line`) and persisted under a git-ignored `.reviews/<timestamp>/` folder as
+canonical JSON plus rendered Markdown — per-specialist and aggregated. The
+headline `review.md` is also relayed to the terminal. See [Output](#output).
+
 ## Requirements
 
 This plugin depends on four sibling plugins (declared in `plugin.json`
@@ -33,8 +38,39 @@ specialist.
 
 ```
 agents/     correctness, security, performance, design, testing, verifier
-skills/     one checklist per dimension + review-contract (the shared contract)
+skills/     one checklist per dimension + review-contract (the shared contract);
+            review-contract/schema.py validates findings and renders JSON → Markdown
 commands/   review.md (the orchestrator entrypoint)
+```
+
+## Output
+
+Every run writes a timestamped, git-ignored folder at the repo root. JSON is the
+canonical artifact; the Markdown is rendered from it by
+`review-contract/schema.py` (stdlib only — no pydantic/jinja2, runs with any
+`python3`):
+
+```
+.reviews/<timestamp>/
+  01_correctness.json / .md   02_security.json / .md   03_performance.json / .md
+  04_design.json / .md        05_testing.json / .md
+  review.json   # canonical aggregated report (verifier output)
+  review.md     # headline report, also relayed to the terminal
+.reviews/latest -> <timestamp>
+```
+
+Because `file` and `line` are **required, typed fields** on every finding, a
+finding that cannot be grounded to `file:line` fails validation and is never
+rendered — so every finding you read is traceable to `path:line` (or
+`path:start-end` for multi-line issues). The command points `.reviews/latest` at
+the newest run and appends `.reviews/` to `.gitignore` on first run.
+
+The renderer is invocable directly for testing:
+
+```
+python3 skills/review-contract/schema.py specialist <report.json>   # → .md
+python3 skills/review-contract/schema.py review     <report.json>   # → .md
+python3 skills/review-contract/schema.py --schema                   # field shapes
 ```
 
 ## How the skills are consumed (read before editing)
@@ -62,13 +98,16 @@ Consequences for anyone editing these skills:
 
 ## Single source of truth
 
-`skills/review-contract/SKILL.md` owns the shared contract: the finding format,
-confidence and severity rubrics, the severity-elevation rule, the report
-templates, the verdict rules, the dedup/filter rules, and the canonical
-**dimension set** (`## Dimensions`). Specialist skills and agents should _defer_
-to it rather than restating these — restated copies drift. When adding or
-removing a review dimension, update `review-contract`'s `## Dimensions` section,
-its `Dimension` field, the command's dispatch list, and the matching agent.
+`skills/review-contract/SKILL.md` owns the shared contract: the finding
+**schema** (`file` and `line` are separate required fields), confidence and
+severity rubrics, the severity-elevation rule, the per-specialist and aggregated
+report shapes, the verdict rules, the dedup/filter rules, and the canonical
+**dimension set** (`## Dimensions`). Its sibling `schema.py` is the
+machine-enforceable half — it validates findings and renders them to Markdown.
+Specialist skills and agents should _defer_ to the contract rather than
+restating these — restated copies drift. When adding or removing a review
+dimension, update `review-contract`'s `## Dimensions` section, the `DIMENSIONS`
+tuple in `schema.py`, the command's dispatch list, and the matching agent.
 
 ## Roadmap
 
