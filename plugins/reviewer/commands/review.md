@@ -41,6 +41,10 @@ JSON is canonical; the Markdown is rendered from it by
 2. Gather lightweight dispatch context:
     - Target exactly as resolved.
     - Changed files from `git diff --name-only` where applicable.
+    - **Change intent**: the commit subjects + bodies covering the target
+      (`git log --format='%h %s%n%b'` over the range; for the working tree,
+      the last few commits for context). Specialists judge subtle bugs as
+      intent-vs-implementation mismatches, so always pass this along.
     - Repo context from the Context section.
     - Any user qualifiers attached to the command, such as "security only" or
       "ignore generated files".
@@ -68,6 +72,7 @@ JSON is canonical; the Markdown is rendered from it by
     - **Dimension**: specialist name.
     - **Repo context**: repo root, branch, latest commit, working tree summary.
     - **Changed files**: file list when available.
+    - **Change intent**: the commit messages from step 2, verbatim.
     - **Reviewer instructions**: contents or existence of `REVIEW.md`,
       `CLAUDE.md`, or `AGENTS.md` if available.
     - **Constraints**: user qualifiers.

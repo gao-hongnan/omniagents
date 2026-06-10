@@ -80,11 +80,22 @@ Remove findings that:
 - Are tagged IMPORTANT with `Confidence < 70`
 - Are exact duplicates of a higher-severity finding at the same
   location
+- Violate the contract's **What Not to Report** rules: pre-existing
+  issues below BLOCKER (or missing the `[pre-existing]` prefix),
+  linter/formatter/type-checker territory, a speculative `why` that
+  names no concrete trigger ("could be a problem if…"), taste with no
+  behavioral or maintenance consequence, or narration of the diff
 
 Do NOT filter:
 
 - Any BLOCKER finding (regardless of confidence)
-- SUGGESTION findings with `Confidence >= 80`
+- SUGGESTION findings with `Confidence >= 80` that survive the What
+  Not to Report rules
+
+Apply the contract's final bar to every surviving non-BLOCKER finding:
+would a staff engineer raise this in a real PR review? When in doubt at
+SUGGESTION level, drop it — the report's credibility is the product of
+its weakest finding.
 
 ### Step 4: Cross-Cutting Analysis
 

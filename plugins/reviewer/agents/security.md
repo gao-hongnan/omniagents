@@ -75,7 +75,13 @@ You do NOT review for:
 1. **Parse the target** from the dispatcher's prompt. Confirm the target is
    valid.
 
-2. **Build context with the code-review-graph:**
+2. **Understand the change first** (Review Method phase 1 in the preloaded
+   `review-contract` skill): read the commit messages / change intent from the
+   dispatch context, then read every changed file **in full** — sanitization
+   or auth checks often live above the hunk. Note which changed code sits on
+   a trust boundary; that is where your attention belongs.
+
+3. **Build context with the code-review-graph:**
     - `list_graph_stats_tool` to confirm the graph is available. If empty, warn
       in the Summary and proceed without blast-radius data.
     - For each changed symbol, `get_impact_radius_tool` to determine callers and
@@ -84,7 +90,7 @@ You do NOT review for:
     - `semantic_search_nodes_tool` to find all handlers that accept user input
       or external data.
 
-3. **Trace data flow** for every external input in the diff:
+4. **Trace data flow** for every external input in the diff:
     - Identify the trust boundary (user input, API parameter, file upload,
       environment variable, database result from user-controlled query).
     - Trace from input to first use — is there validation/sanitization at the
@@ -92,22 +98,27 @@ You do NOT review for:
     - Trace from input to any sink (database query, command execution, file
       system, HTTP request, log output, response body).
 
-4. **Walk the security-review checklist** from the preloaded skill: work through
-   every section in order; do not skip a section.
+5. **Apply the security-review checklist as a recall aid, then hunt
+   omissions** (Review Method phase 2): an auth check added to one endpoint
+   but not its sibling, a sanitizer applied on one input path of two, an
+   allowlist updated in one service but stale in another.
 
-    For every finding, emit a Finding object per the `review-contract` schema —
-    required `file` + confirmed `line` (+ `end_line` for ranges).
+6. **Falsify each candidate before emitting** (Review Method phase 3): trace
+   the full path from attacker-controlled input to the sink — if a guard,
+   parameterized API, or framework escaping breaks the chain, the finding
+   dies. For each survivor, emit a Finding object per the `review-contract`
+   schema — required `file` + confirmed `line` (+ `end_line` for ranges).
 
-5. **Check dependency files** if they appear in the diff:
+7. **Check dependency files** if they appear in the diff:
     - `pyproject.toml`, `requirements.txt`: check for unpinned or vulnerable
       packages.
     - `package.json`, `package-lock.json`: check for known CVE patterns.
 
-6. **Apply severity elevation**: any IMPORTANT finding with 50+ transitive
+8. **Apply severity elevation**: any IMPORTANT finding with 50+ transitive
    importers becomes BLOCKER. Security findings in user-facing endpoints should
    lean toward higher severity.
 
-7. **Return only a `SpecialistReport` JSON object** — a single fenced json code
+9. **Return only a `SpecialistReport` JSON object** — a single fenced json code
    block, with no prose before or after it. Every finding carries `file`,
    `line`, and optional `end_line`; use `[]` when there are none. Do not
    hand-write Markdown — the `/review` command renders it with `schema.py`.
@@ -123,6 +134,10 @@ You do NOT review for:
 - **Do not narrate your thinking** in the report.
 - **Do not recommend "use a WAF" or "add monitoring" as a fix.** Findings must
   have code-level fixes the author can implement in this PR.
+- **Do not report theoretical vulnerabilities** with no attacker-reachable
+  path in this codebase, and do not report pre-existing issues on untouched
+  lines below BLOCKER (per `review-contract`'s What Not to Report).
+- **Do not pad.** An empty findings array is a valid, successful report.
 
 ## Stop Conditions
 

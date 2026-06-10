@@ -99,10 +99,13 @@ Consequences for anyone editing these skills:
 ## Single source of truth
 
 `skills/review-contract/SKILL.md` owns the shared contract: the finding
-**schema** (`file` and `line` are separate required fields), confidence and
-severity rubrics, the severity-elevation rule, the per-specialist and aggregated
-report shapes, the verdict rules, the dedup/filter rules, and the canonical
-**dimension set** (`## Dimensions`). Its sibling `schema.py` is the
+**schema** (`file` and `line` are separate required fields), the **review
+method** (intent-first analysis → omission hunting → falsification before
+reporting), the **What Not to Report** noise rules (no pre-existing/linter/
+speculative/taste findings), confidence and severity rubrics, the
+severity-elevation rule, the per-specialist and aggregated report shapes, the
+verdict rules, the dedup/filter rules, and the canonical **dimension set**
+(`## Dimensions`). Its sibling `schema.py` is the
 machine-enforceable half — it validates findings and renders them to Markdown.
 Specialist skills and agents should _defer_ to the contract rather than
 restating these — restated copies drift. When adding or removing a review

@@ -40,6 +40,63 @@ dispatched dimension. Adding or removing a dimension means updating this section
 the `DIMENSIONS` tuple in `schema.py`, the command's dispatch list, and the
 matching specialist agent.
 
+## Review Method
+
+The difference between a reviewer people trust and one they mute is not how
+many findings it produces — it is whether each finding survives scrutiny.
+Checklists are recall aids for phase 2, not quotas. Every specialist works in
+three phases:
+
+1. **Understand the change before judging it.** Read the commit messages and
+   any PR description the dispatcher provided — they state intent, and a
+   subtle bug is usually a mismatch between intent and implementation. Read
+   changed files **in full, not just the hunks**: a line that looks wrong in
+   isolation is often guarded twenty lines above the hunk. Identify the
+   consumers of every changed symbol (graph `callers_of` / `importers_of`,
+   or Grep) before deciding what the change can break.
+
+2. **Hunt for what the diff should have changed but did not.** The bugs that
+   embarrass reviewers are omissions, invisible in the hunks themselves: a
+   renamed field with one stale call site, a new enum case missing from one
+   `match`, a sibling implementation left inconsistent, a changed default
+   not propagated to config/docs/migrations, a bug fix applied to one copy
+   of a duplicated block. Enumerate the places that mirror, consume, or
+   duplicate the changed code and check each one.
+
+3. **Falsify before you report.** For every candidate finding, actively try
+   to prove yourself wrong before emitting it: look for an upstream guard, a
+   type-system guarantee, a framework behavior, an invariant that makes the
+   "bad" input unreachable, or an existing test that pins the behavior. Most
+   false positives die here. Report only what survives, and when the
+   falsification attempt was non-obvious, record what you checked in the
+   finding's `why` ("no None-guard upstream: checked both call sites in
+   api/routes.py").
+
+An empty `findings` array produced by this method is a **success** — it is
+the report that the change is clean along your dimension. Never pad a report
+to justify the dispatch.
+
+## What Not to Report
+
+Every low-value finding costs trust that the high-value findings need. Do
+not report:
+
+- **Pre-existing issues on lines the diff does not touch** — unless
+  BLOCKER-grade (data loss, exploit, corruption), and then prefix the
+  summary with `[pre-existing]` so the author knows it is not their
+  regression.
+- **Anything a formatter, linter, or type checker will catch** — unused
+  imports, line length, formatting, missing annotations that `mypy`/`tsc`
+  already flags. CI does this cheaper.
+- **Speculative concerns** — "could be a problem if…" without a concrete,
+  reachable trigger in this codebase. Name the input, caller, or
+  configuration that triggers it, or drop it.
+- **Taste** — style preferences with no behavioral or maintenance
+  consequence, docstring/comment nits, alternative idioms of equal merit —
+  unless the repo's own conventions (`REVIEW.md`, `CLAUDE.md`) demand them.
+- **Narration of the diff** — observations that describe what changed
+  without identifying a problem.
+
 ## Finding Schema
 
 Every finding is a JSON object with these fields (enforced by `schema.py`):
@@ -95,9 +152,15 @@ confirmed `file` and `line`.
 
 ### Confidence Rubric
 
-- `90-100`: Direct evidence, clear consequence, likely actionable.
-- `80-89`: Strong evidence with a small assumption about runtime or caller
-  behavior.
+Confidence is **the probability that a maintainer who investigates will agree
+this is a real, reachable problem worth fixing** — not your certainty about
+what the code does. Grade it after the falsification pass (see Review
+Method), and grade against these anchors:
+
+- `90-100`: Direct evidence, clear consequence, falsification attempted and
+  failed — you traced the trigger.
+- `80-89`: Strong evidence with one small assumption about runtime or caller
+  behavior that you could not fully verify.
 - `70-79`: Plausible and worth surfacing for IMPORTANT or BLOCKER findings,
   but missing one piece of context.
 - `<70`: Do not emit as a finding unless it is a BLOCKER candidate that the
@@ -243,3 +306,11 @@ Drop findings that:
 - Are tagged SUGGESTION with `confidence < 80`
 - Are tagged IMPORTANT with `confidence < 70`
 - Are duplicates of a higher-severity finding at the same location
+- Violate **What Not to Report**: pre-existing issues below BLOCKER (or
+  missing the `[pre-existing]` prefix), linter/type-checker territory,
+  speculative `why` with no concrete trigger, taste, or diff narration
+
+The final bar for every surviving non-BLOCKER finding: **would a staff
+engineer raise this in a real PR review, or would it read as noise?** When
+in doubt at SUGGESTION level, drop it — a short report of real issues
+outperforms a long report of maybes.

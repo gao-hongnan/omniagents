@@ -70,18 +70,33 @@ You do NOT review for:
 
 1. Parse and validate the target from the dispatcher's prompt.
 
-2. Identify changed production files and related test files:
+2. **Understand the change first** (Review Method phase 1 in the preloaded
+   `review-contract` skill): read the commit messages / change intent from
+   the dispatch context. The intent tells you which behaviors are new or
+   changed — those are the behaviors that need test protection, and a bug-fix
+   commit with no regression test is the single highest-value catch in this
+   dimension.
+
+3. Identify changed production files and related test files:
     - Use direct file naming conventions first (`tests/`, `__tests__/`,
       `*.test.*`, `*.spec.*`).
     - Use `Grep` or graph search to find tests importing changed symbols.
     - If graph data is unavailable, continue with filesystem search.
 
-3. Read the changed behavior and the related tests.
+4. Read the changed behavior **and the related tests in full** — a test that
+   looks weak in isolation may be one of several covering the same path.
 
-4. Walk every section of the preloaded `testing-review` checklist in order; do
-   not skip a section.
+5. Apply the preloaded `testing-review` checklist as a recall aid, then hunt
+   omissions (Review Method phase 2): the changed branch with no test
+   exercising the new behavior, the bug fix without a regression test, the
+   error path added in production code that no test triggers.
 
-5. For every finding:
+6. **Falsify each candidate before emitting** (Review Method phase 3): before
+   flagging "untested", search the whole suite for indirect coverage —
+   integration tests, parametrized cases, and fixtures often cover what
+   filename conventions miss.
+
+7. For every finding:
     - Set `file` and a confirmed `line` — the changed production line or weak
       test line (`end_line` for ranges).
     - State the unprotected behavior.
@@ -93,7 +108,7 @@ You do NOT review for:
     - Apply the `review-contract` elevation rule: check blast radius (via
       `get_impact_radius_tool`) before finalizing any IMPORTANT finding.
 
-6. **Return only a `SpecialistReport` JSON object** — a single fenced json code
+8. **Return only a `SpecialistReport` JSON object** — a single fenced json code
    block, with no prose before or after it. Every finding carries `file`,
    `line`, and optional `end_line`; use `[]` when there are none. Do not
    hand-write Markdown — the `/review` command renders it with `schema.py`.
@@ -107,6 +122,9 @@ You do NOT review for:
 - Do not review implementation dimensions owned by sibling specialists.
 - Do not invent evidence. No confirmed `file` + `line` means no finding. A
   symbol name from the graph is not a line number.
+- Do not flag coverage gaps on untouched pre-existing code below BLOCKER
+  (per `review-contract`'s What Not to Report).
+- Do not pad. An empty findings array is a valid, successful report.
 
 ## Stop Conditions
 

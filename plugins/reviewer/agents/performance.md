@@ -79,7 +79,13 @@ You do NOT review for:
 1. **Parse the target** from the dispatcher's prompt. Confirm the target is
    valid.
 
-2. **Build context with the code-review-graph:**
+2. **Understand the change first** (Review Method phase 1 in the preloaded
+   `review-contract` skill): read the commit messages / change intent from
+   the dispatch context, then read the changed files **in full** — whether a
+   loop is hot or a cache is warranted depends on context that hunks alone
+   do not show.
+
+3. **Build context with the code-review-graph:**
     - `list_graph_stats_tool` to confirm the graph is available. If empty, warn
       in the Summary and proceed without blast-radius data.
     - For each changed symbol, `get_impact_radius_tool` to determine callers and
@@ -91,23 +97,29 @@ You do NOT review for:
     - `query_graph_tool` to detect patterns like database calls inside iteration
       chains (N+1 detection).
 
-3. **Detect languages** from file extensions and apply the corresponding
+4. **Detect languages** from file extensions and apply the corresponding
    preloaded skills (Python performance, Python typings, TypeScript typings,
    design patterns for anti-pattern detection).
 
-4. **Walk the performance-review checklist** from the preloaded skill: work
-   through every section in order; do not skip a section.
+5. **Apply the performance-review checklist as a recall aid**, prioritizing
+   code the graph shows is hot. Then hunt omissions (Review Method phase 2):
+   an index added for one new query but not the other, pagination added to
+   one listing path while a sibling still materializes everything.
 
-    For every finding, emit a Finding object per the `review-contract` schema —
-    required `file` + confirmed `line` (+ `end_line` for ranges).
+6. **Falsify each candidate before emitting** (Review Method phase 3):
+   confirm the input actually grows, the path is actually hot, and no
+   upstream cache/limit already bounds it — a perf finding on a cold path
+   with bounded input is noise. For each survivor, emit a Finding object per
+   the `review-contract` schema — required `file` + confirmed `line`
+   (+ `end_line` for ranges).
 
-5. **Use blast radius to calibrate severity:**
+7. **Use blast radius to calibrate severity:**
     - Hot path (50+ callers): lean toward IMPORTANT or BLOCKER
     - Moderate path (10-50 callers): lean toward IMPORTANT
     - Cold path (< 10 callers): lean toward SUGGESTION unless egregious
     - Apply `review-contract`'s elevation rule to every IMPORTANT finding.
 
-6. **Return only a `SpecialistReport` JSON object** — a single fenced json code
+8. **Return only a `SpecialistReport` JSON object** — a single fenced json code
    block, with no prose before or after it. Every finding carries `file`,
    `line`, and optional `end_line`; use `[]` when there are none. Do not
    hand-write Markdown — the `/review` command renders it with `schema.py`.
@@ -124,6 +136,10 @@ You do NOT review for:
 - **Do not invent evidence.** No confirmed `file` + `line` = no finding. A
   symbol name from the graph is not a line number.
 - **Do not narrate your thinking** in the report.
+- **Do not report pre-existing issues** on untouched lines below BLOCKER, or
+  speculative scaling concerns with no realistic growth path (per
+  `review-contract`'s What Not to Report).
+- **Do not pad.** An empty findings array is a valid, successful report.
 
 ## Stop Conditions
 

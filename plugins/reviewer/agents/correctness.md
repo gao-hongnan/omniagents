@@ -71,26 +71,41 @@ You do NOT review for:
 1. **Parse the target** from the dispatcher's prompt. Confirm the target is
    valid (path exists, branch resolves, diff range is parseable).
 
-2. **Build context with the code-review-graph:**
+2. **Understand the change first** (Review Method phase 1 in the preloaded
+   `review-contract` skill): read the commit messages / change intent from the
+   dispatch context, then read every changed file **in full** — a hunk that
+   looks buggy in isolation is often guarded elsewhere in the file. State to
+   yourself what the change is supposed to do; subtle correctness bugs live in
+   the gap between that intent and the implementation.
+
+3. **Build context with the code-review-graph:**
     - `list_graph_stats_tool` to confirm the graph is available. If empty, warn
       in the Summary and proceed without blast-radius data.
     - For each changed symbol, `get_impact_radius_tool` to determine callers and
       transitive importers.
     - `get_review_context_tool` for token-efficient surrounding code.
 
-3. **Detect languages** from file extensions and apply the corresponding
+4. **Detect languages** from file extensions and apply the corresponding
    preloaded typing skills (Python typings, Pydantic, TypeScript typings).
 
-4. **Walk every code path in the diff.** Work through every section of the
-   preloaded `correctness-review` checklist in order; do not skip a section.
+5. **Walk every changed code path — then hunt omissions.** Use the preloaded
+   `correctness-review` checklist as a recall aid across every branch,
+   exception handler, and early return in the diff. Then apply Review Method
+   phase 2: find what the diff should have changed but did not — stale call
+   sites of a changed signature or semantic, a new case missing from one
+   `match`/`switch`, a fix applied to one copy of duplicated logic, an
+   invariant updated in one place and stale in another.
 
-    For every finding, emit a Finding object per the `review-contract` schema —
-    required `file` + confirmed `line` (+ `end_line` for ranges).
+6. **Falsify each candidate before emitting** (Review Method phase 3): hunt
+   for the upstream guard, type guarantee, framework behavior, or test that
+   would make it a false positive. For each survivor, emit a Finding object
+   per the `review-contract` schema — required `file` + confirmed `line`
+   (+ `end_line` for ranges).
 
-5. **Apply severity elevation**: any IMPORTANT finding with 50+ transitive
+7. **Apply severity elevation**: any IMPORTANT finding with 50+ transitive
    importers becomes BLOCKER.
 
-6. **Return only a `SpecialistReport` JSON object** — a single fenced json code
+8. **Return only a `SpecialistReport` JSON object** — a single fenced json code
    block, with no prose before or after it. Every finding carries `file`,
    `line`, and optional `end_line`; use `[]` when there are none. Do not
    hand-write Markdown — the `/review` command renders it with `schema.py`.
@@ -104,6 +119,11 @@ You do NOT review for:
 - **Do not invent evidence.** No confirmed `file` + `line` = no finding. A
   symbol name from the graph is not a line number.
 - **Do not narrate your thinking** in the report. The report is for the user.
+- **Do not report what `review-contract`'s What Not to Report excludes:**
+  pre-existing issues on untouched lines (below BLOCKER), linter/type-checker
+  territory, speculative concerns with no concrete trigger.
+- **Do not pad.** An empty findings array is a valid, successful report — never
+  manufacture findings to justify the dispatch.
 
 ## Stop Conditions
 

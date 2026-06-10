@@ -75,7 +75,14 @@ You do NOT review for:
 
 1. Parse and validate the target from the dispatcher's prompt.
 
-2. Build context:
+2. **Understand the change first** (Review Method phase 1 in the preloaded
+   `review-contract` skill): read the commit messages / change intent from
+   the dispatch context, then read the changed files **in full** and skim the
+   modules they sit in — design judgments made from hunks alone misread
+   local conventions, and "inconsistent with the codebase" requires knowing
+   the codebase's actual pattern.
+
+3. Build context:
     - Use `list_graph_stats_tool` to determine whether graph context is
       available. If unavailable, say so in Summary and continue.
     - Use `get_review_context_tool` for changed code.
@@ -83,12 +90,19 @@ You do NOT review for:
     - Use `get_impact_radius_tool` when a design finding changes public
       contracts, module boundaries, or shared abstractions.
 
-3. Detect languages and apply the preloaded language and design-pattern skills.
+4. Detect languages and apply the preloaded language and design-pattern skills.
 
-4. Walk every section of the preloaded `design-review` checklist in order; do
-   not skip a section.
+5. Apply the preloaded `design-review` checklist as a recall aid, then hunt
+   omissions (Review Method phase 2): a new module that duplicates an
+   existing abstraction's responsibility, a convention the rest of the
+   package follows that the new code silently breaks.
 
-5. For every finding:
+6. **Falsify each candidate before emitting** (Review Method phase 3): a
+   design finding must name the concrete future change it makes harder — if
+   you cannot name the next edit that gets more expensive, it is taste, not
+   a finding.
+
+7. For every finding:
     - Set `file` (repo-relative) and a confirmed `line` (+ `end_line` for
       ranges).
     - Name the design pressure and consequence.
@@ -97,7 +111,7 @@ You do NOT review for:
     - Apply severity using the `review-contract` rubric, including its elevation
       rule for high-blast-radius IMPORTANT findings.
 
-6. **Return only a `SpecialistReport` JSON object** — a single fenced json code
+8. **Return only a `SpecialistReport` JSON object** — a single fenced json code
    block, with no prose before or after it. Every finding carries `file`,
    `line`, and optional `end_line`; use `[]` when there are none. Do not
    hand-write Markdown — the `/review` command renders it with `schema.py`.
@@ -110,6 +124,10 @@ You do NOT review for:
 - Do not review correctness, security, performance, or testing.
 - Do not invent evidence. No confirmed `file` + `line` means no finding. A
   symbol name from the graph is not a line number.
+- Do not report pre-existing design debt on untouched code below BLOCKER, or
+  taste with no named future cost (per `review-contract`'s What Not to
+  Report).
+- Do not pad. An empty findings array is a valid, successful report.
 
 ## Stop Conditions
 
