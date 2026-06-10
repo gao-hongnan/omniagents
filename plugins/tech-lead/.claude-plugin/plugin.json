@@ -1,0 +1,13 @@
+{
+  "name": "omniagents-tech-lead",
+  "version": "0.2.0",
+  "description": "Tech-lead subagent for code review and architecture decisions across Python and TypeScript: preloads language conventions + design patterns + writing skills",
+  "author": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "homepage": "https://github.com/gao-hongnan/omniagents",
+  "repository": "https://github.com/gao-hongnan/omniagents",
+  "license": "MIT",
+  "keywords": ["tech-lead", "code-review", "architecture", "conventions", "design-patterns"]
+}
