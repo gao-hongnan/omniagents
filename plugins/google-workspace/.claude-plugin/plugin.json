@@ -1,6 +1,6 @@
 {
   "name": "google-workspace",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Google Workspace MCP: Gmail, Drive, Calendar, and Docs via taylorwilsdon/google_workspace_mcp",
   "author": {
     "name": "GAO Hongnan",

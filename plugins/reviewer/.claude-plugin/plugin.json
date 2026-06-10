@@ -1,6 +1,6 @@
 {
   "name": "omniagents-reviewer",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Multi-specialist code review plugin: parallel correctness, security, performance, design, and testing agents with orchestrator dispatch and verification layer",
   "author": {
     "name": "GAO Hongnan",

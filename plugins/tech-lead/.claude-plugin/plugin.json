@@ -1,6 +1,6 @@
 {
   "name": "omniagents-tech-lead",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Tech-lead subagent for code review and architecture decisions across Python and TypeScript: preloads language conventions + design patterns + writing skills",
   "author": {
     "name": "GAO Hongnan",
