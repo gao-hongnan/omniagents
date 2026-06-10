@@ -33,12 +33,13 @@ contract guarantees every finding a human reads carries a jump-to-able
 ## Dimensions
 
 The reviewer specialist set is fixed: **correctness, security, performance,
-design, testing**. This is the single source of truth for the dimension set —
-the `/review` command dispatches one specialist per dimension, the `dimension`
-field below enumerates the same values, and the verifier expects one report per
-dispatched dimension. Adding or removing a dimension means updating this section,
-the `DIMENSIONS` tuple in `schema.py`, the command's dispatch list, and the
-matching specialist agent.
+design, testing, operability**. This is the single source of truth for the
+dimension set — the `/review` command triages which specialists a given diff
+needs, the `dimension` field below enumerates the same values, and the
+verifier expects one report per dispatched dimension. Adding or removing a
+dimension means updating this section, the `Dimension` enum in `schema.py`,
+the command's dispatch + triage lists, and the matching specialist agent
+(`scripts/doctor.py` checks this wiring mechanically).
 
 ## Review Method
 
@@ -214,10 +215,14 @@ radius before finalizing severity for every IMPORTANT finding.
 
 ## Specialist Report (JSON)
 
-Each specialist returns **exactly one JSON object and nothing else** — no
-Markdown, no prose wrapper, a single fenced `json` code block. The `/review`
-command writes it to `.reviews/<timestamp>/NN_<dimension>.json` and renders
-`NN_<dimension>.md` with `python3 schema.py specialist`.
+Each specialist **writes exactly one JSON object to the report path the
+dispatcher provides** (`.reviews/<timestamp>/NN_<dimension>.json`) using its
+`Write` tool, then returns a single summary line (dimension, counts by
+severity, path written) — never the full JSON in the reply, never Markdown.
+The `/review` command validates the file and renders `NN_<dimension>.md`
+with `python3 schema.py specialist`. Self-persistence is deliberate: it
+removes the orchestrator's verbatim re-typing of large JSON, which costs
+tokens and risks transcription drift.
 
 ```json
 {
@@ -237,8 +242,10 @@ Set `graph_available` to `false` if the code-review-graph was empty.
 
 The verifier returns **exactly one JSON object and nothing else** — a single
 fenced `json` code block. The `/review` command writes it to
-`.reviews/<timestamp>/review.json` and renders `review.md` with
-`python3 schema.py review`.
+`.reviews/<timestamp>/merged.json`. The adjudicator then re-tries it against
+the code (next section) and returns the final object of the same shape,
+which the command writes to `.reviews/<timestamp>/review.json` and renders
+as `review.md` with `python3 schema.py review`.
 
 ```json
 {
@@ -264,19 +271,42 @@ In `findings`, a finding flagged by multiple specialists carries
 Every finding's `file` and `line` are preserved **verbatim** from the specialist
 report — the verifier never collapses a citation.
 
+## Adjudication
+
+After the verifier merges, the **adjudicator** agent re-opens every BLOCKER
+and IMPORTANT citation in the actual code and independently re-verifies it:
+
+- **Confirm** — evidence holds; `why` gains `Adjudicated: confirmed — …`.
+- **Downgrade** — real but overstated; severity drops one level and `why`
+  gains `Adjudicated: downgraded — …`.
+- **Drop** — the claim dies against the code (an upstream guard, an
+  unreachable input, a misread line); the report `summary` records each drop
+  with location and reason.
+
+SUGGESTION findings pass through (citations spot-checked). The adjudicator
+**never adds findings and never raises severity or confidence** — recall
+belongs to the specialists; the adjudicator only buys precision. The verdict
+is recomputed from the surviving findings. The output is a normal
+`ReviewReport` (it may carry an extra `"adjudicated": true`, which the
+renderer ignores).
+
 ## Rendered Output Layout
 
 The `/review` command persists every run under a git-ignored folder:
 
 ```
 .reviews/<timestamp>/
+  changed_files.txt           # git diff --name-only output for scope checks
   01_correctness.json / .md   02_security.json / .md   03_performance.json / .md
-  04_design.json / .md        05_testing.json / .md
-  review.json                 # canonical aggregated report (verifier output)
+  04_design.json / .md        05_testing.json / .md    06_operability.json / .md
+  merged.json                 # verifier output (pre-adjudication)
+  review.json                 # canonical final report (adjudicator output)
   review.md                   # headline human-readable report
 .reviews/latest -> <timestamp>
 ```
 
+Triage decides which `NN_*` files exist for a given run — a docs-only diff
+may dispatch nothing; a test-only diff dispatches `testing` + `correctness`.
 `review.md` is the headline artifact; the per-dimension files preserve each
 specialist's full findings.
 

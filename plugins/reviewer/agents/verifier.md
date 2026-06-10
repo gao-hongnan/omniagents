@@ -118,11 +118,15 @@ Apply the verdict rules from the `review-contract` skill:
 - Only IMPORTANT (no BLOCKERs): **APPROVE WITH FOLLOWUPS**
 - Only SUGGESTION or no findings: **APPROVE**
 
-### Step 6: Produce the Aggregated Report (JSON)
+### Step 6: Produce the Merged Report (JSON)
 
 Return **one `ReviewReport` JSON object and nothing else** — a single
 fenced json code block, no prose around it — conforming to the
-`review-contract` schema:
+`review-contract` schema. The `/review` command persists it as
+`merged.json` and hands it to the `adjudicator`, which re-verifies your
+surviving findings against the code before anything reaches the user —
+so prefer keeping a borderline-but-cited finding over silently losing
+it; the adjudicator exists to drop what does not hold up. Fields:
 
 - `findings`: the merged/deduped list. A finding flagged by multiple
   specialists carries `"dimensions": [...]`. Copy each `file`, `line`,
@@ -135,8 +139,8 @@ fenced json code block, no prose around it — conforming to the
 - `specialist_reports`: the per-dimension `.md` filenames
   (`01_correctness.md`, …) so the rendered report can link them.
 
-Do not hand-write Markdown — the `/review` command renders `review.md`
-with `schema.py`.
+Do not hand-write Markdown — the `/review` command renders the final
+(post-adjudication) report with `schema.py`.
 
 ## Anti-Rules
 

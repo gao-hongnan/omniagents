@@ -1,0 +1,31 @@
+{
+  "description": "New run_job orchestrator with a coroutine called without await and a check-then-create race, plus two precision baits.",
+  "seeded_bugs": [
+    {
+      "id": "missing-await",
+      "file": "worker/jobs.py",
+      "evidence_substring": "cleanup_temp(tmp)",
+      "expected_severity": "BLOCKER or IMPORTANT",
+      "why": "cleanup_temp(tmp) creates a coroutine that is never awaited -- cleanup silently never runs (RuntimeWarning at best)."
+    },
+    {
+      "id": "toctou-create",
+      "file": "worker/jobs.py",
+      "evidence_substring": "os.path.exists(out_path)",
+      "expected_severity": "IMPORTANT",
+      "why": "exists()-then-open('w') race: two workers processing the same job id both pass the check and the second silently overwrites. open(mode='x') with FileExistsError handling is the fix."
+    }
+  ],
+  "noise_traps": [
+    {
+      "id": "bounded-loop-perf-bait",
+      "file": "worker/jobs.py",
+      "must_not": "be flagged as a performance issue -- TAGS is a 3-element literal tuple; the loop is bounded and cold"
+    },
+    {
+      "id": "missing-docstring-taste",
+      "file": "worker/jobs.py",
+      "must_not": "be flagged -- run_job lacking a docstring is taste, not a contract violation in this repo"
+    }
+  ]
+}

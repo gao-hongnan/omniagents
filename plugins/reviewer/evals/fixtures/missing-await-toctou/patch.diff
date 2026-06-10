@@ -1,0 +1,24 @@
+diff --git a/worker/jobs.py b/worker/jobs.py
+index b64325b..737b092 100644
+--- a/worker/jobs.py
++++ b/worker/jobs.py
+@@ -17,3 +17,19 @@ async def process(job: dict[str, str], out_dir: str) -> str:
+     with open(out_path, "w", encoding="utf-8") as fh:
+         fh.write(result)
+     return out_path
++
++
++TAGS = ("alpha", "beta", "gamma")
++
++
++async def run_job(job: dict[str, str], out_dir: str, tmp: str) -> str | None:
++    for tag in TAGS:
++        job[f"tag_{tag}"] = tag
++    out_path = os.path.join(out_dir, f"{job['id']}.json")
++    if not os.path.exists(out_path):
++        result = json.dumps(job)
++        with open(out_path, "w", encoding="utf-8") as fh:
++            fh.write(result)
++        cleanup_temp(tmp)
++        return out_path
++    return None

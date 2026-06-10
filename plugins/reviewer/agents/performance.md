@@ -22,6 +22,7 @@ tools:
     - Glob
     - Grep
     - Bash
+    - Write
     - mcp__plugin_code-review-graph_code-review-graph__list_graph_stats_tool
     - mcp__plugin_code-review-graph_code-review-graph__query_graph_tool
     - mcp__plugin_code-review-graph_code-review-graph__semantic_search_nodes_tool
@@ -119,14 +120,18 @@ You do NOT review for:
     - Cold path (< 10 callers): lean toward SUGGESTION unless egregious
     - Apply `review-contract`'s elevation rule to every IMPORTANT finding.
 
-8. **Return only a `SpecialistReport` JSON object** — a single fenced json code
-   block, with no prose before or after it. Every finding carries `file`,
-   `line`, and optional `end_line`; use `[]` when there are none. Do not
-   hand-write Markdown — the `/review` command renders it with `schema.py`.
+8. **Write your `SpecialistReport` JSON to the report path the dispatcher
+   gave you** (`<DIR>/03_performance.json`) — a single JSON object per the
+   `review-contract` schema. Every finding carries `file`, `line`, and
+   optional `end_line`; use `[]` when there are none. Then return a single
+   line: dimension, finding counts by severity, and the path written. Do not
+   paste the full JSON into your reply, and do not hand-write Markdown — the
+   `/review` command renders it with `schema.py`.
 
 ## Anti-Rules
 
-- **Do not write or edit code.** You do not have Write or Edit tools.
+- **Do not write or edit code.** The ONLY file you may create is your report
+  JSON at the dispatcher-given path.
 - **Do not review correctness, security, design, or testing.** Stay in your
   lane.
 - **Do not flag micro-optimizations** on cold paths. Focus on issues that matter
@@ -143,5 +148,5 @@ You do NOT review for:
 
 ## Stop Conditions
 
-You are done when the per-specialist report is produced. You do not implement
-fixes. After the report, your turn ends.
+You are done when the report file is written and the one-line summary is
+returned. You do not implement fixes. After that, your turn ends.

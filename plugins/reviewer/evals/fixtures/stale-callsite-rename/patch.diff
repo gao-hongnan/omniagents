@@ -1,0 +1,29 @@
+diff --git a/app/api.py b/app/api.py
+index e23b8b1..45edfe3 100644
+--- a/app/api.py
++++ b/app/api.py
+@@ -4,8 +4,8 @@ from app.models import User
+ 
+ 
+ def create_user(payload: dict[str, str]) -> User:
+-    return User(name=payload["name"], email_address=payload["email"])
++    return User(name=payload["name"], email=payload["email"])
+ 
+ 
+ def user_to_json(user: User) -> dict[str, str]:
+-    return {"name": user.name, "email": user.email_address}
++    return {"name": user.name, "email": user.email}
+diff --git a/app/models.py b/app/models.py
+index 7858a75..e730793 100644
+--- a/app/models.py
++++ b/app/models.py
+@@ -7,7 +7,7 @@ from dataclasses import dataclass
+ @dataclass(frozen=True)
+ class User:
+     name: str
+-    email_address: str
++    email: str
+ 
+     def display(self) -> str:
+-        return f"{self.name} <{self.email_address}>"
++        return f"{self.name} <{self.email}>"

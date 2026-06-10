@@ -1,0 +1,24 @@
+{
+  "description": "Field rename email_address -> email applied to models.py and api.py but NOT notify.py. The omission class of bug: invisible in the hunks, fatal at runtime.",
+  "seeded_bugs": [
+    {
+      "id": "stale-callsite",
+      "file": "app/notify.py",
+      "evidence_substring": "email_address",
+      "expected_severity": "BLOCKER or IMPORTANT",
+      "why": "send_welcome reads user.email_address, which no longer exists after the rename -> AttributeError on every welcome email. Catchable only by hunting what the diff failed to change."
+    }
+  ],
+  "noise_traps": [
+    {
+      "id": "pre-existing-swallow",
+      "file": "app/legacy.py",
+      "must_not": "be flagged without the [pre-existing] prefix -- the broad except Exception: pass predates the diff and no line of legacy.py was touched"
+    },
+    {
+      "id": "unused-import",
+      "file": "app/models.py",
+      "must_not": "be flagged at all -- 'import os' is unused but that is linter territory, even though models.py is in the changed set"
+    }
+  ]
+}

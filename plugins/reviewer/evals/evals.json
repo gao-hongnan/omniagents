@@ -1,0 +1,30 @@
+{
+  "skill_name": "omniagents-reviewer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run evals/setup_fixture.sh fixtures/stale-callsite-rename to materialize the fixture, cd into the printed directory, then run /omniagents-reviewer:review (no arguments — review the working-tree diff). When it finishes, copy .reviews/latest/review.json and review.md into the output directory.",
+      "expected_output": "review.json validates against schema.py. RECALL: a BLOCKER/IMPORTANT finding cites app/notify.py (the stale email_address call site the diff failed to update). PRECISION: no finding on app/legacy.py without a [pre-existing] prefix; no finding about the unused 'import os'.",
+      "files": ["fixtures/stale-callsite-rename"],
+      "assertions": [
+        {"text": "review.json exists and `python3 schema.py review review.json` exits 0", "kind": "artifact-valid"},
+        {"text": "a finding with severity BLOCKER or IMPORTANT cites file app/notify.py", "kind": "recall"},
+        {"text": "no finding cites app/legacy.py unless its summary starts with [pre-existing]", "kind": "precision"},
+        {"text": "no finding mentions the unused 'import os' in app/models.py", "kind": "precision"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Run evals/setup_fixture.sh fixtures/missing-await-toctou to materialize the fixture, cd into the printed directory, then run /omniagents-reviewer:review (no arguments — review the working-tree diff). When it finishes, copy .reviews/latest/review.json and review.md into the output directory.",
+      "expected_output": "review.json validates against schema.py. RECALL: findings cite the un-awaited cleanup_temp(tmp) call and the exists()-then-open race in worker/jobs.py. PRECISION: no performance finding on the bounded TAGS loop; no docstring nit on run_job.",
+      "files": ["fixtures/missing-await-toctou"],
+      "assertions": [
+        {"text": "review.json exists and `python3 schema.py review review.json` exits 0", "kind": "artifact-valid"},
+        {"text": "a finding cites worker/jobs.py at the un-awaited cleanup_temp(tmp) line", "kind": "recall"},
+        {"text": "a finding cites worker/jobs.py at the os.path.exists(out_path) check-then-create race", "kind": "recall"},
+        {"text": "no performance finding on the 3-element TAGS loop", "kind": "precision"},
+        {"text": "no finding about run_job missing a docstring", "kind": "precision"}
+      ]
+    }
+  ]
+}

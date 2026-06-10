@@ -31,7 +31,7 @@ Finding (leaf):
     file          repo-relative path, e.g. "auth/login.py"     (required)
     line          start line, int >= 1                          (required)
     end_line      end line for multi-line issues, int | null    (optional)
-    dimension     one of the five dimensions (specialist output) (one of
+    dimension     one of the Dimension enum values (specialist)  (one of
     dimensions    list of dimensions (verifier-merged output)     these two)
     summary       one-line description                           (required)
     why           rule violated + consequence                    (required)
@@ -54,9 +54,22 @@ ReviewReport (aggregated, verifier output):
 
 CLI
 ---
-    python3 schema.py specialist <json> [out.md]   # validate -> render .md
-    python3 schema.py review     <json> [out.md]   # validate -> render .md
+    python3 schema.py specialist <json> [out.md] [--changed-files <list>]
+    python3 schema.py review     <json> [out.md] [--changed-files <list>] [--ci]
     python3 schema.py --schema                      # print the annotated shape
+
+``--changed-files`` names a file with one repo-relative path per line (e.g.
+the output of ``git diff --name-only``). With it, any finding whose ``file``
+is outside that set must carry the ``[pre-existing]`` summary prefix --
+otherwise validation fails. This mechanically enforces the contract's
+diff-scoping rule no matter what a specialist or the verifier emitted.
+
+``review`` additionally strips non-BLOCKER findings below the contract's
+confidence thresholds (IMPORTANT < 70, SUGGESTION < 80) before rendering,
+printing one warning per stripped finding -- defense-in-depth behind the
+verifier. ``--ci`` makes ``review`` exit 3 when the verdict is
+REQUEST CHANGES, so a pipeline can gate on it (0 ok, 1 contract error,
+2 usage/IO error, 3 changes requested).
 
 Invalid input exits non-zero naming the offending field/index and writes no .md,
 so a caller can surface the error instead of persisting a broken report.
@@ -67,7 +80,7 @@ from __future__ import annotations
 import json
 import sys
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 from pathlib import Path
 from typing import Final, Self, TypeGuard, TypeVar
@@ -87,6 +100,7 @@ class Dimension(StrEnum):
     PERFORMANCE = "performance"
     DESIGN = "design"
     TESTING = "testing"
+    OPERABILITY = "operability"
 
 
 class Verdict(StrEnum):
@@ -97,6 +111,18 @@ class Verdict(StrEnum):
 
 class ContractError(ValueError):
     """Raised when a JSON payload violates the review contract."""
+
+
+# Findings on files outside the changed set must carry this summary prefix
+# (contract: "What Not to Report"). Checked only when --changed-files is given.
+PRE_EXISTING_PREFIX: Final = "[pre-existing]"
+
+# Contract confidence floors (review-contract SKILL.md, "Filtering Rules").
+# BLOCKERs are never stripped: the verifier must always see them.
+MIN_CONFIDENCE: Final[Mapping[Severity, int]] = {
+    Severity.IMPORTANT: 70,
+    Severity.SUGGESTION: 80,
+}
 
 
 # -- domain model -----------------------------------------------------------
@@ -419,6 +445,54 @@ def _parse_str_list(value: object) -> tuple[str, ...]:
     return tuple(str(item) for item in items)
 
 
+# -- contract enforcement beyond per-field parsing ---------------------------
+
+
+def scope_violations(
+    findings: tuple[Finding, ...], changed_files: frozenset[str]
+) -> tuple[str, ...]:
+    """Findings outside the changed set must say so.
+
+    One message per finding whose ``file`` is not in ``changed_files`` and
+    whose summary lacks the ``[pre-existing]`` prefix. An empty result means
+    the report respects the contract's diff-scoping rule.
+    """
+    out: list[str] = []
+    for idx, f in enumerate(findings):
+        if f.file in changed_files:
+            continue
+        if f.summary.startswith(PRE_EXISTING_PREFIX):
+            continue
+        out.append(
+            f"finding[{idx}] ({f.location}): file is outside the changed set; "
+            f"drop the finding or prefix its summary with '{PRE_EXISTING_PREFIX}'"
+        )
+    return tuple(out)
+
+
+def enforce_confidence(report: ReviewReport) -> tuple[ReviewReport, tuple[str, ...]]:
+    """Strip non-BLOCKER findings below the contract's confidence floors.
+
+    The verifier should already have filtered these; this is the mechanical
+    backstop so a rendered report can never undercut the contract. Returns the
+    (possibly unchanged) report plus one warning per stripped finding.
+    """
+    kept: list[Finding] = []
+    warnings: list[str] = []
+    for idx, f in enumerate(report.findings):
+        floor = MIN_CONFIDENCE.get(f.severity)
+        if floor is not None and f.confidence < floor:
+            warnings.append(
+                f"stripped finding[{idx}] ({f.location}): {f.severity.value} "
+                f"confidence {f.confidence} is below the contract floor {floor}"
+            )
+            continue
+        kept.append(f)
+    if not warnings:
+        return report, ()
+    return replace(report, findings=tuple(kept)), tuple(warnings)
+
+
 # -- rendering --------------------------------------------------------------
 
 
@@ -574,7 +648,18 @@ def _out_path(json_path: Path, explicit: str | None) -> Path:
     return json_path.with_suffix(".md")
 
 
-def _render_cli(kind: str, json_path: str, out: str | None) -> int:
+def _read_changed_files(list_path: str) -> frozenset[str]:
+    lines = Path(list_path).read_text(encoding="utf-8").splitlines()
+    return frozenset(line.strip() for line in lines if line.strip())
+
+
+def _render_cli(
+    kind: str,
+    json_path: str,
+    out: str | None,
+    changed_files: frozenset[str] | None,
+    ci: bool,
+) -> int:
     path = Path(json_path)
     try:
         # The one untyped boundary: json.loads is typed `-> Any`. Pinning it to
@@ -590,18 +675,36 @@ def _render_cli(kind: str, json_path: str, out: str | None) -> int:
         )
         return 2
 
+    verdict: Verdict | None = None
     try:
         if kind == "specialist":
-            md = render_specialist(SpecialistReport.from_json(raw))
+            specialist = SpecialistReport.from_json(raw)
+            findings = specialist.findings
+            md = render_specialist(specialist)
         else:
-            md = render_review(ReviewReport.from_json(raw))
+            review = ReviewReport.from_json(raw)
+            review, warnings = enforce_confidence(review)
+            for warning in warnings:
+                print(json.dumps({"warning": warning}), file=sys.stderr)
+            findings = review.findings
+            verdict = review.verdict
+            md = render_review(review)
     except ContractError as exc:
         print(json.dumps({"error": str(exc)}), file=sys.stderr)
         return 1
 
+    if changed_files is not None:
+        violations = scope_violations(findings, changed_files)
+        if violations:
+            for violation in violations:
+                print(json.dumps({"error": violation}), file=sys.stderr)
+            return 1
+
     out_path = _out_path(path, out)
     out_path.write_text(md, encoding="utf-8")
     print(json.dumps({"rendered": str(out_path)}))
+    if ci and verdict is Verdict.REQUEST_CHANGES:
+        return 3
     return 0
 
 
@@ -614,14 +717,40 @@ def main(argv: list[str]) -> int:
         print(SCHEMA_DOC)
         return 0
     if args[0] in ("specialist", "review"):
-        if len(args) < 2:
-            print(
-                json.dumps({"error": f"usage: schema.py {args[0]} <json> [out.md]"}),
-                file=sys.stderr,
+        kind = args[0]
+        rest = args[1:]
+
+        ci = "--ci" in rest
+        rest = [a for a in rest if a != "--ci"]
+
+        changed_files: frozenset[str] | None = None
+        if "--changed-files" in rest:
+            flag_at = rest.index("--changed-files")
+            if flag_at + 1 >= len(rest):
+                print(
+                    json.dumps({"error": "--changed-files requires a path argument"}),
+                    file=sys.stderr,
+                )
+                return 2
+            try:
+                changed_files = _read_changed_files(rest[flag_at + 1])
+            except OSError as exc:
+                print(
+                    json.dumps({"error": f"cannot read changed-files list: {exc}"}),
+                    file=sys.stderr,
+                )
+                return 2
+            del rest[flag_at : flag_at + 2]
+
+        if not rest:
+            usage = (
+                f"usage: schema.py {kind} <json> [out.md] "
+                "[--changed-files <list>]" + (" [--ci]" if kind == "review" else "")
             )
+            print(json.dumps({"error": usage}), file=sys.stderr)
             return 2
-        out = args[2] if len(args) > 2 else None
-        return _render_cli(args[0], args[1], out)
+        out = rest[1] if len(rest) > 1 else None
+        return _render_cli(kind, rest[0], out, changed_files, ci and kind == "review")
     unknown = f"unknown command {args[0]!r}; expected specialist|review|--schema"
     print(json.dumps({"error": unknown}), file=sys.stderr)
     return 2
