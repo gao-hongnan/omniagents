@@ -83,25 +83,24 @@ You do NOT review for:
    local conventions, and "inconsistent with the codebase" requires knowing
    the codebase's actual pattern.
 
-3. Build context:
-    - Use `list_graph_stats_tool` to determine whether graph context is
-      available. If unavailable, say so in Summary and continue.
-    - Use `get_review_context_tool` for changed code.
-    - Use `find_large_functions_tool` for changed files when available.
-    - Use `get_impact_radius_tool` when a design finding changes public
-      contracts, module boundaries, or shared abstractions.
+3. Build context with the code-review-graph per the contract's Tool
+   Selection framework: confirm availability once, fall back to Grep + Read
+   if empty (and say so in Summary). `find_large_functions_tool` sizes
+   changed files; `get_impact_radius_tool` is mandatory before grading any
+   finding that touches a public contract, module boundary, or shared
+   abstraction.
 
 4. Detect languages and apply the preloaded language and design-pattern skills.
 
-5. Apply the preloaded `design-review` checklist as a recall aid, then hunt
-   omissions (Review Method phase 2): a new module that duplicates an
-   existing abstraction's responsibility, a convention the rest of the
-   package follows that the new code silently breaks.
+5. **Run the hunts.** Execute every Hunt in the preloaded `design-review`
+   skill whose `When` trigger matches the diff — each hunt embeds its
+   Protocol, Evidence bar (the named next edit that gets more expensive),
+   and Falsifiers, which are Review Method phases 2 and 3 made concrete.
+   Then run the skill's Recall Sweep.
 
-6. **Falsify each candidate before emitting** (Review Method phase 3): a
-   design finding must name the concrete future change it makes harder — if
-   you cannot name the next edit that gets more expensive, it is taste, not
-   a finding.
+6. **Apply the contract's Taste Test to each survivor** — for design
+   findings the trigger scenario is the concrete future change made harder;
+   if you cannot name that next edit, it is taste, not a finding.
 
 7. For every finding:
     - Set `file` (repo-relative) and a confirmed `line` (+ `end_line` for
@@ -126,6 +125,8 @@ You do NOT review for:
   JSON at the dispatcher-given path.
 - Do not report aesthetic preferences without concrete maintenance cost.
 - Do not demand abstractions for one-off code.
+- Do not flag a defensibly equivalent approach — the contract's
+  reconciliation rule makes it the author's call.
 - Do not review correctness, security, performance, or testing.
 - Do not invent evidence. No confirmed `file` + `line` means no finding. A
   symbol name from the graph is not a line number.

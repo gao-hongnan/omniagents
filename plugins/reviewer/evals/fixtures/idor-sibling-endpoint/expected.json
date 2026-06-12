@@ -1,0 +1,24 @@
+{
+  "description": "A DELETE /reports/<id> handler added with authentication but WITHOUT the ownership check its GET sibling enforces — IDOR. Found by the security skill's Sibling Endpoint Parity hunt: read the whole router, compare the new handler against its siblings.",
+  "seeded_bugs": [
+    {
+      "id": "idor-delete",
+      "file": "app/routes.py",
+      "evidence_substring": "remove_report",
+      "expected_severity": "BLOCKER or IMPORTANT",
+      "why": "remove_report requires login but never compares row[1] (user_id) to g.user_id the way show_report does — any authenticated user can delete any other user's report."
+    }
+  ],
+  "noise_traps": [
+    {
+      "id": "safe-parameterized",
+      "file": "app/db.py",
+      "must_not": "be flagged for SQL injection — every query in the diff uses ? placeholders with bound parameters; the safe construct is the falsifier"
+    },
+    {
+      "id": "fake-test-token",
+      "file": "tests/conftest.py",
+      "must_not": "be flagged as a hardcoded secret — TEST_TOKEN is a fake local value in test fixtures that can never run in production"
+    }
+  ]
+}

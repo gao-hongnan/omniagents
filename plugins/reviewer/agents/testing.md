@@ -78,24 +78,24 @@ You do NOT review for:
    commit with no regression test is the single highest-value catch in this
    dimension.
 
-3. Identify changed production files and related test files:
-    - Use direct file naming conventions first (`tests/`, `__tests__/`,
-      `*.test.*`, `*.spec.*`).
-    - Use `Grep` or graph search to find tests importing changed symbols.
-    - If graph data is unavailable, continue with filesystem search.
+3. Locate the test surface: naming conventions first (`tests/`,
+   `__tests__/`, `*.test.*`, `*.spec.*`), then `Grep` or
+   `query_graph_tool` `tests_for` for tests importing changed symbols
+   (contract Tool Selection; filesystem search if the graph is empty).
 
 4. Read the changed behavior **and the related tests in full** — a test that
    looks weak in isolation may be one of several covering the same path.
 
-5. Apply the preloaded `testing-review` checklist as a recall aid, then hunt
-   omissions (Review Method phase 2): the changed branch with no test
-   exercising the new behavior, the bug fix without a regression test, the
-   error path added in production code that no test triggers.
+5. **Run the hunts.** Execute every Hunt in the preloaded `testing-review`
+   skill whose `When` trigger matches the diff — each hunt embeds its
+   Protocol, Evidence bar, and Falsifiers (Review Method phases 2 and 3),
+   and the skill's shared falsifier applies everywhere: search the whole
+   suite for indirect coverage before flagging anything "untested". Then
+   run the skill's Recall Sweep.
 
-6. **Falsify each candidate before emitting** (Review Method phase 3): before
-   flagging "untested", search the whole suite for indirect coverage —
-   integration tests, parametrized cases, and fixtures often cover what
-   filename conventions miss.
+6. **Apply the contract's Taste Test to each survivor** — the trigger
+   scenario for a testing finding is the regression that would ship
+   undetected.
 
 7. For every finding:
     - Set `file` and a confirmed `line` — the changed production line or weak
@@ -103,9 +103,7 @@ You do NOT review for:
     - State the unprotected behavior.
     - Suggest the minimum useful test to add or strengthen.
     - Assign numeric confidence from the `review-contract` skill.
-    - Use IMPORTANT for material untested behavior, SUGGESTION for narrow
-      coverage improvements, and BLOCKER only when missing tests make a
-      high-risk public contract change unreviewable.
+    - Grade with the skill's Severity Anchors.
     - Apply the `review-contract` elevation rule: check blast radius (via
       `get_impact_radius_tool`) before finalizing any IMPORTANT finding.
 
@@ -122,6 +120,8 @@ You do NOT review for:
 - Do not write or edit tests or code. The ONLY file you may create is your
   report JSON at the dispatcher-given path.
 - Do not demand 100 percent coverage.
+- Do not skip the contract's Taste Test: no nameable regression that would
+  ship undetected, no finding.
 - Do not flag missing tests for generated, trivial, or unreachable code unless
   the project explicitly requires it.
 - Do not review implementation dimensions owned by sibling specialists.

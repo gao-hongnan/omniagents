@@ -1,0 +1,24 @@
+{
+  "description": "A migration renames orders.status to orders.state in one step, in the same change as the code that reads the new name, with no down migration. During a rolling deploy old instances still SELECT status and crash; rollback is broken. Found by the operability skill's Mixed-Version Deploy Trace and Rollback Rehearsal hunts. Baits test the construction-time-timeout and inherited-log-context falsifiers.",
+  "seeded_bugs": [
+    {
+      "id": "one-shot-rename",
+      "file": "migrations/0002_rename_status.py",
+      "evidence_substring": "RENAME COLUMN",
+      "expected_severity": "BLOCKER or IMPORTANT",
+      "why": "rename-and-switch in a single deploy: old instances querying status crash for the whole rollout window (expand/contract violated), and with no down() the migration cannot be rolled back."
+    }
+  ],
+  "noise_traps": [
+    {
+      "id": "wrapped-timeout",
+      "file": "app/orders.py",
+      "must_not": "be flagged for a missing timeout on client.post/client.get — the shared client in app/http_client.py sets timeout=10.0 at construction; read the constructor before flagging"
+    },
+    {
+      "id": "inherited-log-context",
+      "file": "app/orders.py",
+      "must_not": "be flagged for logs lacking request correlation — app/middleware.py's RequestContextFilter injects request_id into every app.* record"
+    }
+  ]
+}

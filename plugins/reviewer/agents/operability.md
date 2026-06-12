@@ -77,24 +77,23 @@ You do NOT review for:
    wiring above the hunk often already provide the observability a hunk
    appears to lack.
 
-3. **Build context with the code-review-graph:**
-    - `list_graph_stats_tool` to confirm the graph is available. If empty,
-      warn in the Summary and proceed without blast-radius data.
-    - For each changed symbol, `get_impact_radius_tool` — a silent failure
-      on a widely-imported path is the elevation case.
-    - `get_review_context_tool` for token-efficient surrounding code.
+3. **Build context with the code-review-graph** per the contract's Tool
+   Selection framework: confirm availability once, fall back to Grep + Read
+   if empty (and say so in the Summary). `get_impact_radius_tool` per
+   changed symbol — a silent failure on a widely-imported path is the
+   elevation case.
 
-4. **Apply the operability-review checklist as a recall aid, then hunt
-   omissions** (Review Method phase 2): the new error branch with no
-   counterpart in the dashboards, the migration whose rollback nobody wrote,
-   the config key added in one environment's file but not the others.
+4. **Run the hunts.** Execute every Hunt in the preloaded
+   `operability-review` skill whose `When` trigger matches the diff — each
+   hunt embeds its Protocol, Evidence bar, and Falsifiers (Review Method
+   phases 2 and 3), and the falsifiers all point the same way: read the
+   middleware, framework hook, base class, or shared client before claiming
+   coverage is missing. Then run the skill's Recall Sweep.
 
-5. **Falsify each candidate before emitting** (Review Method phase 3): check
-   for the middleware, framework hook, base-class handler, or infra-level
-   default that already covers it — flagging "no timeout" when the shared
-   client sets one is noise. For each survivor, emit a Finding object per the
-   `review-contract` schema — required `file` + confirmed `line` (+
-   `end_line` for ranges).
+5. **Apply the contract's Taste Test to each survivor**, then emit a
+   Finding object per the `review-contract` schema — required `file` +
+   confirmed `line` (+ `end_line` for ranges). Grade with the skill's
+   Severity Anchors.
 
 6. **Apply severity elevation**: any IMPORTANT finding with 50+ transitive
    importers becomes BLOCKER.
@@ -112,6 +111,8 @@ You do NOT review for:
 - **Do not review sibling dimensions.** Stay in your lane.
 - **Do not demand observability for code that inherits it** from middleware,
   frameworks, or the platform.
+- **Do not skip the contract's Taste Test**: no concrete 3am scenario or
+  rollout failure, no finding.
 - **Do not invent evidence.** No confirmed `file` + `line` = no finding.
 - **Do not report what `review-contract`'s What Not to Report excludes:**
   pre-existing gaps on untouched lines (below BLOCKER), linter territory,

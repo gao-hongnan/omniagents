@@ -17,26 +17,21 @@ user-invocable: false
 
 # Review Contract
 
-Every specialist agent in the reviewer plugin produces findings as **JSON**, and
-the verifier aggregates them into a single JSON report. **JSON is the canonical
-artifact; the human-readable Markdown is _rendered_ from it** by `schema.py`
-(beside this file). Agents never hand-write the Markdown report.
-
-The machine-enforceable half of this contract is
-`${CLAUDE_PLUGIN_ROOT}/skills/review-contract/schema.py` (stdlib only — runs with
-any `python3`). Run `python3 schema.py --schema` to print the field-by-field
-shape. The `/review` command validates and renders with it. A finding that omits
-`file` or `line` **fails validation and is never rendered** — that is how this
-contract guarantees every finding a human reads carries a jump-to-able
-`file:line` citation.
+Every specialist produces findings as **JSON**; the verifier aggregates them
+into one JSON report. **JSON is canonical; Markdown is _rendered_ from it**
+by `schema.py` (beside this file, stdlib-only; `python3 schema.py --schema`
+prints the field-by-field shape — the machine-enforceable half of this
+contract). Agents never hand-write the Markdown report. A finding that omits
+`file` or `line` **fails validation and is never rendered** — every finding
+a human reads carries a jump-to-able `file:line` citation.
 
 ## Dimensions
 
 The reviewer specialist set is fixed: **correctness, security, performance,
 design, testing, operability**. This is the single source of truth for the
-dimension set — the `/review` command triages which specialists a given diff
-needs, the `dimension` field below enumerates the same values, and the
-verifier expects one report per dispatched dimension. Adding or removing a
+dimension set: triage, the `dimension` field below, and the verifier's
+one-report-per-dispatched-dimension expectation all enumerate it. Adding or
+removing a
 dimension means updating this section, the `Dimension` enum in `schema.py`,
 the command's dispatch + triage lists, and the matching specialist agent
 (`scripts/doctor.py` checks this wiring mechanically).
@@ -45,16 +40,16 @@ the command's dispatch + triage lists, and the matching specialist agent
 
 The difference between a reviewer people trust and one they mute is not how
 many findings it produces — it is whether each finding survives scrutiny.
-Checklists are recall aids for phase 2, not quotas. Every specialist works in
-three phases:
+Hunts are search procedure, not quotas. Every specialist works in three
+phases:
 
 1. **Understand the change before judging it.** Read the commit messages and
    any PR description the dispatcher provided — they state intent, and a
    subtle bug is usually a mismatch between intent and implementation. Read
    changed files **in full, not just the hunks**: a line that looks wrong in
    isolation is often guarded twenty lines above the hunk. Identify the
-   consumers of every changed symbol (graph `callers_of` / `importers_of`,
-   or Grep) before deciding what the change can break.
+   consumers of every changed symbol (Tool Selection below) before deciding
+   what the change can break.
 
 2. **Hunt for what the diff should have changed but did not.** The bugs that
    embarrass reviewers are omissions, invisible in the hunks themselves: a
@@ -73,9 +68,49 @@ three phases:
    finding's `why` ("no None-guard upstream: checked both call sites in
    api/routes.py").
 
+Each dimension skill expresses phases 2 and 3 as named **Hunts** — a `When`
+trigger, a `Protocol`, an `Evidence bar`, and `Falsifiers`. Execute every
+hunt whose trigger matches the diff, then run the skill's **Recall Sweep**
+to catch what no trigger matched.
+
 An empty `findings` array produced by this method is a **success** — it is
 the report that the change is clean along your dimension. Never pad a report
 to justify the dispatch.
+
+### Tool Selection
+
+Confirm availability once with `list_graph_stats_tool`; if the graph is
+empty, fall back to Grep + Read and set `blast_radius` to
+`"graph unavailable -- severity based on code analysis only"`. Then:
+
+- Consumers of one known symbol → `query_graph_tool` with `callers_of` /
+  `importers_of` (Grep when the graph lacks the symbol).
+- Whole-change impact and the elevation rule's evidence →
+  `get_impact_radius_tool`.
+- Tests covering a symbol → `query_graph_tool` with `tests_for`.
+- Surrounding code without re-reading whole files →
+  `get_review_context_tool`.
+- Unknown location → `semantic_search_nodes_tool`, then confirm with `Read`
+  — the graph returns symbols, never citable line numbers.
+
+## The Taste Test
+
+A finding is depth when it is evidence; it is noise when it is preference.
+Every candidate passes three gates before emission:
+
+1. **Concrete trigger scenario.** Name the input, caller, configuration, or
+   interleaving that makes the code go wrong — or the specific next change
+   it makes more expensive. Cannot name one → do not flag.
+2. **Falsifiable.** State what evidence would disprove it and confirm you
+   looked — the dimension skill's Falsifiers are that checklist.
+3. **Principle, not preference.** Name the violated contract, invariant,
+   bound, or documented convention — not "I would have written it
+   differently."
+
+**Reconciliation rule:** technical facts overrule preference. If the
+author's approach is defensibly equivalent to your alternative — same
+behavior, same maintenance cost, different shape — it is their call, not a
+finding. Prefer not reporting over guessing.
 
 ## What Not to Report
 
@@ -92,11 +127,34 @@ not report:
 - **Speculative concerns** — "could be a problem if…" without a concrete,
   reachable trigger in this codebase. Name the input, caller, or
   configuration that triggers it, or drop it.
-- **Taste** — style preferences with no behavioral or maintenance
-  consequence, docstring/comment nits, alternative idioms of equal merit —
-  unless the repo's own conventions (`REVIEW.md`, `CLAUDE.md`) demand them.
+- **Anything that fails the Taste Test** — style preference without
+  behavioral or maintenance consequence, docstring/comment nits, defensibly
+  equivalent idioms — unless the repo's own configuration demands it (see
+  Repo Configuration below).
 - **Narration of the diff** — observations that describe what changed
   without identifying a problem.
+
+## Repo Configuration (REVIEW.md)
+
+A reviewed repo may carry a `REVIEW.md` at its root — the org-opinion layer.
+The skills stay universal; repo taste lives in the repo. The dispatcher
+passes its contents in the dispatch context. Three optional sections, plain
+Markdown bullets:
+
+- `## Path Guidance` — glob-scoped guidance, applied only to findings whose
+  `file` matches (e.g. `services/billing/**` — money is integer cents; flag
+  float arithmetic on it as IMPORTANT).
+- `## Severity Overrides` — named repo invariants that raise a severity
+  floor, or paths where it drops (e.g. `experimental/**`: cap non-BLOCKER
+  findings at SUGGESTION).
+- `## Allowed Nits` — patterns this repo accepts; matching candidates are
+  not findings.
+
+**Precedence:** repo config may adjust SUGGESTION and IMPORTANT handling in
+either direction, but it can never silence, downgrade, or pre-filter a
+BLOCKER, and it cannot override the Finding Schema, the Taste Test, or the
+evidence requirements. The adjudicator is the final enforcement point for
+repo-config drops.
 
 ## Finding Schema
 
@@ -108,7 +166,7 @@ Every finding is a JSON object with these fields (enforced by `schema.py`):
   "file": "repo-relative/path.py",
   "line": 42,
   "end_line": 58,
-  "dimension": "correctness | security | performance | design | testing",
+  "dimension": "correctness | security | performance | design | testing | operability",
   "summary": "one-line description of the problem",
   "why": "rule violated + consequence if not fixed",
   "blast_radius": "N direct callers, M transitive importers",
@@ -117,17 +175,8 @@ Every finding is a JSON object with these fields (enforced by `schema.py`):
 }
 ```
 
-The object above renders to this Markdown line (note the always-present
-backtick-fenced citation):
-
-```markdown
-- **BLOCKER** `auth/login.py:42-58` — one-line description of the problem
-  - **Dimension**: correctness
-  - **Why**: rule violated + consequence if not fixed
-  - **Blast radius**: N direct callers, M transitive importers
-  - **Fix**: concrete one-liner suggestion (do not implement)
-  - **Confidence**: 92
-```
+The object renders as a Markdown bullet with a backtick-fenced
+`file:line[-end_line]` citation (see Worked Examples for the rendered shape).
 
 ### Required Fields
 
@@ -167,6 +216,11 @@ Method), and grade against these anchors:
 - `<70`: Do not emit as a finding unless it is a BLOCKER candidate that the
   verifier must see.
 
+Partial-evidence example: you traced a `None` to its sink and verified two
+of three call sites; the third is dynamic and unresolvable. That is 80-89
+territory — emit at 82 and name the unverified call site in `why`. Five
+call sites unread is not — that is below 70: keep falsifying or drop.
+
 ## Severity Rubric
 
 ### BLOCKER
@@ -174,12 +228,8 @@ Method), and grade against these anchors:
 Will break callers, lose data, allow unauthorized access, or corrupt
 state. The PR is unmergeable with a BLOCKER finding.
 
-**Examples:**
-
-- SQL injection in a user-facing endpoint
-- Unchecked `None` dereference on a hot path with 100+ callers
-- Race condition that corrupts shared state
-- Missing authentication on a state-changing handler
+**Examples:** SQL injection in a user-facing endpoint; race condition that
+corrupts shared state; missing authentication on a state-changing handler.
 
 ### IMPORTANT
 
@@ -187,24 +237,17 @@ Materially harms maintainability, introduces a latent risk, or
 violates a project convention the team enforces. Mergeable with a
 tracked follow-up.
 
-**Examples:**
-
-- O(n^2) loop over a collection that will grow
-- Bare `except` swallowing exceptions silently
-- Hardcoded timeout without configuration
-- Missing index on a filtered column in a new query
+**Examples:** O(n^2) loop over a collection that will grow; bare `except`
+swallowing exceptions silently; missing index on a filtered column in a new
+query.
 
 ### SUGGESTION
 
 Preferred style, minor improvement, or an observation that may not
 warrant action. Non-blocking.
 
-**Examples:**
-
-- Variable name could be more descriptive
-- Docstring missing on a public function
-- Could use a context manager instead of try/finally
-- Minor code duplication (< 5 lines)
+**Examples:** a name that misstates behavior; minor duplication (< 5
+lines); a clearer idiom with a concrete maintenance payoff.
 
 ## Severity Elevation Rule
 
@@ -213,6 +256,40 @@ A finding graded IMPORTANT whose blast radius (via
 automatically elevated to BLOCKER. The specialist MUST check blast
 radius before finalizing severity for every IMPORTANT finding.
 
+## Worked Examples
+
+Calibration anchors for grading and phrasing — never copy their wording into
+a report.
+
+**BLOCKER, confidence 95** (direct evidence; falsification attempted and
+failed):
+
+> **BLOCKER** `billing/invoice.py:27` — `render_invoice` reads
+> `order.total_cents`, which this diff renamed to `amount_cents` everywhere
+> else.
+> **Why**: AttributeError on every invoice render; the rename updated the
+> model and two other call sites but missed this one. Falsification: no
+> try/except here, no test pins the old name.
+> **Fix**: rename the access to `order.amount_cents`. **Confidence**: 95
+
+**IMPORTANT, confidence 78** (one named assumption, stated in `why`):
+
+> **IMPORTANT** `api/export.py:31` — new endpoint materializes the full
+> result set with `list(rows)` before serializing.
+> **Why**: rows scale with tenant data — no LIMIT upstream (checked the
+> query at line 22). Assumes large tenants exist; could not verify from the
+> repo.
+> **Fix**: stream via the `iter_rows()` helper `report.py` already uses.
+> **Confidence**: 78
+
+A BLOCKER-grade issue on an untouched line keeps the prefix:
+`[pre-existing] webhook signature never verified (hooks/receiver.py:18)`.
+
+**A dropped candidate** (what falsification looks like): "`cfg.timeout` may
+be `None` at use" — killed because `Config.__post_init__` (`config.py:41`)
+raises on `None`, so the bad state is unreachable. Not emitted. That
+silence is the method working.
+
 ## Specialist Report (JSON)
 
 Each specialist **writes exactly one JSON object to the report path the
@@ -220,9 +297,7 @@ dispatcher provides** (`.reviews/<timestamp>/NN_<dimension>.json`) using its
 `Write` tool, then returns a single summary line (dimension, counts by
 severity, path written) — never the full JSON in the reply, never Markdown.
 The `/review` command validates the file and renders `NN_<dimension>.md`
-with `python3 schema.py specialist`. Self-persistence is deliberate: it
-removes the orchestrator's verbatim re-typing of large JSON, which costs
-tokens and risks transcription drift.
+with `python3 schema.py specialist`.
 
 ```json
 {

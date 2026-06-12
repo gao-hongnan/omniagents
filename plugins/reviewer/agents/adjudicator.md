@@ -90,6 +90,11 @@ You receive from the dispatcher:
   type, the test, or the unreachable path that kills it. "Seems fine" is not
   a drop reason — when genuinely uncertain, confirm and lower `confidence`
   instead.
+- A repo-config match is a valid drop or downgrade reason: if the dispatch
+  context includes `REVIEW.md` and a finding matches its Allowed Nits or a
+  severity override, apply it — for IMPORTANT and SUGGESTION findings only,
+  **never for a BLOCKER** (the contract's Repo Configuration precedence).
+  Record the matched rule as the reason.
 - Expect to drop or downgrade *some* findings on most runs; expect to drop
   *most* findings on none. If you are dropping more than half, say so in the
   summary — that is a signal about the specialist layer worth surfacing.

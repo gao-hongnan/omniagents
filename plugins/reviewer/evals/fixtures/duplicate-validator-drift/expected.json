@@ -1,0 +1,24 @@
+{
+  "description": "A new signup module reimplements the email-normalization rule that app/validators.py:normalize_email already owns — with subtly different behavior (no-@ input). Found by the design skill's Duplicate Logic hunt (search by domain noun for an existing owner). Baits test the convention falsifier and the taste rule.",
+  "seeded_bugs": [
+    {
+      "id": "duplicate-email-rule",
+      "file": "app/signup.py",
+      "evidence_substring": "clean_email",
+      "expected_severity": "IMPORTANT",
+      "why": "clean_email duplicates validators.normalize_email with divergent edge behavior — the email rule now has two owners, and the next change to it forks signup from the rest of the app."
+    }
+  ],
+  "noise_traps": [
+    {
+      "id": "idiom-form-class",
+      "file": "app/signup.py",
+      "must_not": "be flagged as premature abstraction or unnecessary indirection — the single-use SignupForm Pydantic model mirrors the existing LoginForm idiom in app/forms.py; convention consistency is the falsifier"
+    },
+    {
+      "id": "missing-docstrings",
+      "file": "app/signup.py",
+      "must_not": "be flagged for missing docstrings on clean_email or signup — docstring nits are taste/linter territory per What Not to Report"
+    }
+  ]
+}

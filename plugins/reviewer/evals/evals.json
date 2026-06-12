@@ -25,6 +25,66 @@
         {"text": "no performance finding on the 3-element TAGS loop", "kind": "precision"},
         {"text": "no finding about run_job missing a docstring", "kind": "precision"}
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run evals/setup_fixture.sh fixtures/idor-sibling-endpoint to materialize the fixture, cd into the printed directory, then run /omniagents-reviewer:review (no arguments — review the working-tree diff). When it finishes, copy .reviews/latest/review.json and review.md into the output directory.",
+      "expected_output": "review.json validates against schema.py. RECALL: a BLOCKER/IMPORTANT finding cites app/routes.py — remove_report authenticates but never checks ownership, unlike its GET sibling (IDOR). PRECISION: no SQL-injection finding on the parameterized queries in app/db.py; no hardcoded-secret finding on the fake TEST_TOKEN in tests/conftest.py.",
+      "files": ["fixtures/idor-sibling-endpoint"],
+      "assertions": [
+        {"text": "review.json exists and `python3 schema.py review review.json` exits 0", "kind": "artifact-valid"},
+        {"text": "a finding with severity BLOCKER or IMPORTANT cites app/routes.py for remove_report's missing ownership check", "kind": "recall"},
+        {"text": "no injection finding on app/db.py — its queries are parameterized", "kind": "precision"},
+        {"text": "no hardcoded-secret finding on TEST_TOKEN in tests/conftest.py", "kind": "precision"}
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Run evals/setup_fixture.sh fixtures/loop-query-amplification to materialize the fixture, cd into the printed directory, then run /omniagents-reviewer:review (no arguments — review the working-tree diff). When it finishes, copy .reviews/latest/review.json and review.md into the output directory.",
+      "expected_output": "review.json validates against schema.py. RECALL: a finding cites app/dashboard.py — fetch_orders runs once per team member in a loop while fetch_orders_bulk exists. PRECISION: no performance finding on sorted(PRIORITY_LEVELS) (4-element constant); no unbounded-cache finding on badge_for (maxsize=128).",
+      "files": ["fixtures/loop-query-amplification"],
+      "assertions": [
+        {"text": "review.json exists and `python3 schema.py review review.json` exits 0", "kind": "artifact-valid"},
+        {"text": "a finding cites app/dashboard.py for the per-member fetch_orders query in the loop", "kind": "recall"},
+        {"text": "no performance finding on the sorted(PRIORITY_LEVELS) call in app/dashboard.py", "kind": "precision"},
+        {"text": "no unbounded-cache finding on badge_for in app/summary.py (lru_cache maxsize=128)", "kind": "precision"}
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Run evals/setup_fixture.sh fixtures/duplicate-validator-drift to materialize the fixture, cd into the printed directory, then run /omniagents-reviewer:review (no arguments — review the working-tree diff). When it finishes, copy .reviews/latest/review.json and review.md into the output directory.",
+      "expected_output": "review.json validates against schema.py. RECALL: a finding cites app/signup.py — clean_email reimplements validators.normalize_email divergently. PRECISION: no premature-abstraction finding on SignupForm (a Pydantic model mirroring the LoginForm idiom); no docstring nit on app/signup.py.",
+      "files": ["fixtures/duplicate-validator-drift"],
+      "assertions": [
+        {"text": "review.json exists and `python3 schema.py review review.json` exits 0", "kind": "artifact-valid"},
+        {"text": "a finding cites app/signup.py for clean_email duplicating validators.normalize_email", "kind": "recall"},
+        {"text": "no premature-abstraction or unnecessary-indirection finding on the SignupForm dataclass", "kind": "precision"},
+        {"text": "no missing-docstring finding on app/signup.py", "kind": "precision"}
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Run evals/setup_fixture.sh fixtures/bugfix-no-regression to materialize the fixture, cd into the printed directory, then run /omniagents-reviewer:review (no arguments — review the working-tree diff). When it finishes, copy .reviews/latest/review.json and review.md into the output directory.",
+      "expected_output": "review.json validates against schema.py. RECALL: a finding cites app/paging.py (or its test file) — the page_count bug fix declared in CHANGELOG.md ships with no regression test pinning the partial-page case. PRECISION: no finding calling tests/test_paging.py inadequate for page_slice; no coverage demand for the trivial page_label formatter.",
+      "files": ["fixtures/bugfix-no-regression"],
+      "assertions": [
+        {"text": "review.json exists and `python3 schema.py review review.json` exits 0", "kind": "artifact-valid"},
+        {"text": "a finding cites app/paging.py or tests/test_paging.py for the page_count fix lacking a regression test", "kind": "recall"},
+        {"text": "no finding flags tests/test_paging.py's parametrized page_slice coverage as weak or missing", "kind": "precision"},
+        {"text": "no finding demands a test for the trivial page_label formatter", "kind": "precision"}
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Run evals/setup_fixture.sh fixtures/one-shot-column-rename to materialize the fixture, cd into the printed directory, then run /omniagents-reviewer:review (no arguments — review the working-tree diff). When it finishes, copy .reviews/latest/review.json and review.md into the output directory.",
+      "expected_output": "review.json validates against schema.py. RECALL: a BLOCKER/IMPORTANT finding cites migrations/0002_rename_status.py — one-step RENAME COLUMN breaks old instances mid-deploy and has no down(). PRECISION: no missing-timeout finding on client calls in app/orders.py (shared client sets timeout=10.0); no log-correlation finding (middleware injects request_id).",
+      "files": ["fixtures/one-shot-column-rename"],
+      "assertions": [
+        {"text": "review.json exists and `python3 schema.py review review.json` exits 0", "kind": "artifact-valid"},
+        {"text": "a finding with severity BLOCKER or IMPORTANT cites migrations/0002_rename_status.py for the one-step rename / missing rollback", "kind": "recall"},
+        {"text": "no missing-timeout finding on client.get/client.post in app/orders.py — app/http_client.py sets timeout at construction", "kind": "precision"},
+        {"text": "no log-context finding on app/orders.py — app/middleware.py injects request_id", "kind": "precision"}
+      ]
     }
   ]
 }

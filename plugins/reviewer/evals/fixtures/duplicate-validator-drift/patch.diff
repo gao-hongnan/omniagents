@@ -1,0 +1,38 @@
+diff --git a/app/app.py b/app/app.py
+index cab271f..220ae97 100644
+--- a/app/app.py
++++ b/app/app.py
+@@ -8,3 +8,6 @@ app = FastAPI()
+ @app.get("/health")
+ def health() -> str:
+     return "ok"
++
++
++import app.signup  # noqa: E402,F401  (route registration)
+diff --git a/app/signup.py b/app/signup.py
+new file mode 100644
+index 0000000..11dec57
+--- /dev/null
++++ b/app/signup.py
+@@ -0,0 +1,21 @@
++from pydantic import BaseModel
++
++from app.app import app
++
++
++class SignupForm(BaseModel):
++    email: str
++    password: str
++
++
++def clean_email(raw: str) -> str:
++    email = raw.strip().lower()
++    if "+" in email:
++        local, domain = email.split("@", 1)
++        email = local.split("+", 1)[0] + "@" + domain
++    return email
++
++
++@app.post("/signup")
++def signup(form: SignupForm) -> dict[str, str]:
++    return {"email": clean_email(form.email)}

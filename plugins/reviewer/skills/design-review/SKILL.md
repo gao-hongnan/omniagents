@@ -14,57 +14,191 @@ disable-model-invocation: false
 user-invocable: false
 ---
 
-# Design Review Checklist
+# Design Review — Hunt Protocols
 
-Review for maintainability costs that will make the next change harder. Do not
-report taste. A design finding needs concrete evidence and a clear future cost.
+Find maintainability costs that make the **next change** harder, riskier, or
+easier to get wrong. Design findings are predictions, so they carry the
+heaviest evidence burden: every one names the concrete future edit that gets
+more expensive. If you cannot name that edit, it is taste — drop it.
 
-## Boundaries and Layers
+## Hunts
 
-- Business logic embedded in controllers, CLI handlers, or UI components
-- Persistence or transport details leaking into domain code
-- Cross-layer imports that make dependency direction ambiguous
-- Public API changes without migration path or compatibility note
-- Module responsibilities that no longer match their names
+Execute every hunt whose `When` matches; skip the rest. Exemplars are
+calibration anchors, never templates — do not copy their wording into
+reports.
 
-## Coupling and Cohesion
+### Hunt: Next-Change Simulation
 
-- One change requires edits across many unrelated modules
-- Function or class knows too much about another module's internals
-- Data structures passed around only to let callees pick through fields
-- Shared mutable state used as an implicit communication channel
-- Utility modules becoming catch-all dependency magnets
+- **When**: a new abstraction, module, or data shape — or one logical
+  change that required edits across several files.
+- **Protocol**:
+    1. Pick the most plausible next requirement in this area (new field,
+       new variant, new consumer) — plausible means signaled by the domain
+       or git history, not invented.
+    2. Walk that edit: enumerate the files and sites it must touch.
+    3. Three or more scattered, compiler-unassisted edits — or one that is
+       easy to miss — is change amplification. One or two cohesive edits is
+       normal.
+- **Evidence bar**: the named next change plus the enumerated edit sites.
+- **Falsifiers**: the scattered sites are generated from one source; the
+  type checker forces all of them (a missed one fails the build); the next
+  change is pure speculation with no domain signal.
+- **Exemplar**: IMPORTANT 82 — "adding one notification channel touches
+  four files (enum, factory, config parser, dispatcher) with no compiler
+  help; git history shows channels added quarterly." / **Noise twin**: a
+  model change plus its migration — two files, inherent to the framework.
 
-## Abstraction Quality
+### Hunt: Convention Drift
 
-- Interface exists only to wrap one implementation with no real variation
-- Abstraction exposes internals through escape hatches
-- Boolean flags that select different behaviors inside one function
-- Generic names (`Manager`, `Helper`, `Processor`) hiding real responsibility
-- Inconsistent abstraction level within one function or class
+- **When**: new code lands inside an existing package.
+- **Protocol**:
+    1. Glob and read 2–3 sibling modules of the same kind (handler beside
+       handlers, repository beside repositories).
+    2. Compare structure: naming, error idiom, construction/DI pattern,
+       layering, return shapes.
+    3. Silent divergence is the finding — cite the sibling that
+       establishes the pattern.
+- **Evidence bar**: a named sibling establishing the local pattern, plus
+  the divergence.
+- **Falsifiers**: the diff is an intentional migration to a new pattern
+  (commit message or ADR says so); the siblings disagree among themselves
+  (no convention exists); the divergence is invisible to consumers and
+  defensibly equivalent — reconciliation rule.
+- **Exemplar**: IMPORTANT 80 — "every other repository class returns
+  domain objects; the new one returns raw rows, pushing mapping into both
+  its callers." / **Noise twin**: f-strings where siblings use `.format`
+  — behaviorally identical; the author's call.
 
-## Duplication and Change Amplification
+### Hunt: Boundary Leak
 
-- Same business rule copied in multiple places
-- Similar branches that will diverge on the next requirement
-- Repeated validation, serialization, or mapping logic without one owner
-- Shotgun surgery risk: adding one field requires many manual edits
+- **When**: the diff adds import edges between modules or layers.
+- **Protocol**:
+    1. List the new edges — `query_graph_tool` `imports_of` on changed
+       modules, or read the import blocks.
+    2. Classify each edge's direction against the codebase's layering:
+       does domain now import infra, UI import persistence?
+    3. Flag transport/persistence types (ORM rows, request objects, wire
+       DTOs) crossing into domain logic, and any new cycle.
+- **Evidence bar**: the import edge, the direction it violates, and the
+  cost (e.g. domain logic now untestable without a DB).
+- **Falsifiers**: the codebase is deliberately flat (no layering to
+  violate); the importer is the composition root, whose job is to know
+  everything.
+- **Exemplar**: IMPORTANT 83 — "the pricing-rules module now imports the
+  framework request object to read one header — pricing becomes untestable
+  without an HTTP context; pass the value in instead." / **Noise twin**:
+  `main.py` importing both domain and infra to wire them together.
 
-## Pattern Fit
+### Hunt: Duplicate Logic
 
-- Pattern added without the forces that justify it
-- Pattern omitted where the codebase already uses one consistently
-- Strategy/command/factory used where a plain function would be clearer
-- Inheritance used where composition would reduce coupling
-- Framework idioms bypassed in ways that surprise maintainers
+- **When**: a new function implements validation, mapping, formatting, or
+  a business rule.
+- **Protocol**:
+    1. Search for an existing owner of the same rule —
+       `semantic_search_nodes_tool` and Grep by the **domain noun**
+       (the rule's subject), not the new function's name.
+    2. If found, compare: is it the same rule, and will both copies have
+       to change together on the next requirement?
+    3. The finding is the divergence risk; cite both sites.
+- **Evidence bar**: both implementations cited, plus the shared rule
+  named.
+- **Falsifiers**: the resemblance is coincidental — different invariants
+  that evolve separately; the copy is a deliberate seam (vendored,
+  boundary isolation) and documented as such.
+- **Exemplar**: IMPORTANT 81 — "invoice renderer reimplements money
+  formatting; `shared/format.py` already owns the rounding rule — the
+  next rounding change forks behavior." / **Noise twin**: a username
+  validator and a slug validator that merely look alike — different
+  invariants.
 
-## Severity
+### Hunt: God-Growth
 
-Grade with the shared severity rubric and elevation rule from the preloaded
-`review-contract` skill. Dimension calibration:
+- **When**: the diff edits an already-large module, class, or function.
+- **Protocol**:
+    1. Size the host — `find_large_functions_tool` on changed files; note
+       responsibility count, not just lines.
+    2. Ask whether the diff **adds an unrelated responsibility** (a new
+       reason to change) or extends the existing one.
+    3. Only the trajectory is in scope: flag what the diff worsens, not
+       the pre-existing size (What Not to Report).
+- **Evidence bar**: the new responsibility named, plus why it has a
+  different reason to change than its host.
+- **Falsifiers**: the addition is cohesive with the module's single
+  responsibility; the "god object" complaint is about untouched code.
+- **Exemplar**: IMPORTANT 78 — "`UserService` (900 lines) gains email
+  template rendering — a presentation concern; template edits now risk
+  user logic." / **Noise twin**: a fifth validation rule added to a module
+  whose whole job is validation.
 
-- A change to a public boundary or shared abstraction is the BLOCKER case —
-  check blast radius before finalizing.
-- A design issue that materially raises maintenance cost or breaks a project
-  pattern is IMPORTANT.
-- Local clarity or naming with low blast radius is SUGGESTION.
+### Hunt: Speculative Abstraction
+
+- **When**: a new interface, ABC, factory, strategy, or plugin layer.
+- **Protocol**:
+    1. Count implementations (`inheritors_of`) and call sites
+       (`callers_of`).
+    2. One implementation, one consumer, and no concrete second use in
+       sight = indirection without variation.
+    3. Price the indirection: how many files does a reader traverse to
+       find the behavior?
+- **Evidence bar**: the implementation/caller counts plus the traversal
+  cost.
+- **Falsifiers**: a test fake with real value counts as a second
+  implementation (isolating a heavy dependency is legitimate variation);
+  the interface is the codebase's established extension idiom; the
+  boundary wraps a dependency that genuinely gets swapped.
+- **Exemplar**: SUGGESTION 82 — "factory + abstract base with exactly one
+  implementation and one caller; the behavior now lives three files from
+  its use — inline until a second implementation exists." / **Noise
+  twin**: an ABC with one production implementation and an in-memory fake
+  exercised across the test suite.
+
+### Hunt: Public Contract Drift
+
+- **When**: the diff changes the shape of an exported API — signature,
+  return type, exception set, wire format.
+- **Protocol**:
+    1. Count consumers — `importers_of` / `get_impact_radius_tool`.
+    2. Check the migration affordance: deprecation path, compat shim,
+       version note, changelog entry.
+    3. Verify "internal" claims: a symbol is only internal if the graph
+       shows no external importers.
+- **Evidence bar**: the breaking shape change, the consumer count, and
+  the missing migration affordance.
+- **Falsifiers**: every consumer is updated in this same diff (atomic
+  change); the graph confirms zero external importers; a semver-major
+  release where breaking is the documented point.
+- **Exemplar**: IMPORTANT 84 — "`parse_config` now raises instead of
+  returning None; 23 importers, 4 updated here — the other 19 inherit a
+  new crash path silently. (50+ importers would elevate to BLOCKER.)" /
+  **Noise twin**: a breaking rename whose diff updates every caller, with
+  the graph confirming none remain.
+
+## Severity Anchors
+
+Grade with the contract's Severity Rubric and elevation rule. In this
+dimension:
+
+- **BLOCKER**: a public boundary or shared abstraction change that breaks
+  consumers now, or an IMPORTANT finding whose blast radius crosses the
+  elevation threshold.
+- **IMPORTANT**: materially raises maintenance cost or breaks a project
+  pattern the team enforces — with the next-edit cost named.
+- **SUGGESTION**: local clarity or naming with low blast radius and a
+  concrete payoff.
+
+## Recall Sweep
+
+After the hunts, sweep the diff once against these. Flag only what passes
+the contract's Taste Test:
+
+- Boolean flag parameters selecting between behaviors in one function.
+- Generic names (`Manager`, `Helper`, `Processor`, `Util`) hiding the real
+  responsibility; names that misstate behavior.
+- Mixed abstraction levels inside one function; escape hatches exposing an
+  abstraction's internals.
+- Inheritance where composition would decouple; framework idioms bypassed
+  in ways that surprise maintainers.
+- Feature envy: data structures passed around only to be field-picked by
+  callees.
+- Shared mutable state as an implicit communication channel; catch-all
+  utility modules accreting dependencies.

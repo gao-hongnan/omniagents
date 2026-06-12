@@ -1,0 +1,24 @@
+{
+  "description": "A bug fix (page_count dropped the final partial page, per the CHANGELOG entry in the diff) ships with no regression test pinning the fixed behavior. Found by the testing skill's Regression Pin hunt. Baits test the indirect-coverage falsifier and the no-100%-coverage rule.",
+  "seeded_bugs": [
+    {
+      "id": "unpinned-bugfix",
+      "file": "app/paging.py",
+      "evidence_substring": "page_count",
+      "expected_severity": "IMPORTANT",
+      "why": "the diff fixes page_count's partial-page bug (stated in CHANGELOG.md) but adds no test that would have failed before the fix — the parametrized suite covers page_slice only, so the bug can silently return."
+    }
+  ],
+  "noise_traps": [
+    {
+      "id": "indirect-parametrize",
+      "file": "tests/test_paging.py",
+      "must_not": "be flagged as weak or inadequate — the parametrized cases genuinely cover page_slice's behavior including the final short page"
+    },
+    {
+      "id": "trivial-untested",
+      "file": "app/paging.py",
+      "must_not": "be flagged for page_label lacking a test — a trivial f-string formatter; demanding coverage for it is the 100%-coverage anti-rule"
+    }
+  ]
+}

@@ -18,240 +18,207 @@ disable-model-invocation: false
 user-invocable: false
 ---
 
-# Security Review Checklist
+# Security Review — Hunt Protocols
 
-Trace every external input to its first use. Verify sanitization or
-validation at the trust boundary. The goal is to find code that can be
-exploited to gain unauthorized access, execute arbitrary code, leak
-sensitive data, or compromise system integrity.
+Find code an attacker can exploit to gain access, execute code, leak data,
+or corrupt integrity. Security review is taint tracing: every finding is a
+path from attacker-influenced input to a dangerous effect, or a missing
+control an attacker can walk through.
 
-## When to Flag
+## Hunts
 
-- Flag only when untrusted input can actually reach the sink. Trace the taint;
-  if every input is a server-side constant or already validated, skip.
-- Test, example, or fixture code with hardcoded fake secrets is not a finding
-  unless it can run in production.
-- A safe construct (parameterized query, `shell=False`, autoescape on) is not
-  a finding even when it touches user input.
+Execute every hunt whose `When` matches; skip the rest. Exemplars are
+calibration anchors, never templates — do not copy their wording into
+reports.
 
-## 1. Injection
+### Hunt: Source-to-Sink Taint Trace
 
-### SQL Injection
+- **When**: the diff contains a sink (SQL execution, subprocess/shell,
+  filesystem path built from variables, URL fetch, template render, HTML
+  insertion, log write of external data) or reads external input (request
+  params, headers, cookies, uploads, queue payloads, webhook bodies).
+- **Protocol**:
+    1. Grep the diff for sinks: `execute`/`.raw`/`text(`, `subprocess`/
+       `os.system`/`child_process`, `open(`/`Path(` with variables,
+       `requests.`/`fetch(`/`urllib`, `render_template_string`,
+       `innerHTML`/`dangerouslySetInnerHTML`, log calls on request data.
+    2. Trace each sink argument **backward** to its origin — read the full
+       file, follow `callers_of` up until you reach a trust boundary or a
+       server-side constant.
+    3. Name the neutralizer on the path: parameterization, argv list with
+       `shell=False`, canonicalize-then-prefix-check, allowlist,
+       autoescape, output encoding. Attacker-reachable origin with no
+       neutralizer = finding.
+- **Evidence bar**: a complete source→sink path with the missing
+  neutralizer named.
+- **Falsifiers**: every origin is a server-side constant or admin-only
+  config; a safe construct already neutralizes (parameterized query,
+  `shell=False` argv, autoescape on); the framework escapes by default at
+  that sink.
+- **Exemplar**: BLOCKER 93 — "search handler f-strings the `q` request
+  param into SQL; no parameterization anywhere on the path." / **Noise
+  twin**: an f-string building SQL from an internal enum — origin is a
+  server constant; not tainted.
 
-- String interpolation or f-strings in SQL queries:
-  `f"SELECT * FROM users WHERE id = {user_id}"`
-- String concatenation in query building:
-  `query = "SELECT " + columns`
-- Raw SQL without parameterized queries in ORMs
-  (`text()`, `.raw()`, `execute()`)
-- Stored procedures with dynamic SQL inside
-- **Safe**: parameterized queries (`%s`, `$1`, `:param`), ORM
-  query builders with bound parameters
+### Hunt: Sibling Endpoint Parity
 
-### Command Injection
+- **When**: new or changed route, handler, RPC method, resolver, or
+  CLI/job entrypoint.
+- **Protocol**:
+    1. Read the **whole** router/controller file; list the auth
+       decorators, middleware, and ownership/tenant checks its sibling
+       endpoints carry.
+    2. Flag the asymmetry the diff introduces — the one handler missing
+       what its siblings have.
+    3. For every ID-shaped parameter, locate the ownership check between
+       parse and use (IDOR); "logged in" is not "owns this resource".
+    4. Check verb semantics: state-changing operations reachable via GET.
+- **Evidence bar**: the sibling that has the check, plus the new handler
+  that lacks it — or an ID used with no ownership filter.
+- **Falsifiers**: middleware applies the check globally (read the app/
+  blueprint registration, not just the handler); the route is documented
+  public; ownership is enforced at the query (`WHERE owner_id = ...`).
+- **Exemplar**: BLOCKER 91 — "new `DELETE /api/keys/<id>` checks login but
+  never ownership; its `GET` sibling filters by `owner_id` — any user
+  deletes any key." / **Noise twin**: no decorator on a handler mounted
+  under a blueprint whose registration applies `require_admin` —
+  inherited.
 
-- `subprocess` with `shell=True` and user-controlled input
-- `os.system()`, `os.popen()` with interpolated arguments
-- Template-based command construction:
-  `f"grep {pattern} {filename}"`
-- `child_process.exec()` in Node.js with user input
-- **Safe**: `subprocess.run([cmd, arg1, arg2], shell=False)`,
-  `shlex.quote()`
+### Hunt: Secret Spill
 
-### Template Injection
+- **When**: new config keys, env handling, logging of objects,
+  serialization or response shaping, error handlers.
+- **Protocol**:
+    1. Grep the diff for credential-shaped names and literals (`key`,
+       `token`, `secret`, `password`, `Bearer `, `BEGIN PRIVATE`).
+    2. Read log statements and serializer/response changes for sensitive
+       fields (`model_dump`, `to_dict`, `repr` of settings objects, full
+       request/response bodies).
+    3. Confirm secrets travel the established secret path — env/secret
+       manager/`SecretStr` — not literals or ad-hoc files.
+- **Evidence bar**: a real credential literal, or a sensitive field that
+  reaches logs, responses, or serialized output.
+- **Falsifiers**: clearly fake test/fixture value that cannot run in
+  production; the serializer already redacts the field; the "secret" is a
+  public identifier (client_id, publishable key).
+- **Exemplar**: BLOCKER 90 — "error handler returns `repr(settings)` to
+  the client, including `db_password`." / **Noise twin**:
+  `API_KEY = "fake-for-tests"` inside a test fixture that production
+  never imports.
 
-- Jinja2 without autoescaping:
-  `Environment(autoescape=False)`
-- User input rendered directly in templates without escaping
-- `render_template_string()` with user-controlled template
-- **Safe**: `Environment(autoescape=True)`,
-  `markupsafe.escape()`
+### Hunt: Hostile Input Materialization
 
-### Log Injection
+- **When**: the diff parses external data into objects, builds filesystem
+  paths or URLs from input, or extracts archives.
+- **Protocol**:
+    1. Identify the loader: `pickle`/`yaml.load`/`eval`/`exec`, schema-less
+       `JSON.parse` straight into trusted shapes.
+    2. Paths: canonicalize (`resolve`/`realpath`) then check containment
+       against the base directory **before** use; archive extraction must
+       validate member paths (zip-slip).
+    3. URLs: scheme/host allowlist, redirect policy, and whether
+       validation happens at fetch time (DNS rebinding) — SSRF.
+- **Evidence bar**: untrusted bytes reaching an unsafe loader, or a
+  path/URL used without containment.
+- **Falsifiers**: `SafeLoader`/`safe_load`; a schema validates the input
+  upstream (point at it); the path is joined then verified against the
+  base; the data is signed and verified before parsing.
+- **Exemplar**: BLOCKER 94 — "`yaml.load(body)` with the default loader on
+  a webhook body — arbitrary object construction from the network." /
+  **Noise twin**: `pickle.loads` on the service's own HMAC-verified cache
+  bytes — the signature check keeps the trust boundary uncrossed.
 
-- User input logged without sanitization:
-  `logger.info(f"User: {user_input}")`
-- Log forging: newlines in user input create fake log entries
-- Structured logging fields from untrusted sources
+### Hunt: Crypto Discipline
 
-### Cross-Site Scripting (XSS)
+- **When**: the diff touches hashing, encryption, randomness, tokens,
+  signatures, or TLS settings.
+- **Protocol**:
+    1. Identify the primitive **and its purpose** (integrity, secrecy,
+       identity, dedup?).
+    2. Check banned-for-security list: MD5, SHA1, DES/3DES, ECB, RC4,
+       hand-rolled crypto.
+    3. Check provenance: hardcoded keys/IVs, IV reuse under CTR/GCM,
+       `random`/`Math.random()` where `secrets`/`crypto.randomBytes`
+       is required.
+    4. Check verification flags: `verify=False`,
+       `rejectUnauthorized: false`, JWT `alg`/`exp`/`aud`/`iss` actually
+       validated.
+- **Evidence bar**: the primitive or flag plus its security-relevant
+  purpose.
+- **Falsifiers**: MD5/SHA1 used for non-security cache keys or dedup
+  (and named as such); a TLS bypass gated to a test environment that
+  cannot be production.
+- **Exemplar**: IMPORTANT 87 — "password-reset tokens built with
+  `random.choices` — seedable PRNG, predictable output; use
+  `secrets.token_urlsafe`." / **Noise twin**: MD5 over rendered HTML as a
+  cache key — no security claim on it.
 
-- `innerHTML`, `dangerouslySetInnerHTML` with user content
-- `document.write()` with unsanitized input
-- Template literals rendered in HTML context
-- URL parameters reflected in page content without encoding
+### Hunt: Boundary Shift
 
-## 2. Authentication and Authorization
+- **When**: a refactor moves validation or sanitization, changes
+  middleware order, splits a request path, or adds a second entry path
+  into existing logic.
+- **Protocol**:
+    1. Diff the before/after position of validate-vs-use on every
+       affected path.
+    2. Enumerate **all** entry paths to the sink (`callers_of` on the
+       moved function); check each still passes through the control.
+    3. For dual-path migrations, confirm the old path kept its checks.
+- **Evidence bar**: an entry path that now reaches the use site without
+  the moved control.
+- **Falsifiers**: the check moved *into* the shared callee — strictly
+  deeper, covers every path; the new path cannot carry external input.
+- **Exemplar**: IMPORTANT 86 — "sanitization moved from the shared parser
+  up into the HTTP handler; the queue-consumer path now feeds the parser
+  unsanitized." / **Noise twin**: validation moved from two handlers into
+  the one service both call — coverage got stronger, not weaker.
 
-### Authentication Gaps
+### Hunt: Dependency Delta
 
-- Endpoint/handler missing authentication decorator/middleware
-- Authentication check in conditional branch that can be bypassed
-- Token validation that doesn't verify expiration, issuer, or
-  audience
-- Password comparison using `==` instead of constant-time compare
-- Session fixation: session ID not rotated after login
+- **When**: dependency manifests or lockfiles are in the changed set
+  (triage may have flagged this for priority).
+- **Protocol**:
+    1. Read the manifest hunk: new packages, version jumps, loosened pins.
+    2. Check pin discipline against repo convention, downgrades that cross
+       security fixes, and suspicious provenance (typosquat-shaped names,
+       brand-new packages for trivial tasks).
+    3. Confirm the lockfile matches the manifest's intent.
+- **Evidence bar**: the manifest line plus the concrete risk it admits.
+- **Falsifiers**: the lockfile pins an exact safe version regardless of
+  the loose range; the "new" package is an existing workspace member;
+  automated dependency tooling governs the pin.
+- **Exemplar**: IMPORTANT 80 — "`requests` loosened from `==2.32.3` to
+  `>=2.0`, making CVE-affected pre-2.31 versions installable." / **Noise
+  twin**: lockfile-only churn that re-resolves to identical versions.
 
-### Authorization Gaps
+## Severity Anchors
 
-- Missing authorization check on state-changing operations
-  (POST, PUT, DELETE)
-- **IDOR** (Insecure Direct Object Reference): accessing
-  resources by ID without ownership check
-- Horizontal privilege escalation: user A accesses user B's data
-- Vertical privilege escalation: regular user accesses admin
-  endpoints
-- Role check that doesn't account for role hierarchy
+Grade with the contract's Severity Rubric and elevation rule. In this
+dimension:
 
-### JWT and Token Security
+- **BLOCKER**: attacker-reachable exploit — a complete taint path, missing
+  authz on a state-changing handler, a live secret reaching client or VCS.
+- **IMPORTANT**: exploitable under named conditions, or a
+  defense-in-depth gap with a concrete scenario — predictable tokens,
+  validation asymmetry, risky dependency loosening.
+- **SUGGESTION**: hardening with a named payoff — constant-time compare,
+  `SameSite`, a missing security header on an authenticated app.
 
-- JWT with `alg: none` accepted
-- JWT secret hardcoded in source code
-- Missing token expiration (`exp` claim)
-- Refresh token reuse not detected (token replay)
-- Token stored in localStorage (XSS accessible) vs httpOnly
-  cookie
+## Recall Sweep
 
-## 3. Secrets and Credentials
+After the hunts, sweep the diff once against these. Flag only what passes
+the contract's Taste Test:
 
-### Hardcoded Secrets
-
-- API keys, passwords, tokens in source code or configuration
-  committed to git
-- Connection strings with embedded credentials
-- Private keys, certificates in the repository
-- Default passwords or test credentials in production code paths
-
-### Secret Patterns to Detect
-
-- `password = "..."`, `api_key = "..."`, `secret = "..."`
-- `AWS_SECRET_ACCESS_KEY`, `PRIVATE_KEY`, `Bearer <token>`
-- Base64-encoded secrets that decode to credential-like strings
-- `.env` files committed to version control
-
-### Secure Secret Handling
-
-- Secrets loaded from environment variables or secret managers
-- `SecretStr` in Pydantic for sensitive fields (prevents
-  logging/serialization)
-- Secrets not logged, not in error responses, not serialized
-
-## 4. Cryptographic Misuse
-
-### Banned Primitives
-
-- **MD5** for security purposes (collision-vulnerable)
-- **SHA1** for security purposes (collision-demonstrated)
-- **DES/3DES** (deprecated, short key length)
-- **ECB mode** (reveals patterns in encrypted data)
-- **RC4** (biased output, broken)
-
-### Dangerous Patterns
-
-- Hardcoded encryption keys or initialization vectors (IVs)
-- IV reuse with the same key (destroys confidentiality in
-  CTR/GCM)
-- Using `random` or `Math.random()` for security-sensitive
-  randomness (use `secrets`, `crypto.randomBytes()`)
-- Custom cryptographic implementations (use established
-  libraries)
-- Certificate validation disabled (`verify=False`,
-  `rejectUnauthorized: false`)
-
-## 5. Data Exposure
-
-### PII in Logs
-
-- Email addresses, phone numbers, IP addresses logged at INFO
-  or DEBUG
-- Full request/response bodies logged without redaction
-- Stack traces with sensitive data in production error responses
-- User session tokens or credentials in log output
-
-### Error Message Leakage
-
-- Database error messages exposed to the client (table names,
-  query structure)
-- Stack traces returned in API responses in production
-- Internal file paths revealed in error messages
-- Version numbers and technology stack disclosed in headers
-
-### Serialization Safety
-
-- `model_dump()` or `to_dict()` including sensitive fields
-- GraphQL introspection enabled in production
-- API responses including internal-only fields
-- Debug endpoints or admin panels accessible without auth
-
-## 6. Input Validation at Trust Boundaries
-
-### Missing Validation
-
-- Request parameters used directly without type checking or
-  bounds
-- File upload without type, size, or content validation
-- URL parameters parsed and used without sanitization
-- Headers or cookies used as trusted input
-
-### Unsafe Deserialization
-
-- `pickle.loads()` on untrusted data (arbitrary code execution)
-- `yaml.load()` without `Loader=SafeLoader` (arbitrary code
-  execution)
-- `eval()`, `exec()` on user-controlled strings
-- `JSON.parse()` on untrusted input without schema validation
-
-### Path Traversal
-
-- User-controlled filename concatenated to a base path without
-  sanitization
-- `../` sequences not stripped or resolved before file access
-- Symbolic link following in file operations
-- Archive extraction (zip, tar) without path validation
-  (zip slip)
-
-### SSRF (Server-Side Request Forgery)
-
-- User-controlled URL passed to `requests.get()`, `fetch()`,
-  `urllib`
-- DNS rebinding: URL validated against allowlist but DNS resolves
-  differently at fetch time
-- Internal network access via URL schemes (`file://`, `gopher://`,
-  `dict://`)
-- Redirect following that leads to internal resources
-
-## 7. Dependency Security
-
-### Version Pinning
-
-- Unpinned dependencies: `requests` vs `requests>=2.31.0,<3.0`
-- Wildcard versions: `*`, `latest`, `^` with major version 0
-- Lock file out of sync with requirements
-
-### Known Vulnerabilities
-
-- Dependencies with known CVEs (check `pyproject.toml`,
-  `package.json`)
-- Deprecated packages still in use
-- Packages with maintainer compromise history
-
-## 8. Configuration Security
-
-### CORS
-
-- `Access-Control-Allow-Origin: *` on authenticated endpoints
-- Credentials allowed with wildcard origin
-- Overly permissive allowed methods or headers
-
-### CSRF
-
-- State-changing operations via GET requests
-- Missing CSRF token validation on POST/PUT/DELETE
-- SameSite cookie attribute not set
-
-### Headers
-
-- Missing `Content-Security-Policy`
-- Missing `X-Content-Type-Options: nosniff`
-- Missing `Strict-Transport-Security` on HTTPS endpoints
-- Server version disclosed in `Server` header
+- XSS sinks: `innerHTML`, `document.write`, reflected URL params, template
+  literals in HTML context.
+- Log injection: newline forging, structured-log fields from untrusted
+  input.
+- CSRF: state change via GET, missing token validation, `SameSite` unset.
+- CORS: wildcard origin with credentials; permissive methods/headers.
+- Sessions/JWT: fixation (no rotation at login), tokens in localStorage,
+  missing `exp`, `alg: none`.
+- Headers: CSP, `X-Content-Type-Options: nosniff`, HSTS; version
+  disclosure.
+- Exposure: stack traces or internal paths in client errors, PII at
+  INFO/DEBUG, GraphQL introspection in prod, unauthenticated debug/admin
+  endpoints, open redirects.

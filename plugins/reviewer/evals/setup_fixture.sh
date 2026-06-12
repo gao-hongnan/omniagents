@@ -17,5 +17,8 @@ git -C "$DEST" add -A
 git -C "$DEST" -c user.email=eval@example.com -c user.name=eval \
 	commit -qm "base: pre-change state"
 git -C "$DEST" apply "$FIXTURE/patch.diff"
+# Intent-to-add so files the patch creates show up in `git diff` like the
+# rest of the working-tree change (git apply leaves them untracked).
+git -C "$DEST" add -N .
 
 echo "$DEST"

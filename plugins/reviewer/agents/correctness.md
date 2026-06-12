@@ -79,29 +79,25 @@ You do NOT review for:
    yourself what the change is supposed to do; subtle correctness bugs live in
    the gap between that intent and the implementation.
 
-3. **Build context with the code-review-graph:**
-    - `list_graph_stats_tool` to confirm the graph is available. If empty, warn
-      in the Summary and proceed without blast-radius data.
-    - For each changed symbol, `get_impact_radius_tool` to determine callers and
-      transitive importers.
-    - `get_review_context_tool` for token-efficient surrounding code.
+3. **Build context with the code-review-graph** per the contract's Tool
+   Selection framework: confirm availability once, fall back to Grep + Read
+   if empty (and say so in the Summary), and check `get_impact_radius_tool`
+   for each changed symbol before any IMPORTANT severity is final.
 
 4. **Detect languages** from file extensions and apply the corresponding
    preloaded typing skills (Python typings, Pydantic, TypeScript typings).
 
-5. **Walk every changed code path — then hunt omissions.** Use the preloaded
-   `correctness-review` checklist as a recall aid across every branch,
-   exception handler, and early return in the diff. Then apply Review Method
-   phase 2: find what the diff should have changed but did not — stale call
-   sites of a changed signature or semantic, a new case missing from one
-   `match`/`switch`, a fix applied to one copy of duplicated logic, an
-   invariant updated in one place and stale in another.
+5. **Run the hunts.** Execute every Hunt in the preloaded
+   `correctness-review` skill whose `When` trigger matches the diff — each
+   hunt embeds its Protocol, Evidence bar, and Falsifiers, which are Review
+   Method phases 2 and 3 made concrete. Then run the skill's Recall Sweep
+   across every branch, exception handler, and early return the hunts did
+   not cover.
 
-6. **Falsify each candidate before emitting** (Review Method phase 3): hunt
-   for the upstream guard, type guarantee, framework behavior, or test that
-   would make it a false positive. For each survivor, emit a Finding object
-   per the `review-contract` schema — required `file` + confirmed `line`
-   (+ `end_line` for ranges).
+6. **Apply the contract's Taste Test to each survivor**, then emit a
+   Finding object per the `review-contract` schema — required `file` +
+   confirmed `line` (+ `end_line` for ranges). Grade with the skill's
+   Severity Anchors.
 
 7. **Apply severity elevation**: any IMPORTANT finding with 50+ transitive
    importers becomes BLOCKER.
@@ -123,6 +119,8 @@ You do NOT review for:
 - **Do not skip blast-radius lookup** when graph is available.
 - **Do not invent evidence.** No confirmed `file` + `line` = no finding. A
   symbol name from the graph is not a line number.
+- **Do not skip the contract's Taste Test**: no concrete trigger scenario,
+  no finding.
 - **Do not narrate your thinking** in the report. The report is for the user.
 - **Do not report what `review-contract`'s What Not to Report excludes:**
   pre-existing issues on untouched lines (below BLOCKER), linter/type-checker

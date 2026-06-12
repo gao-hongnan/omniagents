@@ -72,7 +72,7 @@ for the authoritative pages.
 | `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                              | —                                                                                               |
 | `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                       | —                                                                                               |
 | `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`                              | —                                                                                               |
-| `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — parallel correctness, security, performance, design, testing agents + verifier   | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
+| `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — triaged parallel specialists (correctness, security, performance, design, testing, operability) + verifier + adjudicator | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
 | `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                | `uv` on PATH                                                                                    |
 | `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                     | `CONTEXT7_API_KEY`                                                                              |
 | `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                              | `uv` on PATH + Google OAuth creds                                                               |
@@ -186,7 +186,7 @@ marketplace entry so Claude Code uses the git commit SHA as the version.
 
 ---
 
-## Versioning and release channels
+## Versioning and releases
 
 This marketplace uses **lockstep [Semantic Versioning](https://semver.org/)**:
 every plugin shares one version, bumped together on each release. One number to
@@ -213,8 +213,7 @@ re-adding the marketplace at a different ref **replaces** the prior registration
 
 | Channel           | Add command                                             | Tracks                   |
 | ----------------- | ------------------------------------------------------- | ------------------------ |
-| Bleeding edge     | `/plugin marketplace add gao-hongnan/omniagents`        | `main`                   |
-| Stable            | `/plugin marketplace add gao-hongnan/omniagents@stable` | `stable` (vetted only)   |
+| Latest            | `/plugin marketplace add gao-hongnan/omniagents`        | `main`                   |
 | Pinned / rollback | `/plugin marketplace add gao-hongnan/omniagents@v0.1.0` | an immutable version tag |
 
 After switching or rolling back, run `/plugin marketplace update omniagents` and
@@ -227,16 +226,15 @@ Accumulate notes under `## [Unreleased]` in `CHANGELOG.md` as you work, then:
 ```bash
 make release VERSION=0.2.0   # bumps every manifest, stamps CHANGELOG, validates, commits, tags v0.2.0
 git push origin main && git push origin v0.2.0
-
-make stable VERSION=0.2.0    # once vetted, move the stable channel forward
-git push origin stable
 ```
+
+Pushing the tag triggers the `RELEASE` workflow, which validates the marketplace
+and publishes a GitHub Release from the matching `CHANGELOG.md` section.
 
 First-time bootstrap (one-off, before the first `make release`):
 
 ```bash
 git tag -a v0.1.0 -m "omniagents v0.1.0 — baseline" && git push origin v0.1.0
-git branch stable v0.1.0 && git push origin stable
 ```
 
 ### Rolling back
@@ -250,12 +248,9 @@ make release VERSION=0.2.1    # the revert reaches users only once the version c
 git push origin main && git push origin v0.2.1
 ```
 
-To move the **stable** channel back to a known-good release without touching
-`main` — also the fast path if a bad commit reached stable:
-
-```bash
-make stable VERSION=0.1.0 && git push origin stable
-```
+Users on a pinned tag are unaffected until they re-add the marketplace at a newer
+ref; users on `main` receive the revert on their next
+`/plugin marketplace update omniagents`.
 
 ---
 

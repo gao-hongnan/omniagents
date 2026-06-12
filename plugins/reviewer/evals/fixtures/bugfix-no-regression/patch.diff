@@ -1,0 +1,25 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 1512c42..4647ec0 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,3 +1,6 @@
+ # Changelog
+ 
+ ## Unreleased
++
++- fix: `page_count` dropped the final partial page when `total` was not a
++  multiple of `size`
+diff --git a/app/paging.py b/app/paging.py
+index 805ac78..92239cc 100644
+--- a/app/paging.py
++++ b/app/paging.py
+@@ -8,4 +8,8 @@ def page_slice(items: list[str], page: int, size: int) -> list[str]:
+ 
+ 
+ def page_count(total: int, size: int) -> int:
+-    return total // size
++    return -(-total // size)
++
++
++def page_label(page: int) -> str:
++    return f"Page {page}"

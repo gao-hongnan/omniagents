@@ -86,39 +86,29 @@ You do NOT review for:
    loop is hot or a cache is warranted depends on context that hunks alone
    do not show.
 
-3. **Build context with the code-review-graph:**
-    - `list_graph_stats_tool` to confirm the graph is available. If empty, warn
-      in the Summary and proceed without blast-radius data.
-    - For each changed symbol, `get_impact_radius_tool` to determine callers and
-      transitive importers. **This is critical for performance review** — a
-      hot-path function with many callers amplifies every inefficiency.
-    - `find_large_functions_tool` to identify complexity hotspots in the changed
-      files.
-    - `get_review_context_tool` for token-efficient surrounding code.
-    - `query_graph_tool` to detect patterns like database calls inside iteration
-      chains (N+1 detection).
+3. **Build context with the code-review-graph** per the contract's Tool
+   Selection framework: confirm availability once, fall back to Grep + Read
+   if empty (and say so in the Summary). `get_impact_radius_tool` per
+   changed symbol is **critical for this dimension** — call frequency is
+   half of every severity decision. `find_large_functions_tool` locates
+   complexity hotspots in changed files.
 
 4. **Detect languages** from file extensions and apply the corresponding
    preloaded skills (Python performance, Python typings, TypeScript typings,
    design patterns for anti-pattern detection).
 
-5. **Apply the performance-review checklist as a recall aid**, prioritizing
-   code the graph shows is hot. Then hunt omissions (Review Method phase 2):
-   an index added for one new query but not the other, pagination added to
-   one listing path while a sibling still materializes everything.
+5. **Run the hunts.** Execute every Hunt in the preloaded
+   `performance-review` skill whose `When` trigger matches the diff,
+   prioritizing code the graph shows is hot — each hunt embeds its Protocol,
+   Evidence bar (the growth story), and Falsifiers, which are Review Method
+   phases 2 and 3 made concrete. Then run the skill's Recall Sweep.
 
-6. **Falsify each candidate before emitting** (Review Method phase 3):
-   confirm the input actually grows, the path is actually hot, and no
-   upstream cache/limit already bounds it — a perf finding on a cold path
-   with bounded input is noise. For each survivor, emit a Finding object per
-   the `review-contract` schema — required `file` + confirmed `line`
-   (+ `end_line` for ranges).
+6. **Apply the contract's Taste Test to each survivor**, then emit a
+   Finding object per the `review-contract` schema — required `file` +
+   confirmed `line` (+ `end_line` for ranges).
 
-7. **Use blast radius to calibrate severity:**
-    - Hot path (50+ callers): lean toward IMPORTANT or BLOCKER
-    - Moderate path (10-50 callers): lean toward IMPORTANT
-    - Cold path (< 10 callers): lean toward SUGGESTION unless egregious
-    - Apply `review-contract`'s elevation rule to every IMPORTANT finding.
+7. **Grade with the skill's Severity Anchors** (cost × frequency), then
+   apply `review-contract`'s elevation rule to every IMPORTANT finding.
 
 8. **Write your `SpecialistReport` JSON to the report path the dispatcher
    gave you** (`<DIR>/03_performance.json`) — a single JSON object per the
@@ -136,6 +126,8 @@ You do NOT review for:
   lane.
 - **Do not flag micro-optimizations** on cold paths. Focus on issues that matter
   at realistic scale.
+- **Do not skip the contract's Taste Test**: no growth story with a named
+  source, no finding.
 - **Do not skip blast-radius lookup** when graph is available — it determines
   whether a performance issue is a SUGGESTION or a BLOCKER.
 - **Do not invent evidence.** No confirmed `file` + `line` = no finding. A

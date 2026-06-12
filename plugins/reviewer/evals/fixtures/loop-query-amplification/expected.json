@@ -1,0 +1,24 @@
+{
+  "description": "A team dashboard that issues one SELECT per team member inside a loop, while a bulk variant (fetch_orders_bulk) exists in the same module. Found by the performance skill's Database Round-Trip hunt. Baits test the bounded-input falsifier twice.",
+  "seeded_bugs": [
+    {
+      "id": "loop-query",
+      "file": "app/dashboard.py",
+      "evidence_substring": "fetch_orders",
+      "expected_severity": "IMPORTANT",
+      "why": "team_dashboard calls fetch_orders(user_id) once per member of a list that scales with team size (hundreds) — N+1 round-trips on a page render; fetch_orders_bulk already exists as the fix."
+    }
+  ],
+  "noise_traps": [
+    {
+      "id": "bounded-sort",
+      "file": "app/dashboard.py",
+      "must_not": "be flagged as a performance issue — sorted(PRIORITY_LEVELS) iterates a 4-element constant tuple; bounded input is the falsifier"
+    },
+    {
+      "id": "bounded-cache",
+      "file": "app/summary.py",
+      "must_not": "be flagged as an unbounded cache — badge_for's lru_cache sets maxsize=128 and the key space is four levels"
+    }
+  ]
+}

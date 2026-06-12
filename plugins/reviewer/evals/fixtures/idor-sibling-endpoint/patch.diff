@@ -1,0 +1,55 @@
+diff --git a/app/db.py b/app/db.py
+index f6c1667..a6703d9 100644
+--- a/app/db.py
++++ b/app/db.py
+@@ -10,3 +10,8 @@ def get_report(report_id: int) -> tuple[int, int, str] | None:
+     return _conn.execute(
+         "SELECT id, user_id, body FROM reports WHERE id = ?", (report_id,)
+     ).fetchone()
++
++
++def delete_report(report_id: int) -> None:
++    _conn.execute("DELETE FROM reports WHERE id = ?", (report_id,))
++    _conn.commit()
+diff --git a/app/routes.py b/app/routes.py
+index 585f5ff..36da0c6 100644
+--- a/app/routes.py
++++ b/app/routes.py
+@@ -1,7 +1,7 @@
+ from fastapi import Depends, FastAPI, HTTPException
+
+ from app.auth import get_current_user_id
+-from app.db import get_report
++from app.db import delete_report, get_report
+ from app.schemas import ReportOut
+
+ app = FastAPI()
+@@ -15,3 +15,11 @@ def show_report(report_id: int, user_id: int = Depends(get_current_user_id)) ->
+     if row[1] != user_id:
+         raise HTTPException(status_code=403)
+     return ReportOut(id=row[0], body=row[2])
++
++
++@app.delete("/reports/{report_id}", status_code=204)
++def remove_report(report_id: int, user_id: int = Depends(get_current_user_id)) -> None:
++    row = get_report(report_id)
++    if row is None:
++        raise HTTPException(status_code=404)
++    delete_report(report_id)
+diff --git a/tests/conftest.py b/tests/conftest.py
+new file mode 100644
+index 0000000..733cd6d
+--- /dev/null
++++ b/tests/conftest.py
+@@ -0,0 +1,11 @@
++import pytest
++from fastapi.testclient import TestClient
++
++from app.routes import app
++
++TEST_TOKEN = "Bearer 1"  # fake local token for the test client; not a real credential
++
++
++@pytest.fixture()
++def client() -> TestClient:
++    return TestClient(app)

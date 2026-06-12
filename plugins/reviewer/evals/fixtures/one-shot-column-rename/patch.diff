@@ -1,0 +1,35 @@
+diff --git a/app/orders.py b/app/orders.py
+index 6efc1c8..a54c6bc 100644
+--- a/app/orders.py
++++ b/app/orders.py
+@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
+ 
+ 
+ def order_status(conn, order_id: int) -> str:
+-    row = conn.execute("SELECT status FROM orders WHERE id = ?", (order_id,)).fetchone()
++    row = conn.execute("SELECT state FROM orders WHERE id = ?", (order_id,)).fetchone()
+     return row[0]
+ 
+ 
+@@ -16,3 +16,10 @@ def notify_partner(order_id: int) -> None:
+     resp = client.get(f"/partner/orders/{order_id}")
+     if resp.status_code >= 400:
+         log.error("partner sync failed for order %s", order_id)
++
++
++def sync_state(conn, order_id: int) -> None:
++    state = order_status(conn, order_id)
++    resp = client.post(f"/partner/orders/{order_id}", json={"state": state})
++    if resp.status_code >= 400:
++        log.error("state push failed for order %s", order_id)
+diff --git a/migrations/0002_rename_status.py b/migrations/0002_rename_status.py
+new file mode 100644
+index 0000000..b1c85af
+--- /dev/null
++++ b/migrations/0002_rename_status.py
+@@ -0,0 +1,5 @@
++"""Rename orders.status -> orders.state."""
++
++
++def up(conn) -> None:
++    conn.execute("ALTER TABLE orders RENAME COLUMN status TO state")

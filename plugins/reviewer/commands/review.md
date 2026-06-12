@@ -55,7 +55,12 @@ only).
     - Repo context from the Context section.
     - Any user qualifiers attached to the command, such as "security only" or
       "ignore generated files".
-    - Whether `REVIEW.md`, `CLAUDE.md`, or `AGENTS.md` exists at repo root.
+    - **Repo review config**: `Read` `REVIEW.md` at the repo root if it
+      exists (the org-opinion layer per the contract's Repo Configuration
+      section — Path Guidance, Severity Overrides, Allowed Nits). If it is
+      150 lines or fewer, carry its full contents; otherwise carry the path
+      plus its section headings. Note whether `CLAUDE.md` or `AGENTS.md`
+      also carry reviewer instructions.
 
 3. **Triage** — pick the dimension set the diff actually needs. User
    qualifiers always override this table. Classify the changed files:
@@ -78,6 +83,10 @@ only).
 
     `D="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.reviews/$(date +%Y-%m-%dT%H-%M-%S)"; mkdir -p "$D"; git diff --name-only <target-range> > "$D/changed_files.txt" 2>/dev/null; echo "$D"`
 
+    For the working-tree target only, also append untracked new files so
+    they stay in review scope:
+    `git ls-files --others --exclude-standard >> "$D/changed_files.txt"`
+
 5. Dispatch every triaged specialist with the `Agent` tool in parallel,
    before reading any result. Number the dimensions in canonical order —
    correctness=01, security=02, performance=03, design=04, testing=05,
@@ -92,8 +101,10 @@ only).
       summary.
     - **Changed files**: the list, and the path `<DIR>/changed_files.txt`.
     - **Change intent**: the commit messages from step 2, verbatim.
-    - **Reviewer instructions**: contents or existence of `REVIEW.md`,
-      `CLAUDE.md`, or `AGENTS.md` if available.
+    - **Reviewer instructions**: the `REVIEW.md` contents from step 2
+      verbatim (specialists apply it per the contract's Repo Configuration
+      precedence — it never silences a BLOCKER), plus any reviewer guidance
+      from `CLAUDE.md`/`AGENTS.md`.
     - **Constraints**: user qualifiers.
 
 6. As each specialist returns, validate and render its file:
@@ -119,6 +130,8 @@ only).
     - The target and repo context.
     - The changed-files list and `<DIR>/changed_files.txt` path.
     - The contents of `<DIR>/merged.json` verbatim.
+    - The `REVIEW.md` contents from step 2, if any — the adjudicator is the
+      final enforcement point for repo-config drops and downgrades.
     - Instruction to re-verify every BLOCKER/IMPORTANT against the code,
       confirm/downgrade/drop per the contract's Adjudication section,
       recompute the verdict, and return the final `ReviewReport` JSON object

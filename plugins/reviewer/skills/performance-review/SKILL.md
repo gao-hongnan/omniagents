@@ -19,207 +19,206 @@ disable-model-invocation: false
 user-invocable: false
 ---
 
-# Performance Review Checklist
+# Performance Review — Hunt Protocols
 
-The gap between "fine for small N" and "correct for large N" is where
-performance bugs live. This checklist focuses on patterns that break at
-scale, not micro-optimizations. A finding is only worth reporting if
-the code path will realistically encounter the problematic input size.
+The gap between "fine for small N" and "broken at scale" is where
+performance bugs live. Every finding needs a **growth story**: name where N
+comes from and why it grows, or the finding is speculation. Micro-
+optimizations on cold, bounded paths are noise.
 
-## 1. Algorithmic Complexity
+## Hunts
 
-### Quadratic and Worse
+Execute every hunt whose `When` matches; skip the rest. Exemplars are
+calibration anchors, never templates — do not copy their wording into
+reports.
 
-- Nested loops over the same or correlated collections:
-  `for x in items: for y in items:`
-- Repeated linear search instead of set/dict lookup:
-  `if x in large_list`
-- String concatenation in a loop: `result += chunk`
-  (O(n^2) in Python for large n)
-- Sorting inside a loop:
-  `for item in items: sorted_subset = sorted(...)`
-- Repeated list insertion at index 0:
-  `items.insert(0, x)` in a loop
+### Hunt: Growth Variable
 
-### Hidden Complexity
+- **When**: a new loop, comprehension, or recursion over a collection, or
+  any operation whose cost scales with data (sort, `in` on a list, string
+  `+=` in a loop).
+- **Protocol**:
+    1. Name N's source: request payload, table, file, user count — or a
+       constant you can point at.
+    2. Establish growth: does N scale with users/data/time, or is it
+       bounded (enum, config list, pagination cap)?
+    3. For nested loops, establish whether the two collections correlate
+       (same data, joined data) — that is what makes it quadratic.
+    4. Grade by cost × call frequency (impact radius), never by shape
+       alone.
+- **Evidence bar**: the named growth source plus the superlinear operation
+  over it.
+- **Falsifiers**: N is constant-bounded; the code runs once at startup or
+  in an offline job; an upstream cap (pagination, batch size) bounds it.
+- **Exemplar**: IMPORTANT 84 — "`if sku in seen` with `seen` a list inside
+  the import loop — quadratic over a 50k-row upload; a set lookup is the
+  one-line fix." / **Noise twin**: a nested loop over weekdays × locales —
+  both constant-bounded.
 
-- `in` operator on a list vs a set (O(n) vs O(1) per check)
-- `list.remove(x)` is O(n) — doing it in a loop is O(n^2)
-- `dict.values()` membership test is O(n) — use key lookup
-- Regular expression with catastrophic backtracking (ReDoS):
-  patterns with nested quantifiers like `(a+)+$`, `(a|b)*c`
-- Recursive calls without memoization on overlapping subproblems
+### Hunt: Database Round-Trip
 
-### When to Flag
+- **When**: a DB/ORM/HTTP call lexically inside an iteration body, or
+  reachable from one through a helper.
+- **Protocol**:
+    1. Read the loop body **and its callees one level down**
+       (`callees_of`, Read) for query/fetch calls — the N+1 usually hides
+       in the helper.
+    2. Confirm per-iteration execution: nothing batches, caches, or
+       eager-loads it.
+    3. Check whether a batch API already exists (a `WHERE … IN` method,
+       `joinedload`/`select_related`, a dataloader) — that is the fix to
+       name.
+- **Evidence bar**: the per-item call site plus an iteration source that
+  scales.
+- **Falsifiers**: the iterable is constant-bounded; the relationship is
+  eager-loaded upstream (point at the query options); a request-scoped
+  cache dedupes the calls.
+- **Exemplar**: IMPORTANT 85 — "`enrich(ticket)` runs `SELECT … WHERE
+  id=?` per ticket in the listing loop — page size 100 means 101 queries;
+  the repo class already has a `WHERE id IN` variant." / **Noise twin**:
+  a per-item query in an offline one-shot backfill script.
 
-- Flag if the collection can grow with user data or external
-  input
-- Skip if the collection is bounded by a known constant (e.g.,
-  enum values)
-- Use blast radius to prioritize: hot path with 200 callers >
-  cold utility
+### Hunt: New Query Shape
 
-## 2. Database and Query Patterns
+- **When**: a new or changed `WHERE`, `ORDER BY`, `JOIN`, or `GROUP BY` —
+  or a first query against a table.
+- **Protocol**:
+    1. Grep `migrations/` and schema files for an index on the
+       filtered/sorted columns **before** flagging.
+    2. For composite predicates, apply the leftmost-prefix rule: does an
+       existing index actually cover this combination?
+    3. Spot full-scan shapes: leading-wildcard `LIKE`, a function call on
+       an indexed column, implicit type casts.
+    4. Check `LIMIT` on potentially unbounded results and `SELECT *` on
+       wide tables.
+- **Evidence bar**: the query, the absent index or scan shape, and the
+  table's growth story.
+- **Falsifiers**: the index exists in an earlier migration; the table is
+  bounded by design (config/lookup table); the query belongs to an
+  offline batch where a scan is acceptable.
+- **Exemplar**: IMPORTANT 82 — "new `ORDER BY created_at` on `events`
+  with no index — `events` grows unbounded, so every page view pays a
+  full sort." / **Noise twin**: an unindexed filter on a 12-row
+  feature-flag table.
 
-### N+1 Queries
+### Hunt: Materialization
 
-- Loop that executes a query per iteration:
-  `for item in items: db.query(related)`
-- ORM lazy loading inside iteration: accessing a relationship
-  attribute in a loop
-- Missing `select_related()` / `joinedload()` / `include()` on
-  relationship traversal
-- GraphQL resolvers that fetch per-field instead of batching
+- **When**: `list()`, `sorted()`, `.read()`, `.json()`, `model_dump()`, or
+  a spread over data of unknown size; collecting everything before
+  processing anything.
+- **Protocol**:
+    1. Trace the size source: request body, table, file, third-party
+       response?
+    2. Check for the streaming alternative at that boundary: iterators,
+       cursors, chunked reads, streaming responses.
+    3. Confirm no upstream bound (LIMIT, max-size validation, pagination)
+       already caps the data.
+- **Evidence bar**: the materializing call plus the unbounded size source.
+- **Falsifiers**: an upstream cap exists; the data is config-scale; the
+  algorithm genuinely needs the full set (then the missing upstream bound
+  is the finding, if anything).
+- **Exemplar**: IMPORTANT 83 — "`rows = list(cursor)` before the CSV loop
+  buffers the entire table in memory; the cursor already streams
+  row-by-row." / **Noise twin**: `sorted(enabled_plugins)` — a
+  config-bounded list.
 
-### Missing Indexes
+### Hunt: Unbounded Fan-out
 
-- New `WHERE` clause on a column without an index
-- New `ORDER BY` on a column without an index
-- Composite query filtering on multiple columns — composite
-  index needed?
-- Full table scan indicators: `LIKE '%pattern'`, function calls
-  on indexed columns
+- **When**: `gather`/`Promise.all`, thread/process pools, or queue
+  producers in the diff.
+- **Protocol**:
+    1. Find the bound: semaphore, capped `TaskGroup`, pool `max_workers`,
+       queue `maxsize` — or establish there is none.
+    2. Trace the input list's size source (request-controlled is the red
+       flag).
+    3. Check each fanned-out call for a timeout — one stuck task stalls
+       the whole gather.
+- **Evidence bar**: fan-out over an input that scales with no concurrency
+  bound on the path.
+- **Falsifiers**: the input is bounded (fixed endpoint list, page-capped
+  batch); a semaphore or pool cap exists upstream — name it.
+- **Exemplar**: IMPORTANT 85 — "`asyncio.gather(*(probe(u) for u in
+  urls))` with `urls` from the request body — a 10k-URL payload opens 10k
+  concurrent sockets." / **Noise twin**: `gather` over exactly three
+  fixed health-check endpoints.
 
-### Query Efficiency
+### Hunt: Event-Loop Stall
 
-- `SELECT *` when only a few columns are needed
-- Fetching all rows when only count/exists is needed
-- Missing `LIMIT` on queries that could return unbounded results
-- Repeated identical queries in the same request (missing cache)
-- Transaction held open across I/O operations (lock contention)
+- **When**: new code inside `async def` (or on a Node request path).
+- **Protocol**:
+    1. Scan the body and its **sync callees** for blocking calls:
+       `open()`/`Path.read_text`, `requests.*`, `time.sleep`, sync DB
+       drivers, heavy CPU work (parsing, compression, crypto).
+    2. Check for the async equivalent or an executor handoff
+       (`asyncio.to_thread`, `run_in_executor`).
+    3. Estimate the stall: a 200 ms blocking call in a handler freezes
+       every coroutine on the loop for 200 ms.
+- **Evidence bar**: the blocking call inside the async path, named.
+- **Falsifiers**: the call is constant microseconds (tiny local read at
+  startup); the code provably runs in a worker thread, not on the loop
+  (verify, don't assume).
+- **Exemplar**: IMPORTANT 86 — "`requests.get(url)` inside the async
+  webhook handler blocks the loop for the full round-trip; `httpx` is
+  already a dependency." / **Noise twin**: `json.loads` on a small,
+  schema-capped payload — trivial bounded CPU.
 
-## 3. Memory and Allocation
+### Hunt: Cache & Retention Audit
 
-### Hidden Materialization
+- **When**: a new cache, memo, `lru_cache`, module-level collection, or
+  listener/callback registration.
+- **Protocol**:
+    1. Find the eviction policy — `maxsize`, TTL, LRU — or establish there
+       is none.
+    2. Check key cardinality: does the key space grow with
+       users/requests/time?
+    3. Check key completeness: every parameter that affects the result is
+       in the key (a missing one is a *correctness* hand-off, still flag
+       the staleness).
+    4. Find the deregistration for every registration — the leak is the
+       listener nobody removes. Mutable values returned by reference can
+       be corrupted by callers.
+- **Evidence bar**: an unbounded cardinality source, or a concrete
+  staleness/retention story.
+- **Falsifiers**: `maxsize`/TTL is set; the key space is provably small
+  (enum-keyed); the process is short-lived (CLI) so retention dies at
+  exit.
+- **Exemplar**: IMPORTANT 84 — "module-level `_results[job_id] = …` with
+  no eviction — one entry per job forever; the worker OOMs on long
+  uptimes." / **Noise twin**: `@lru_cache(maxsize=256)` on a pure parser —
+  bounded by construction.
 
-- `list()` on a generator/iterator that could be large
-- `sorted()` on a large iterable (materializes the full sequence)
-- `.json()` / `.dict()` / `model_dump()` on large nested models
-- `Path.read_text()` / `file.read()` on potentially large files
-- `response.json()` on unbounded API responses
-- Collecting all results before processing vs streaming
+## Severity Anchors
 
-### Memory Leaks
+Performance severity is **cost × frequency**. Grade with the contract's
+Severity Rubric and elevation rule, calibrated by blast radius:
 
-- Growing collections without eviction: `cache = {}` that only
-  adds, never removes
-- `functools.lru_cache` / `functools.cache` without `maxsize`
-  (unbounded growth)
-- Event listeners registered but never removed
-- Closures capturing large objects that outlive their useful
-  lifetime
-- Circular references preventing garbage collection (rare in
-  Python, more common in JS)
+- Hot path (50+ callers or user-facing request path): lean IMPORTANT or
+  BLOCKER.
+- Moderate path (10–50 callers): lean IMPORTANT.
+- Cold path (< 10 callers): SUGGESTION unless egregious (whole-table
+  buffering, unbounded fan-out).
+- **BLOCKER**: superlinear work or unbounded memory on a hot path that
+  breaks at realistic scale.
+- **IMPORTANT**: N+1, missing index, blocking-in-async, or unbounded
+  retention on a path that ships to production.
+- **SUGGESTION**: the same shapes on cold, bounded paths where the fix is
+  cheap and the payoff is real.
 
-### Allocation Patterns
+## Recall Sweep
 
-- Creating objects in a hot loop that could be reused
-- Copying large data structures unnecessarily (`deepcopy` in
-  a loop)
-- String formatting in a loop when the template is constant
-- Repeated `re.compile()` of the same pattern (should compile
-  once at module level)
+After the hunts, sweep the diff once against these. Flag only what passes
+the contract's Taste Test:
 
-## 4. Async and Concurrency
-
-### Blocking in Async Context
-
-- `open()` / `Path.read_text()` in an async function (blocks
-  the event loop)
-- `requests.get()` instead of `httpx`/`aiohttp` in async code
-- `time.sleep()` in an async function (use `asyncio.sleep()`)
-- CPU-bound computation in an async handler without
-  `run_in_executor()`
-- Synchronous database driver in async application
-
-### Unbounded Concurrency
-
-- `asyncio.gather(*[task() for item in unbounded_list])` — no
-  concurrency limit
-- Missing `asyncio.Semaphore` for rate-limiting concurrent
-  operations
-- Missing `maxsize` on `asyncio.Queue` (unbounded memory growth
-  under backpressure)
-- Thread pool with no max workers on user-controlled workload
-- `Promise.all()` on unbounded array in TypeScript
-
-### Async Anti-Patterns
-
-- `await` in a loop when `gather`/`TaskGroup` would parallelize
-- Creating a new connection per request instead of using a pool
-- Missing timeout on external calls: `await client.get(url)`
-  with no timeout
-- Fire-and-forget tasks without error handling (silently dropped
-  exceptions)
-
-## 5. Caching
-
-### Cache Without Eviction
-
-- Dictionary used as cache without TTL, max size, or LRU policy
-- `functools.cache` (unbounded) on functions with many distinct
-  inputs
-- Global cache that grows with request volume
-
-### Cache Correctness
-
-- Cache key doesn't include all parameters that affect the result
-- Cached mutable object returned by reference (callers can
-  corrupt cache)
-- Cache not invalidated when underlying data changes
-- Race condition: concurrent cache miss causes redundant
-  computation
-
-### Cache Overhead
-
-- Caching results cheaper to compute than the cache lookup itself
-- Cache with very low hit rate (adds memory pressure for no
-  benefit)
-- Serialization cost of cache values exceeds computation cost
-
-## 6. I/O and Network
-
-### Connection Management
-
-- Connection created per request instead of pooled
-- Pool exhaustion: `max_connections` too low for concurrent load
-- Missing connection timeout (hanging connections consume pool
-  slots)
-- Connection not returned to pool on error (leak via exception
-  path)
-
-### Payload Size
-
-- Large response bodies serialized without streaming
-- Base64-encoding large binary data inline (use multipart or
-  streaming)
-- Logging full request/response bodies at DEBUG level (disk I/O
-  plus allocation)
-- Loading entire file into memory for line-by-line processing
-  (use iterators)
-
-### Retry and Timeout
-
-- Missing timeout on HTTP client calls (can hang indefinitely)
-- Retry without exponential backoff (thundering herd on failures)
-- Retry on non-idempotent operations (duplicate side effects)
-- No circuit breaker on repeatedly failing external services
-
-## 7. Cold Start and Initialization
-
-### Import-Time Cost
-
-- Heavy computation at module import time (delays startup)
-- Importing large libraries that aren't always needed (lazy
-  import instead)
-- Database connections established at import time
-- Global regex compilation of many patterns at module level
-
-### Eager vs Lazy Initialization
-
-- Singleton that initializes all dependencies at construction,
-  not first use
-- Configuration validation that calls external services at
-  startup
-- Loading large data files into memory at import rather than
-  on demand
+- ReDoS: nested quantifiers (`(a+)+$`), alternation with overlap, on
+  user input.
+- Loop allocations: `re.compile` per iteration, string `+=`, `deepcopy`,
+  repeated identical queries per request.
+- Collections: `in` on a list where a set is warranted, `list.remove` in
+  a loop, `dict.values()` membership.
+- Connections: created per request instead of pooled, not returned on the
+  error path, pool size vs concurrency, missing HTTP timeout.
+- Retries: no backoff (thundering herd), retrying non-idempotent calls.
+- Payloads: base64-ing large blobs inline, logging full bodies, loading a
+  whole file for line-by-line work.
+- Cold start: heavy import-time computation, eager init of all
+  dependencies, module-level connection setup.

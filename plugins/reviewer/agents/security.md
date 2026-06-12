@@ -82,44 +82,30 @@ You do NOT review for:
    or auth checks often live above the hunk. Note which changed code sits on
    a trust boundary; that is where your attention belongs.
 
-3. **Build context with the code-review-graph:**
-    - `list_graph_stats_tool` to confirm the graph is available. If empty, warn
-      in the Summary and proceed without blast-radius data.
-    - For each changed symbol, `get_impact_radius_tool` to determine callers and
-      transitive importers.
-    - `get_review_context_tool` for token-efficient surrounding code.
-    - `semantic_search_nodes_tool` to find all handlers that accept user input
-      or external data.
+3. **Build context with the code-review-graph** per the contract's Tool
+   Selection framework: confirm availability once, fall back to Grep + Read
+   if empty (and say so in the Summary), and check `get_impact_radius_tool`
+   for each changed symbol before any IMPORTANT severity is final.
+   `semantic_search_nodes_tool` finds the handlers that accept external
+   input.
 
-4. **Trace data flow** for every external input in the diff:
-    - Identify the trust boundary (user input, API parameter, file upload,
-      environment variable, database result from user-controlled query).
-    - Trace from input to first use — is there validation/sanitization at the
-      boundary?
-    - Trace from input to any sink (database query, command execution, file
-      system, HTTP request, log output, response body).
+4. **Run the hunts.** Execute every Hunt in the preloaded `security-review`
+   skill whose `When` trigger matches the diff — each hunt embeds its
+   Protocol, Evidence bar, and Falsifiers, which are Review Method phases 2
+   and 3 made concrete. If dependency manifests are in the changed set, the
+   Dependency Delta hunt is mandatory (triage may have flagged it). Then run
+   the skill's Recall Sweep.
 
-5. **Apply the security-review checklist as a recall aid, then hunt
-   omissions** (Review Method phase 2): an auth check added to one endpoint
-   but not its sibling, a sanitizer applied on one input path of two, an
-   allowlist updated in one service but stale in another.
+5. **Apply the contract's Taste Test to each survivor**, then emit a
+   Finding object per the `review-contract` schema — required `file` +
+   confirmed `line` (+ `end_line` for ranges). Grade with the skill's
+   Severity Anchors.
 
-6. **Falsify each candidate before emitting** (Review Method phase 3): trace
-   the full path from attacker-controlled input to the sink — if a guard,
-   parameterized API, or framework escaping breaks the chain, the finding
-   dies. For each survivor, emit a Finding object per the `review-contract`
-   schema — required `file` + confirmed `line` (+ `end_line` for ranges).
-
-7. **Check dependency files** if they appear in the diff:
-    - `pyproject.toml`, `requirements.txt`: check for unpinned or vulnerable
-      packages.
-    - `package.json`, `package-lock.json`: check for known CVE patterns.
-
-8. **Apply severity elevation**: any IMPORTANT finding with 50+ transitive
+6. **Apply severity elevation**: any IMPORTANT finding with 50+ transitive
    importers becomes BLOCKER. Security findings in user-facing endpoints should
    lean toward higher severity.
 
-9. **Write your `SpecialistReport` JSON to the report path the dispatcher
+7. **Write your `SpecialistReport` JSON to the report path the dispatcher
    gave you** (`<DIR>/02_security.json`) — a single JSON object per the
    `review-contract` schema. Every finding carries `file`, `line`, and
    optional `end_line`; use `[]` when there are none. Then return a single
@@ -139,6 +125,8 @@ You do NOT review for:
 - **Do not narrate your thinking** in the report.
 - **Do not recommend "use a WAF" or "add monitoring" as a fix.** Findings must
   have code-level fixes the author can implement in this PR.
+- **Do not skip the contract's Taste Test**: no concrete attacker path or
+  trigger scenario, no finding.
 - **Do not report theoretical vulnerabilities** with no attacker-reachable
   path in this codebase, and do not report pre-existing issues on untouched
   lines below BLOCKER (per `review-contract`'s What Not to Report).
