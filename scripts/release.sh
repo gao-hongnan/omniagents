@@ -6,7 +6,8 @@
 # CHANGELOG, validates, commits, and tags vX.Y.Z. It does NOT push — review the
 # commit, then:
 #   git push origin main && git push origin vX.Y.Z
-#   make stable VERSION=X.Y.Z   # promote to the stable channel once vetted
+# Pushing the tag triggers the RELEASE workflow, which validates and publishes
+# the GitHub Release from the matching CHANGELOG section.
 #
 # Lockstep versioning is deliberate: Claude Code keys its plugin cache on the
 # version string and skips any update where it is unchanged, so the version MUST
@@ -30,6 +31,8 @@ if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$'; th
 	exit 1
 fi
 
+command -v jq >/dev/null 2>&1 || { echo "error: jq is required but not on PATH"; exit 1; }
+
 # Repo root = parent of this script's directory.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
@@ -49,9 +52,6 @@ MARKETPLACE=".claude-plugin/marketplace.json"
 CHANGELOG="CHANGELOG.md"
 [ -f "$MARKETPLACE" ] || { echo "error: $MARKETPLACE not found in $ROOT"; exit 1; }
 
-# Portable in-place sed (GNU accepts --version; BSD/macOS does not).
-if sed --version >/dev/null 2>&1; then SED_INPLACE=(sed -i); else SED_INPLACE=(sed -i ''); fi
-
 # Manifests to bump: the marketplace + every plugin.json.
 MANIFESTS=("$MARKETPLACE")
 while IFS= read -r f; do MANIFESTS+=("$f"); done \
@@ -67,21 +67,32 @@ rollback() {
 }
 trap rollback ERR
 
-# 1. Bump the FIRST "version": "..." in each manifest. The 1,/.../ range stops at
-#    the first match, so nested version-like keys are never touched.
-for f in "${MANIFESTS[@]}"; do
+# Set a jq path to $VERSION, failing loudly if the path is absent so a manifest
+# with an unexpected shape never silently goes unbumped. Atomic write-back.
+bump() {  # $1=file  $2=jq path (e.g. .version)
+	local f="$1" path="$2" tmp
+	tmp="$(mktemp)"
 	echo "Bumping $f -> $VERSION"
-	"${SED_INPLACE[@]}" '1,/"version":/ s/"version": *"[^"]*"/"version": "'"$VERSION"'"/' "$f"
-done
+	jq --arg v "$VERSION" \
+		"if ($path) == null then error(\"$f: missing $path\") else $path = \$v end" \
+		"$f" > "$tmp" && mv "$tmp" "$f"
+}
 
-# 2. Stamp the CHANGELOG: rename "## [Unreleased]" to a new dated section so its
+# 1. Bump versions. The marketplace carries its version at .metadata.version;
+#    every plugin.json carries it at the top-level .version.
+bump "$MARKETPLACE" '.metadata.version'
+for f in "${MANIFESTS[@]:1}"; do bump "$f" '.version'; done
+
+# 2. Stamp the CHANGELOG: insert a dated section after "## [Unreleased]" so its
 #    accumulated entries become this release, leaving a fresh empty Unreleased.
-if [ -f "$CHANGELOG" ] && grep -q '^## \[Unreleased\]' "$CHANGELOG"; then
+if [ -f "$CHANGELOG" ] && grep -q '^## \[Unreleased\]$' "$CHANGELOG"; then
 	DATE="$(date +%Y-%m-%d)"
 	echo "Stamping $CHANGELOG -> [$VERSION] - $DATE"
-	"${SED_INPLACE[@]}" "s/^## \[Unreleased\]\$/## [Unreleased]\\
-\\
-## [$VERSION] - $DATE/" "$CHANGELOG"
+	tmp="$(mktemp)"
+	awk -v ver="$VERSION" -v date="$DATE" '
+		{ print }
+		/^## \[Unreleased\]$/ { print ""; print "## [" ver "] - " date }
+	' "$CHANGELOG" > "$tmp" && mv "$tmp" "$CHANGELOG"
 fi
 
 # 3. Validate before committing (fail the release if the manifest is invalid).
@@ -104,4 +115,3 @@ echo ""
 echo "Tagged $TAG on $(git rev-parse --short HEAD)."
 echo "Next:"
 echo "  git push origin $BRANCH && git push origin $TAG"
-echo "  make stable VERSION=$VERSION   # promote to the 'stable' channel once vetted"
