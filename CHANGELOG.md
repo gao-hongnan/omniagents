@@ -9,6 +9,8 @@ in the README for the bump rules and the release workflow.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-12
+
 ### Added
 
 - `RELEASE` GitHub Actions workflow: on every `v*` tag it validates the

@@ -1,6 +1,6 @@
 {
   "name": "notifications",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "macOS system notifications when Claude Code requires attention (Notification hook: sound + banner)",
   "author": {
     "name": "GAO Hongnan",
@@ -9,5 +9,11 @@
   "homepage": "https://github.com/gao-hongnan/omniagents",
   "repository": "https://github.com/gao-hongnan/omniagents",
   "license": "MIT",
-  "keywords": ["notifications", "hooks", "macos", "attention", "alert"]
+  "keywords": [
+    "notifications",
+    "hooks",
+    "macos",
+    "attention",
+    "alert"
+  ]
 }

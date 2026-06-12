@@ -1,6 +1,6 @@
 {
   "name": "omniagents-writing",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Measured-persuasion writing skill + markdown conventions",
   "author": {
     "name": "GAO Hongnan",
@@ -9,6 +9,11 @@
   "homepage": "https://github.com/gao-hongnan/omniagents",
   "repository": "https://github.com/gao-hongnan/omniagents",
   "license": "MIT",
-  "keywords": ["writing", "persuasion", "markdown", "conventions"],
+  "keywords": [
+    "writing",
+    "persuasion",
+    "markdown",
+    "conventions"
+  ],
   "skills": "./skills/"
 }

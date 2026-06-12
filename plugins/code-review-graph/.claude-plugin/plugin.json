@@ -1,6 +1,6 @@
 {
   "name": "code-review-graph",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Code Review Graph MCP: tree-sitter knowledge graph tooling for impact analysis and structural review",
   "author": {
     "name": "GAO Hongnan",
@@ -9,5 +9,12 @@
   "homepage": "https://github.com/gao-hongnan/omniagents",
   "repository": "https://github.com/gao-hongnan/omniagents",
   "license": "MIT",
-  "keywords": ["code-review-graph", "code-review", "tree-sitter", "knowledge-graph", "mcp", "impact-analysis"]
+  "keywords": [
+    "code-review-graph",
+    "code-review",
+    "tree-sitter",
+    "knowledge-graph",
+    "mcp",
+    "impact-analysis"
+  ]
 }

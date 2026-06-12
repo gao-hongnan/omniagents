@@ -1,6 +1,6 @@
 {
   "name": "google-workspace",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Google Workspace MCP: Gmail, Drive, Calendar, and Docs via taylorwilsdon/google_workspace_mcp",
   "author": {
     "name": "GAO Hongnan",
@@ -9,5 +9,13 @@
   "homepage": "https://github.com/gao-hongnan/omniagents",
   "repository": "https://github.com/gao-hongnan/omniagents",
   "license": "MIT",
-  "keywords": ["google", "gmail", "drive", "calendar", "docs", "google-workspace", "mcp"]
+  "keywords": [
+    "google",
+    "gmail",
+    "drive",
+    "calendar",
+    "docs",
+    "google-workspace",
+    "mcp"
+  ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "notion",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Notion MCP: Pages, databases, and workspace content via @notionhq/notion-mcp-server",
   "author": {
     "name": "GAO Hongnan",
@@ -9,5 +9,11 @@
   "homepage": "https://github.com/gao-hongnan/omniagents",
   "repository": "https://github.com/gao-hongnan/omniagents",
   "license": "MIT",
-  "keywords": ["notion", "mcp", "productivity", "wiki", "knowledge-base"]
+  "keywords": [
+    "notion",
+    "mcp",
+    "productivity",
+    "wiki",
+    "knowledge-base"
+  ]
 }

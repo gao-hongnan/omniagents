@@ -1,6 +1,6 @@
 {
   "name": "omniagents-python",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Python conventions: NumPy/Sphinx docstrings + strict typing + performance rules",
   "author": {
     "name": "GAO Hongnan",
@@ -9,6 +9,11 @@
   "homepage": "https://github.com/gao-hongnan/omniagents",
   "repository": "https://github.com/gao-hongnan/omniagents",
   "license": "MIT",
-  "keywords": ["python", "docstrings", "typing", "conventions"],
+  "keywords": [
+    "python",
+    "docstrings",
+    "typing",
+    "conventions"
+  ],
   "skills": "./skills/"
 }
