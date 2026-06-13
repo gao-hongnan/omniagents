@@ -28,6 +28,11 @@
       "env": {
         "NOTION_TOKEN": "${NOTION_TOKEN}"
       }
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
     }
   }
 }

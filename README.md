@@ -15,7 +15,7 @@ One marketplace lists many plugins, and each plugin entry only needs a `name`
 and a `source` telling Claude Code where to fetch it from.
 
 This repository _is_ a marketplace. The catalog lives at
-`.claude-plugin/marketplace.json`; each of the ten plugins under `plugins/*`
+`.claude-plugin/marketplace.json`; each of the twelve plugins under `plugins/*`
 carries its own `.claude-plugin/plugin.json`:
 
 | Layer       | File                                        | Role                                |
@@ -66,19 +66,20 @@ for the authoritative pages.
 
 ## Plugin catalogue
 
-| Plugin                       | Type             | Skills / Tools                                                                                                   | Requires                                                                                        |
-| ---------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `omniagents-python`          | Skills           | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                     | —                                                                                               |
-| `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                              | —                                                                                               |
-| `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                       | —                                                                                               |
-| `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`                              | —                                                                                               |
+| Plugin                       | Type             | Skills / Tools                                                                                                                                           | Requires                                                                                        |
+| ---------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `omniagents-python`          | Skills           | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                                                             | —                                                                                               |
+| `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                                                                      | —                                                                                               |
+| `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                                                               | —                                                                                               |
+| `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`                                                                      | —                                                                                               |
 | `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — triaged parallel specialists (correctness, security, performance, design, testing, operability) + verifier + adjudicator | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
-| `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                | `uv` on PATH                                                                                    |
-| `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                     | `CONTEXT7_API_KEY`                                                                              |
-| `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                              | `uv` on PATH + Google OAuth creds                                                               |
-| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                 | macOS                                                                                           |
-| `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams) | `git` + `bash`                                                                                  |
-| `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session | —                                                                                               |
+| `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                                                        | `uv` on PATH                                                                                    |
+| `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                                                             | `CONTEXT7_API_KEY`                                                                              |
+| `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                                                                      | `uv` on PATH + Google OAuth creds                                                               |
+| `playwright`                 | MCP (stdio)      | Browser automation + accessibility-tree page snapshots                                                                                                   | Node.js 18+ on PATH                                                                             |
+| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                                                         | macOS                                                                                           |
+| `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                         | `git` + `bash`                                                                                  |
+| `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session                                         | —                                                                                               |
 
 ---
 
@@ -90,6 +91,8 @@ for the authoritative pages.
 - For `context7`: a Context7 API key from <https://context7.com/dashboard>
 - For `google-workspace`: Google OAuth credentials — see
   `plugins/google-workspace/README.md`
+- For `playwright`: Node.js 18+ on PATH — `node --version` (first run downloads
+  a browser)
 - For `notifications`: macOS (uses built-in `osascript`)
 - For `doc-drift`: `git` and `bash` (standard on macOS/Linux)
 
@@ -122,6 +125,7 @@ claude plugin install omniagents-reviewer@omniagents
 claude plugin install code-review-graph@omniagents
 claude plugin install context7@omniagents
 claude plugin install google-workspace@omniagents
+claude plugin install playwright@omniagents
 claude plugin install notifications@omniagents
 claude plugin install doc-drift@omniagents
 claude plugin install omniagents-pedagogy@omniagents
@@ -163,6 +167,7 @@ claude plugin update omniagents-reviewer@omniagents
 claude plugin update code-review-graph@omniagents
 claude plugin update context7@omniagents
 claude plugin update google-workspace@omniagents
+claude plugin update playwright@omniagents
 claude plugin update notifications@omniagents
 claude plugin update doc-drift@omniagents
 claude plugin update omniagents-pedagogy@omniagents
@@ -248,8 +253,8 @@ make release VERSION=0.2.1    # the revert reaches users only once the version c
 git push origin main && git push origin v0.2.1
 ```
 
-Users on a pinned tag are unaffected until they re-add the marketplace at a newer
-ref; users on `main` receive the revert on their next
+Users on a pinned tag are unaffected until they re-add the marketplace at a
+newer ref; users on `main` receive the revert on their next
 `/plugin marketplace update omniagents`.
 
 ---
@@ -269,6 +274,7 @@ claude plugin uninstall omniagents-reviewer@omniagents --prune
 claude plugin uninstall code-review-graph@omniagents --prune
 claude plugin uninstall context7@omniagents --prune
 claude plugin uninstall google-workspace@omniagents --prune
+claude plugin uninstall playwright@omniagents --prune
 claude plugin uninstall notifications@omniagents --prune
 claude plugin uninstall doc-drift@omniagents --prune
 claude plugin uninstall omniagents-pedagogy@omniagents --prune
@@ -386,6 +392,34 @@ Type: stdio
 Command: uvx
 Args: workspace-mcp
 ```
+
+### playwright
+
+No configuration or API key is required. The plugin launches Microsoft's
+Playwright MCP via `npx @playwright/mcp@latest`, which gives agents browser
+automation driven by the accessibility tree — navigate, click, type, and capture
+structured page snapshots.
+
+Requirements: Node.js 18+ on PATH. The first run downloads the browser
+Playwright drives (Chromium by default), so allow network access and some disk.
+
+Verify:
+
+```bash
+claude mcp get playwright
+```
+
+Expected output:
+
+```text
+Scope: Project config (shared via .mcp.json)
+Type: stdio
+Command: npx
+Args: @playwright/mcp@latest
+```
+
+Common flags such as `--headless`, `--browser <name>`, and `--isolated` can be
+appended to the `args` array; see `plugins/playwright/README.md`.
 
 ### notifications
 

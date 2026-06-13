@@ -92,6 +92,19 @@
       ]
     },
     {
+      "name": "playwright",
+      "source": "./plugins/playwright",
+      "description": "Playwright MCP: browser automation and accessibility-tree page snapshots via Microsoft's @playwright/mcp (requires Node.js 18+)",
+      "category": "integrations",
+      "keywords": [
+        "mcp",
+        "playwright",
+        "browser",
+        "automation",
+        "web"
+      ]
+    },
+    {
       "name": "notifications",
       "source": "./plugins/notifications",
       "description": "macOS notifications on permission prompts, idle waits, and task completion via Notification + Stop hooks",
