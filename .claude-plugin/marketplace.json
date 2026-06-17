@@ -47,12 +47,15 @@
     {
       "name": "omniagents-writing",
       "source": "./plugins/writing",
-      "description": "Measured-persuasion writing skill + markdown conventions",
+      "description": "Measured-persuasion writing, markdown conventions, and archify technical-diagram generation",
       "category": "writing",
       "keywords": [
         "writing",
         "markdown",
-        "persuasion"
+        "persuasion",
+        "diagrams",
+        "architecture",
+        "mermaid"
       ]
     },
     {

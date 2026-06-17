@@ -71,7 +71,7 @@ for the authoritative pages.
 | `omniagents-python`          | Skills           | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                                                             | —                                                                                               |
 | `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                                                                      | —                                                                                               |
 | `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                                                               | —                                                                                               |
-| `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`                                                                      | —                                                                                               |
+| `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`, `omniagents-writing:archify` (HTML architecture/workflow/sequence/dataflow/lifecycle diagrams) | Node.js for `archify` renderers (optional `ajv`)                                                |
 | `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — triaged parallel specialists (correctness, security, performance, design, testing, operability) + verifier + adjudicator | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
 | `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                                                        | `uv` on PATH                                                                                    |
 | `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                                                             | `CONTEXT7_API_KEY`                                                                              |
@@ -490,6 +490,15 @@ Claude Code official documentation cited above:
 5. [Plugin settings — managed settings & `strictKnownMarketplaces`](https://code.claude.com/docs/en/settings)
 
 ---
+
+## Credits
+
+- **`omniagents-writing:archify`** is vendored from
+  [tt-a1i/archify](https://github.com/tt-a1i/archify) (MIT, by tt-a1i), itself
+  based on [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI)
+  (MIT). We copied their work and build on it — full credit to the upstream
+  authors. Original license preserved at
+  `plugins/writing/skills/archify/LICENSE`; details in that skill's `README.md`.
 
 ## License
 
