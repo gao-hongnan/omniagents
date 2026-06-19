@@ -35,13 +35,14 @@
     {
       "name": "omniagents-design-patterns",
       "source": "./plugins/design-patterns",
-      "description": "Strict-typed Python 3.13+ design pattern catalogue (software + system patterns)",
+      "description": "Strict-typed Python 3.13+ design pattern catalogue plus deep-module design philosophy (software + system + codebase-design)",
       "category": "architecture",
       "keywords": [
         "design-patterns",
         "python",
         "architecture",
-        "system-design"
+        "system-design",
+        "deep-modules"
       ]
     },
     {
@@ -153,6 +154,20 @@
         "learning",
         "debugging",
         "code-review"
+      ]
+    },
+    {
+      "name": "omniagents-research",
+      "source": "./plugins/research",
+      "description": "Citation-grounded medical literature research with two-gate citation verification, OCEBM + GRADE grading, and responsible hypothesis generation for contested diseases (long COVID, ME/CFS); MCP-backed (PubMed + biomcp), via /medical-research",
+      "category": "research",
+      "keywords": [
+        "medical-research",
+        "citations",
+        "evidence-grading",
+        "hypothesis-generation",
+        "multi-agent",
+        "mcp"
       ]
     }
   ]

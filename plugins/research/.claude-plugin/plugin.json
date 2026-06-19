@@ -1,0 +1,27 @@
+{
+  "name": "omniagents-research",
+  "version": "0.4.0",
+  "description": "Citation-grounded biomedical literature research with responsible hypothesis generation for contested chronic diseases (long COVID, ME/CFS): retrieve-before-generate over PubMed/Europe PMC/ClinicalTrials.gov, two-gate citation verification (existence + entailment), OCEBM + GRADE evidence grading, and a fenced, falsifiable theorizing engine. Never gives individualized medical advice.",
+  "author": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "homepage": "https://github.com/gao-hongnan/omniagents",
+  "repository": "https://github.com/gao-hongnan/omniagents",
+  "license": "MIT",
+  "keywords": [
+    "medical-research",
+    "citations",
+    "evidence-grading",
+    "grade",
+    "hypothesis-generation",
+    "long-covid",
+    "me-cfs",
+    "multi-agent"
+  ],
+  "dependencies": [
+    {
+      "name": "omniagents-writing"
+    }
+  ]
+}

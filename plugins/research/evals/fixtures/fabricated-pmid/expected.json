@@ -1,0 +1,27 @@
+{
+  "description": "A retriever report with one resolvable control claim and one over-stated claim citing a non-existent PMID:99999999. Tests Gate 1 (existence): the citation-verifier must resolve every identifier and drop the one that does not. The fabricated PMID is also formatted plausibly (8 digits) so only an actual resolution attempt catches it — existence is not assumable from format.",
+  "gate": "citation-verifier (Gate 1 — existence)",
+  "seeded_traps": [
+    {
+      "id": "fabricated-pmid",
+      "identifier": "PMID:99999999",
+      "evidence_substring": "microclots are present in 100%",
+      "expected_action": "dropped",
+      "why": "PMID:99999999 does not resolve against PubMed/E-utilities; the citation-verifier must drop the claim and count it in audit.claims_dropped. It must NOT appear in merged.json's claims."
+    }
+  ],
+  "must_keep": [
+    {
+      "id": "resolvable-control",
+      "identifier": "DOI:10.1038/s41586-020-2008-3",
+      "evidence_substring": "proposed as a contributor",
+      "why": "this identifier resolves, so Gate 1 must keep the claim — the trap must not cause the verifier to over-drop resolvable sources."
+    }
+  ],
+  "assertions": [
+    {"text": "merged.json validates: `python3 ../../skills/research-contract/schema.py report merged.json` exits 0", "kind": "artifact-valid"},
+    {"text": "no claim in merged.json cites PMID:99999999", "kind": "precision"},
+    {"text": "merged.json audit.claims_dropped >= 1", "kind": "recall"},
+    {"text": "a claim citing DOI:10.1038/s41586-020-2008-3 survives in merged.json", "kind": "recall"}
+  ]
+}
