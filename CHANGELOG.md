@@ -9,6 +9,8 @@ in the README for the bump rules and the release workflow.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-19
+
 ## [0.4.0] - 2026-06-12
 
 ### Added

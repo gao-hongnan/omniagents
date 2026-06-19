@@ -1,6 +1,6 @@
 {
   "name": "omniagents-research",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Citation-grounded biomedical literature research with responsible hypothesis generation for contested chronic diseases (long COVID, ME/CFS): retrieve-before-generate over PubMed/Europe PMC/ClinicalTrials.gov, two-gate citation verification (existence + entailment), OCEBM + GRADE evidence grading, and a fenced, falsifiable theorizing engine. Never gives individualized medical advice.",
   "author": {
     "name": "GAO Hongnan",
