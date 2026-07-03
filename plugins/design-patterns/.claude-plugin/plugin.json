@@ -20,7 +20,8 @@
     "cqrs",
     "event-sourcing",
     "anti-patterns",
-    "architecture"
+    "architecture",
+    "deep-modules"
   ],
   "skills": "./skills/"
 }

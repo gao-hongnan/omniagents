@@ -1,0 +1,20 @@
+{
+  "name": "codegraph",
+  "version": "0.5.0",
+  "description": "CodeGraph MCP: tree-sitter knowledge graph with symbol search, callers/callees, and impact analysis, auto-syncing on file changes",
+  "author": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "homepage": "https://github.com/gao-hongnan/omniagents",
+  "repository": "https://github.com/gao-hongnan/omniagents",
+  "license": "MIT",
+  "keywords": [
+    "codegraph",
+    "code-review",
+    "tree-sitter",
+    "knowledge-graph",
+    "mcp",
+    "impact-analysis"
+  ]
+}

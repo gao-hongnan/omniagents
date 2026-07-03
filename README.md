@@ -15,8 +15,8 @@ One marketplace lists many plugins, and each plugin entry only needs a `name`
 and a `source` telling Claude Code where to fetch it from.
 
 This repository _is_ a marketplace. The catalog lives at
-`.claude-plugin/marketplace.json`; each of the twelve plugins under `plugins/*`
-carries its own `.claude-plugin/plugin.json`:
+`.claude-plugin/marketplace.json`; each of the thirteen plugins under
+`plugins/*` carries its own `.claude-plugin/plugin.json`:
 
 | Layer       | File                                        | Role                                |
 | ----------- | ------------------------------------------- | ----------------------------------- |
@@ -66,20 +66,21 @@ for the authoritative pages.
 
 ## Plugin catalogue
 
-| Plugin                       | Type             | Skills / Tools                                                                                                                                           | Requires                                                                                        |
-| ---------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `omniagents-python`          | Skills           | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                                                             | —                                                                                               |
-| `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                                                                      | —                                                                                               |
-| `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                                                               | —                                                                                               |
+| Plugin                       | Type             | Skills / Tools                                                                                                                                                                      | Requires                                                                                        |
+| ---------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `omniagents-python`          | Skills           | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                                                                                        | —                                                                                               |
+| `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                                                                                                 | —                                                                                               |
+| `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                                                                                          | —                                                                                               |
 | `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`, `omniagents-writing:archify` (HTML architecture/workflow/sequence/dataflow/lifecycle diagrams) | Node.js for `archify` renderers (optional `ajv`)                                                |
-| `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — triaged parallel specialists (correctness, security, performance, design, testing, operability) + verifier + adjudicator | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
-| `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                                                        | `uv` on PATH                                                                                    |
-| `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                                                             | `CONTEXT7_API_KEY`                                                                              |
-| `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                                                                      | `uv` on PATH + Google OAuth creds                                                               |
-| `playwright`                 | MCP (stdio)      | Browser automation + accessibility-tree page snapshots                                                                                                   | Node.js 18+ on PATH                                                                             |
-| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                                                         | macOS                                                                                           |
-| `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                         | `git` + `bash`                                                                                  |
-| `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session                                         | —                                                                                               |
+| `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — triaged parallel specialists (correctness, security, performance, design, testing, operability) + verifier + adjudicator                            | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
+| `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                                                                                   | `uv` on PATH                                                                                    |
+| `codegraph`                  | MCP (stdio)      | Code knowledge-graph tools (symbol search, callers/callees, impact analysis)                                                                                                        | Node.js + npm on PATH (for `npx`)                                                               |
+| `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                                                                                        | `CONTEXT7_API_KEY`                                                                              |
+| `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                                                                                                 | `uv` on PATH + Google OAuth creds                                                               |
+| `playwright`                 | MCP (stdio)      | Browser automation + accessibility-tree page snapshots                                                                                                                              | Node.js 18+ on PATH                                                                             |
+| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                                                                                    | macOS                                                                                           |
+| `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                                                    | `git` + `bash`                                                                                  |
+| `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session                                                                    | —                                                                                               |
 
 ---
 
@@ -88,6 +89,7 @@ for the authoritative pages.
 - Claude Code CLI — `claude --version`
 - For `code-review-graph` and `google-workspace`: `uv` installed —
   `uvx --version`
+- For `codegraph`: Node.js and npm on PATH (to run `npx`) — `npx --version`
 - For `context7`: a Context7 API key from <https://context7.com/dashboard>
 - For `google-workspace`: Google OAuth credentials — see
   `plugins/google-workspace/README.md`
@@ -123,6 +125,7 @@ claude plugin install omniagents-design-patterns@omniagents
 claude plugin install omniagents-writing@omniagents
 claude plugin install omniagents-reviewer@omniagents
 claude plugin install code-review-graph@omniagents
+claude plugin install codegraph@omniagents
 claude plugin install context7@omniagents
 claude plugin install google-workspace@omniagents
 claude plugin install playwright@omniagents
@@ -165,6 +168,7 @@ claude plugin update omniagents-design-patterns@omniagents
 claude plugin update omniagents-writing@omniagents
 claude plugin update omniagents-reviewer@omniagents
 claude plugin update code-review-graph@omniagents
+claude plugin update codegraph@omniagents
 claude plugin update context7@omniagents
 claude plugin update google-workspace@omniagents
 claude plugin update playwright@omniagents
@@ -272,6 +276,7 @@ claude plugin uninstall omniagents-design-patterns@omniagents --prune
 claude plugin uninstall omniagents-writing@omniagents --prune
 claude plugin uninstall omniagents-reviewer@omniagents --prune
 claude plugin uninstall code-review-graph@omniagents --prune
+claude plugin uninstall codegraph@omniagents --prune
 claude plugin uninstall context7@omniagents --prune
 claude plugin uninstall google-workspace@omniagents --prune
 claude plugin uninstall playwright@omniagents --prune
@@ -327,6 +332,40 @@ uvx code-review-graph serve
 ```
 
 Common causes are `uvx` not on PATH or a first-run package download failure.
+
+### codegraph
+
+The plugin launches [`codegraph`](https://github.com/colbymchenry/codegraph) via
+`npx -y @colbymchenry/codegraph serve --mcp`. No global install or configuration
+is needed; `npx` resolves and runs the latest published version on each launch.
+The server indexes the working project with tree-sitter into a local, persistent
+graph and keeps it in sync via a background file watcher.
+
+Verify:
+
+```bash
+claude mcp get codegraph
+```
+
+Expected output:
+
+```text
+Scope: Project config (shared via .mcp.json)
+Type: stdio
+Command: npx
+Args: -y @colbymchenry/codegraph serve --mcp
+```
+
+If the server is found but fails to connect, run the launch command directly to
+diagnose:
+
+```bash
+npx -y @colbymchenry/codegraph serve --mcp
+```
+
+Common causes are `npx`/Node.js not on PATH or a first-run package download
+failure. See `plugins/codegraph/README.md` for CLI usage beyond MCP and
+telemetry controls.
 
 ### context7
 
@@ -495,7 +534,8 @@ Claude Code official documentation cited above:
 
 - **`omniagents-writing:archify`** is vendored from
   [tt-a1i/archify](https://github.com/tt-a1i/archify) (MIT, by tt-a1i), itself
-  based on [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI)
+  based on
+  [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI)
   (MIT). We copied their work and build on it — full credit to the upstream
   authors. Original license preserved at
   `plugins/writing/skills/archify/LICENSE`; details in that skill's `README.md`.
