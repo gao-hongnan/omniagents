@@ -11,6 +11,9 @@ the bump rules and the release workflow.
 
 ### Added
 
+- `codegraph`: new MCP plugin — tree-sitter knowledge-graph tools (symbol
+  search, callers/callees, impact analysis) auto-syncing on file changes
+  (requires Node.js + npm on PATH).
 - `omniagents-unknowns`: new plugin with the `blindspot-pass` skill —
   `/blindspot-pass` (or model-invoked) surveys unfamiliar territory, surfaces
   the user's unknown unknowns via the four-quadrant framework, and converts them
@@ -18,8 +21,11 @@ the bump rules and the release workflow.
 
 ### Removed
 
-- Stale `omniagents-research` marketplace entry that pointed at the deleted
-  `./plugins/research` directory and broke `make validate`.
+- `omniagents-research`: the medical-research plugin was removed entirely —
+  `/medical-research`, `/research-doctor`, and the citation-verifier /
+  evidence-adjudicator / hypothesis-critic / retriever agents are gone. This
+  release also drops the marketplace entry that had been left pointing at the
+  deleted `./plugins/research` directory (which broke `make validate`).
 
 ## [0.5.0] - 2026-06-19
 
