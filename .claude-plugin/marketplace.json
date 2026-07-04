@@ -170,17 +170,16 @@
       ]
     },
     {
-      "name": "omniagents-research",
-      "source": "./plugins/research",
-      "description": "Citation-grounded medical literature research with two-gate citation verification, OCEBM + GRADE grading, and responsible hypothesis generation for contested diseases (long COVID, ME/CFS); MCP-backed (PubMed + biomcp), via /medical-research",
-      "category": "research",
+      "name": "omniagents-unknowns",
+      "source": "./plugins/unknowns",
+      "description": "Blindspot pass: survey unfamiliar territory, surface unknown unknowns, and turn them into a sharper prompt before work begins",
+      "category": "productivity",
       "keywords": [
-        "medical-research",
-        "citations",
-        "evidence-grading",
-        "hypothesis-generation",
-        "multi-agent",
-        "mcp"
+        "unknowns",
+        "blindspot",
+        "prompting",
+        "scoping",
+        "map-territory"
       ]
     }
   ]

@@ -81,6 +81,7 @@ for the authoritative pages.
 | `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                                                                                    | macOS                                                                                           |
 | `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                                                    | `git` + `bash`                                                                                  |
 | `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session                                                                    | —                                                                                               |
+| `omniagents-unknowns`        | Skills           | `omniagents-unknowns:blindspot-pass` — `/blindspot-pass [task/area]` surveys unfamiliar territory and reports your unknown unknowns, ending in a sharper prompt                     | —                                                                                               |
 
 ---
 
@@ -132,6 +133,7 @@ claude plugin install playwright@omniagents
 claude plugin install notifications@omniagents
 claude plugin install doc-drift@omniagents
 claude plugin install omniagents-pedagogy@omniagents
+claude plugin install omniagents-unknowns@omniagents
 ```
 
 ### Scope options
@@ -175,6 +177,7 @@ claude plugin update playwright@omniagents
 claude plugin update notifications@omniagents
 claude plugin update doc-drift@omniagents
 claude plugin update omniagents-pedagogy@omniagents
+claude plugin update omniagents-unknowns@omniagents
 ```
 
 Inside Claude Code, the equivalent commands are:
@@ -283,6 +286,7 @@ claude plugin uninstall playwright@omniagents --prune
 claude plugin uninstall notifications@omniagents --prune
 claude plugin uninstall doc-drift@omniagents --prune
 claude plugin uninstall omniagents-pedagogy@omniagents --prune
+claude plugin uninstall omniagents-unknowns@omniagents --prune
 ```
 
 If the plugin was installed with a non-default scope, pass the matching

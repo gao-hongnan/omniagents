@@ -4,10 +4,22 @@ All notable changes to the **omniagents** marketplace are recorded here. The
 format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 marketplace uses lockstep [Semantic Versioning](https://semver.org/) — every
 plugin moves together under one version per release. See
-[Versioning and releases](./README.md#versioning-and-releases)
-in the README for the bump rules and the release workflow.
+[Versioning and releases](./README.md#versioning-and-releases) in the README for
+the bump rules and the release workflow.
 
 ## [Unreleased]
+
+### Added
+
+- `omniagents-unknowns`: new plugin with the `blindspot-pass` skill —
+  `/blindspot-pass` (or model-invoked) surveys unfamiliar territory, surfaces
+  the user's unknown unknowns via the four-quadrant framework, and converts them
+  into a sharper prompt.
+
+### Removed
+
+- Stale `omniagents-research` marketplace entry that pointed at the deleted
+  `./plugins/research` directory and broke `make validate`.
 
 ## [0.5.0] - 2026-06-19
 
@@ -18,9 +30,9 @@ in the README for the bump rules and the release workflow.
 - `RELEASE` GitHub Actions workflow: on every `v*` tag it validates the
   marketplace and publishes a GitHub Release from the matching `CHANGELOG.md`
   section.
-- `omniagents-reviewer`: eval fixtures covering IDOR on a sibling endpoint,
-  loop query amplification (N+1), duplicate-validator drift, a no-regression
-  bugfix, and a one-shot column rename.
+- `omniagents-reviewer`: eval fixtures covering IDOR on a sibling endpoint, loop
+  query amplification (N+1), duplicate-validator drift, a no-regression bugfix,
+  and a one-shot column rename.
 
 ### Changed
 
@@ -28,15 +40,15 @@ in the README for the bump rules and the release workflow.
   explicit **Hunt Protocol**, tightened the specialist agent prompts, the
   review/doctor commands, and the review contract, and refreshed the eval
   harness and plugin description.
-- Release tooling now bumps manifest versions with `jq` (targeting
-  `.version` / `.metadata.version`) instead of a `sed` range, and stamps the
-  `CHANGELOG` with `awk`.
+- Release tooling now bumps manifest versions with `jq` (targeting `.version` /
+  `.metadata.version`) instead of a `sed` range, and stamps the `CHANGELOG` with
+  `awk`.
 
 ### Removed
 
 - The `stable` release channel: the `make stable` target and the CI
-  stable-promotion job are gone. Releases are cut as immutable version tags
-  off `main`.
+  stable-promotion job are gone. Releases are cut as immutable version tags off
+  `main`.
 
 ## [0.3.0] - 2026-06-10
 
