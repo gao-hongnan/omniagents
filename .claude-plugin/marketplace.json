@@ -48,7 +48,7 @@
     {
       "name": "omniagents-writing",
       "source": "./plugins/writing",
-      "description": "Measured-persuasion writing, markdown conventions, and archify technical-diagram generation",
+      "description": "Measured-persuasion writing, markdown conventions, and blueprint format-clean HTML/SVG diagram generation",
       "category": "writing",
       "keywords": [
         "writing",
@@ -56,7 +56,20 @@
         "persuasion",
         "diagrams",
         "architecture",
-        "mermaid"
+        "svg"
+      ]
+    },
+    {
+      "name": "drawio",
+      "source": "./plugins/drawio",
+      "description": "draw.io diagram skill (vendored from jgraph/drawio-mcp): author as Mermaid or draw.io XML with optional ELK auto-layout; export PNG/SVG/PDF with embedded XML or open via app.diagrams.net (draw.io Desktop optional, only for conversion/export)",
+      "category": "writing",
+      "keywords": [
+        "drawio",
+        "diagrams",
+        "mermaid",
+        "architecture",
+        "vendored"
       ]
     },
     {

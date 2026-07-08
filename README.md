@@ -66,22 +66,23 @@ for the authoritative pages.
 
 ## Plugin catalogue
 
-| Plugin                       | Type             | Skills / Tools                                                                                                                                                                      | Requires                                                                                        |
-| ---------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `omniagents-python`          | Skills           | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                                                                                        | —                                                                                               |
-| `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                                                                                                 | —                                                                                               |
-| `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                                                                                          | —                                                                                               |
-| `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`, `omniagents-writing:archify` (HTML architecture/workflow/sequence/dataflow/lifecycle diagrams) | Node.js for `archify` renderers (optional `ajv`)                                                |
-| `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — triaged parallel specialists (correctness, security, performance, design, testing, operability) + verifier + adjudicator                            | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
-| `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                                                                                   | `uv` on PATH                                                                                    |
-| `codegraph`                  | MCP (stdio)      | Code knowledge-graph tools (symbol search, callers/callees, impact analysis)                                                                                                        | Node.js + npm on PATH (for `npx`)                                                               |
-| `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                                                                                        | `CONTEXT7_API_KEY`                                                                              |
-| `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                                                                                                 | `uv` on PATH + Google OAuth creds                                                               |
-| `playwright`                 | MCP (stdio)      | Browser automation + accessibility-tree page snapshots                                                                                                                              | Node.js 18+ on PATH                                                                             |
-| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                                                                                    | macOS                                                                                           |
-| `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                                                    | `git` + `bash`                                                                                  |
-| `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session                                                                    | —                                                                                               |
-| `omniagents-unknowns`        | Skills           | `omniagents-unknowns:blindspot-pass` — `/blindspot-pass [task/area]` surveys unfamiliar territory and reports your unknown unknowns, ending in a sharper prompt                     | —                                                                                               |
+| Plugin                       | Type             | Skills / Tools                                                                                                                                                                 | Requires                                                                                        |
+| ---------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `omniagents-python`          | Skills           | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                                                                                   | —                                                                                               |
+| `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                                                                                            | —                                                                                               |
+| `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                                                                                     | —                                                                                               |
+| `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`, `omniagents-writing:blueprint` (format-clean HTML/SVG diagrams via coordinate discipline) | Python 3 optional (for the `check_diagram.py` linter)                                           |
+| `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — triaged parallel specialists (correctness, security, performance, design, testing, operability) + verifier + adjudicator                       | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
+| `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                                                                              | `uv` on PATH                                                                                    |
+| `codegraph`                  | MCP (stdio)      | Code knowledge-graph tools (symbol search, callers/callees, impact analysis)                                                                                                   | Node.js + npm on PATH (for `npx`)                                                               |
+| `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                                                                                   | `CONTEXT7_API_KEY`                                                                              |
+| `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                                                                                            | `uv` on PATH + Google OAuth creds                                                               |
+| `playwright`                 | MCP (stdio)      | Browser automation + accessibility-tree page snapshots                                                                                                                         | Node.js 18+ on PATH                                                                             |
+| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                                                                               | macOS                                                                                           |
+| `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                                               | `git` + `bash`                                                                                  |
+| `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session                                                               | —                                                                                               |
+| `omniagents-unknowns`        | Skills           | `omniagents-unknowns:blindspot-pass` — `/blindspot-pass [task/area]` surveys unfamiliar territory and reports your unknown unknowns, ending in a sharper prompt                | —                                                                                               |
+| `drawio` (vendored)          | Skill            | `drawio:drawio` — native `.drawio` diagrams from Mermaid or draw.io XML, ELK auto-layout, PNG/SVG/PDF/`url` export                                                             | draw.io Desktop (optional — Mermaid conversion + PNG/SVG/PDF export only)                       |
 
 ---
 
@@ -536,13 +537,13 @@ Claude Code official documentation cited above:
 
 ## Credits
 
-- **`omniagents-writing:archify`** is vendored from
-  [tt-a1i/archify](https://github.com/tt-a1i/archify) (MIT, by tt-a1i), itself
-  based on
-  [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI)
-  (MIT). We copied their work and build on it — full credit to the upstream
-  authors. Original license preserved at
-  `plugins/writing/skills/archify/LICENSE`; details in that skill's `README.md`.
+- **`drawio`** is vendored from
+  [jgraph/drawio-mcp](https://github.com/jgraph/drawio-mcp/tree/main/plugins/claude-code)
+  (Apache-2.0, by draw.io) — only the `plugins/claude-code` subdirectory. It is
+  pinned to an upstream commit and re-synced with `scripts/sync-drawio.sh`; the
+  pinned ref and full provenance live in `plugins/drawio/UPSTREAM.md`. We vendor
+  the files (rather than a git submodule) so the marketplace sees normal paths
+  and we can review upstream diffs before adopting them.
 
 ## License
 

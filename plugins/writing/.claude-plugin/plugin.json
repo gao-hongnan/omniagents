@@ -1,7 +1,7 @@
 {
   "name": "omniagents-writing",
   "version": "0.6.0",
-  "description": "Measured-persuasion writing, markdown conventions, and archify technical-diagram generation",
+  "description": "Measured-persuasion writing, markdown conventions, and blueprint format-clean HTML/SVG diagram generation",
   "author": {
     "name": "GAO Hongnan",
     "email": "hongnangao@gmail.com"
@@ -15,8 +15,8 @@
     "markdown",
     "conventions",
     "diagrams",
-    "architecture",
-    "mermaid"
+    "svg",
+    "architecture"
   ],
   "skills": "./skills/"
 }

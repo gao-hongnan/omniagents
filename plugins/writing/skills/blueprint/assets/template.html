@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blueprint Diagram</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #f0f2f5; font-family: system-ui, -apple-system, sans-serif; padding: 24px; }
+  .container {
+    overflow: auto;                 /* large diagrams scroll instead of clipping */
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    padding: 28px;
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 18px; color: #1f2937; margin-bottom: 20px; font-weight: 700;
+       padding-bottom: 12px; border-bottom: 2px solid #e5e7eb; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Diagram Title</h1>
+
+<!--
+  COORDINATE REFERENCE  (fill this in BEFORE drawing — every number below traces back here)
+  ═════════════════════
+  columns: cx = 180 | 310 | 420
+  rows:    Clients y=96   Services y=228   Data y=364
+  gaps:    ≥ 40px between rows (arrow channel),  ≥ 24px between adjacent box edges
+  box formula: boxWidth = charCount × 6.6 + 40 (round up to even); height 36 (1 line) / 54 (2 lines)
+-->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="442" viewBox="0 0 620 442">
+
+<!-- ═══════ DEFS: arrow markers ═══════ -->
+<defs>
+  <marker id="arrow" viewBox="0 0 10 7" refX="10" refY="3.5"
+          markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+  </marker>
+  <marker id="arrow-open" viewBox="0 0 10 7" refX="10" refY="3.5"
+          markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+    <polyline points="0 0, 10 3.5, 0 7" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
+  </marker>
+</defs>
+
+<!-- ═══════ STYLE: the class system (edit palette here, never inline on nodes) ═══════ -->
+<style>
+  /* nodes: opaque fill + saturated stroke + centered monospace text */
+  .node rect { rx:6; ry:6; stroke-width:1.5; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.06)); }
+  .node text {
+    font-family: ui-monospace,'SF Mono','SFMono-Regular',Menlo,Consolas,'Liberation Mono',monospace;
+    font-size:11px; fill:#1f2937; text-anchor:middle; dominant-baseline:central;
+  }
+
+  /* semantic types — Tailwind-ish 50 fills + 600 strokes (pastel + crisp border) */
+  .frontend   rect { fill:#eff6ff; stroke:#2563eb; }   /* clients / UI            */
+  .backend    rect { fill:#ecfdf5; stroke:#16a34a; }   /* services / APIs         */
+  .database   rect { fill:#fffbeb; stroke:#d97706; }   /* stores / caches         */
+  .messagebus rect { fill:#f5f3ff; stroke:#7c3aed; }   /* queues / brokers        */
+  .compute    rect { fill:#fff7ed; stroke:#ea580c; }   /* jobs / processing       */
+  .security   rect { fill:#fef2f2; stroke:#e11d48; }   /* auth / secrets          */
+  .external   rect { fill:#f8fafc; stroke:#64748b; }   /* third parties           */
+  .neutral    rect { fill:#f9fafb; stroke:#6b7280; }   /* default / unspecified   */
+
+  /* layer bands: dashed rounded container + small bold label */
+  .band { fill:none; stroke:#cbd5e1; stroke-width:1; stroke-dasharray:5 4; rx:8; ry:8; }
+  .band-label {
+    font-family: ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    font-size:12px; font-weight:700; fill:#475569;
+  }
+
+  /* edges */
+  .edge        { fill:none; stroke:#64748b; stroke-width:1.5; marker-end:url(#arrow); }
+  .edge-dashed { fill:none; stroke:#94a3b8; stroke-width:1.5; stroke-dasharray:6 4;
+                 marker-end:url(#arrow-open); }
+  .edge-label {
+    font-family: ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    font-size:9px; fill:#64748b; text-anchor:middle; dominant-baseline:central;
+  }
+  .edge-label-bg { fill:#fff; stroke:none; }
+</style>
+
+<!-- ═══════ LAYER BANDS (drawn first, behind everything) ═══════ -->
+<rect class="band" x="48" y="44" width="524" height="92"/>
+<text class="band-label" x="68" y="62">Clients</text>
+
+<rect class="band" x="48" y="176" width="524" height="92"/>
+<text class="band-label" x="68" y="194">Services</text>
+
+<rect class="band" x="48" y="308" width="524" height="104"/>
+<text class="band-label" x="68" y="326">Data</text>
+
+<!-- ═══════ NODES (centered convention: rect at -w/2,-h/2 ; text auto-centered) ═══════ -->
+<!-- Web App: 7 chars × 6.6 = 46 ; box 88×36 -->
+<g class="node frontend" transform="translate(180,96)">
+  <rect x="-44" y="-18" width="88" height="36"/>
+  <text>Web App</text>
+</g>
+<!-- Mobile App: 10 chars × 6.6 = 66 ; box 108×36 -->
+<g class="node frontend" transform="translate(420,96)">
+  <rect x="-54" y="-18" width="108" height="36"/>
+  <text>Mobile App</text>
+</g>
+<!-- API Gateway: 11 chars × 6.6 = 73 ; box 120×36 -->
+<g class="node backend" transform="translate(310,228)">
+  <rect x="-60" y="-18" width="120" height="36"/>
+  <text>API Gateway</text>
+</g>
+<!-- PostgreSQL (2 lines): longest line 10 chars ; box 120×54 -->
+<g class="node database" transform="translate(310,364)">
+  <rect x="-60" y="-27" width="120" height="54"/>
+  <text><tspan x="0" dy="-7">PostgreSQL</tspan><tspan x="0" dy="14">:5432</tspan></text>
+</g>
+
+<!-- ═══════ EDGES (drawn last, on top ; orthogonal ; endpoints on box midpoints) ═══════ -->
+<!-- Web App → API Gateway : jog through the gap, fan into gateway left (x 302) -->
+<path class="edge" d="M180,114 L180,158 L302,158 L302,210"/>
+<!-- Mobile App → API Gateway : jog, fan into gateway right (x 318), separate channel y -->
+<path class="edge" d="M420,114 L420,166 L318,166 L318,210"/>
+<!-- API Gateway → PostgreSQL : straight down, labelled -->
+<path class="edge" d="M310,246 L310,337"/>
+<rect class="edge-label-bg" x="297" y="284" width="26" height="14" rx="2"/>
+<text class="edge-label" x="310" y="291">SQL</text>
+
+</svg>
+</div>
+</body>
+</html>

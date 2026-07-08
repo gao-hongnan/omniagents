@@ -26,7 +26,8 @@ A blindspot pass is reconnaissance, not implementation:
   domain (vocabulary, tooling, what good looks like) — before asking you
   anything.
 - Reports 3–7 blindspots, deltas only, ranked by whether they would change what
-  you ask for, each with the question it unlocks.
+  you ask for — each as a card you keep or drop, grounded in a cited file, with
+  the question it unlocks.
 - Ends with the payoff: a rewritten prompt you couldn't have written before the
   pass.
 
@@ -35,12 +36,19 @@ unknown knowns, unknown unknowns — because each needs a different move:
 interviews only reach what you already know to ask; prototypes surface what
 you'd recognize on sight; only surveying the territory reaches the rest.
 
+By default the pass stops at planning. When the work moves into the build, a
+review, or a merge, the same lens extends through an optional companion — a
+deviation log, a buy-in doc, a merge-readiness quiz — in
+`references/after-the-pass.md`.
+
 ## Layout
 
-```
+```text
 skills/
   blindspot-pass/
-    SKILL.md    # skill definition loaded by /blindspot-pass
+    SKILL.md                 # the pass, loaded by /blindspot-pass
+    references/
+      after-the-pass.md      # optional: during / after-build moves
 ```
 
 ## Installation
@@ -59,8 +67,12 @@ claude plugin install omniagents-unknowns@omniagents
 
 ## Credits
 
-The blindspot pass, the four-quadrant unknowns framing, and the map-vs-territory
-lens come from [Thariq Shihipar (ThariqS)](https://github.com/ThariqS) of
-Anthropic's Claude Code team — see his
+The four-quadrant unknowns framing and the map-vs-territory lens come from
+[Thariq Shihipar (ThariqS)](https://github.com/ThariqS) of Anthropic's Claude
+Code team — see his
 [Know your unknowns examples](https://thariqs.github.io/html-effectiveness/unknowns/).
-This plugin packages that workflow as a Claude Code skill.
+The reactable-report shape sharpens three moves from
+[dzhng's explore-unknowns](https://github.com/dzhng/skills/blob/main/skills/engineering/explore-unknowns/SKILL.md):
+artifacts you react to instead of describe, a report that assembles your next
+message, and citing the files the survey actually read. This plugin packages
+that workflow as a focused, single-pass Claude Code skill.
