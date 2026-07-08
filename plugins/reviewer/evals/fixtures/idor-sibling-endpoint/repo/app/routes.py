@@ -1,8 +1,7 @@
-from fastapi import Depends, FastAPI, HTTPException
-
 from app.auth import get_current_user_id
 from app.db import get_report
 from app.schemas import ReportOut
+from fastapi import Depends, FastAPI, HTTPException
 
 app = FastAPI()
 

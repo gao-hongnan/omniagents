@@ -32,9 +32,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Final, Protocol
 
-_SCHEMA_PATH: Final = (
-    Path(__file__).resolve().parent.parent / "skills" / "review-contract" / "schema.py"
-)
+_SCHEMA_PATH: Final = Path(__file__).resolve().parent.parent / "skills" / "review-contract" / "schema.py"
 
 
 # schema.py is loaded dynamically (its directory name is not importable), so
@@ -114,8 +112,7 @@ def _repo_slug(explicit: str | None) -> str:
 
 
 def _head_sha(pr: int, repo: str) -> str:
-    proc = _gh(["pr", "view", str(pr), "--repo", repo, "--json", "headRefOid",
-                "-q", ".headRefOid"])
+    proc = _gh(["pr", "view", str(pr), "--repo", repo, "--json", "headRefOid", "-q", ".headRefOid"])
     if proc.returncode != 0:
         raise RuntimeError(f"gh pr view failed: {proc.stderr.strip()}")
     return proc.stdout.strip()
@@ -232,8 +229,7 @@ def main(argv: list[str]) -> int:
         return 0
 
     proc = _gh(
-        ["api", f"repos/{repo}/pulls/{pr}/reviews", "--method", "POST",
-         "--input", "-"],
+        ["api", f"repos/{repo}/pulls/{pr}/reviews", "--method", "POST", "--input", "-"],
         stdin=json.dumps(payload),
     )
     if proc.returncode == 0:

@@ -129,7 +129,7 @@ def _git_tracked(repo: Path, path: Path) -> bool | None:
             timeout=10,
             check=False,
         )
-    except (OSError, subprocess.TimeoutExpired):
+    except OSError, subprocess.TimeoutExpired:
         return None
     return proc.returncode == 0
 
@@ -211,8 +211,7 @@ def _check_skill_refs(repo: Path, issues: list[Issue]) -> None:
                     Issue(
                         Level.ERROR,
                         "skill-refs",
-                        f"{agent}: '{ref}' has disable-model-invocation: true,"
-                        " which blocks preloading into subagents",
+                        f"{agent}: '{ref}' has disable-model-invocation: true, which blocks preloading into subagents",
                     )
                 )
                 continue
@@ -266,8 +265,7 @@ def _check_dimension_wiring(issues: list[Issue]) -> None:
                 Issue(
                     Level.ERROR,
                     "dimension-wiring",
-                    f"Dimension '{dim}' in schema.py has no "
-                    f"skills/{dim}-review/SKILL.md",
+                    f"Dimension '{dim}' in schema.py has no skills/{dim}-review/SKILL.md",
                 )
             )
         if f"`{dim}`" not in command_text:
@@ -275,8 +273,7 @@ def _check_dimension_wiring(issues: list[Issue]) -> None:
                 Issue(
                     Level.ERROR,
                     "dimension-wiring",
-                    f"Dimension '{dim}' in schema.py is not in the "
-                    "commands/review.md dispatch list",
+                    f"Dimension '{dim}' in schema.py is not in the commands/review.md dispatch list",
                 )
             )
 
@@ -291,17 +288,14 @@ def _check_schema_runs(issues: list[Issue]) -> None:
             check=False,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
-        issues.append(
-            Issue(Level.ERROR, "schema-runs", f"schema.py failed to run: {exc}")
-        )
+        issues.append(Issue(Level.ERROR, "schema-runs", f"schema.py failed to run: {exc}"))
         return
     if proc.returncode != 0:
         issues.append(
             Issue(
                 Level.ERROR,
                 "schema-runs",
-                f"schema.py --schema exited {proc.returncode}: "
-                f"{proc.stderr.decode(errors='replace')[:200]}",
+                f"schema.py --schema exited {proc.returncode}: {proc.stderr.decode(errors='replace')[:200]}",
             )
         )
 
@@ -339,10 +333,7 @@ def main(argv: list[str]) -> int:
         payload = {
             "errors": errors,
             "warnings": warns,
-            "issues": [
-                {"level": i.level.value, "check": i.check, "message": i.message}
-                for i in issues
-            ],
+            "issues": [{"level": i.level.value, "check": i.check, "message": i.message} for i in issues],
         }
         print(json.dumps(payload, indent=2))
     else:

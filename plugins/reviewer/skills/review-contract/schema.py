@@ -159,9 +159,7 @@ class Finding:
         file = _req_str(data, "file", ctx)
         line = _coerce_int(data.get("line"))
         if line is None:
-            raise ContractError(
-                f"{ctx}: missing line (int >= 1 required for traceability)"
-            )
+            raise ContractError(f"{ctx}: missing line (int >= 1 required for traceability)")
         if line < 1:
             raise ContractError(f"{ctx}: line must be >= 1, got {line}")
 
@@ -171,9 +169,7 @@ class Finding:
             if end_line is None:
                 raise ContractError(f"{ctx}: end_line must be an integer or null")
             if end_line < line:
-                raise ContractError(
-                    f"{ctx}: end_line ({end_line}) must be >= line ({line})"
-                )
+                raise ContractError(f"{ctx}: end_line ({end_line}) must be >= line ({line})")
 
         dimensions = _parse_dimensions(data, ctx)
 
@@ -448,9 +444,7 @@ def _parse_str_list(value: object) -> tuple[str, ...]:
 # -- contract enforcement beyond per-field parsing ---------------------------
 
 
-def scope_violations(
-    findings: tuple[Finding, ...], changed_files: frozenset[str]
-) -> tuple[str, ...]:
+def scope_violations(findings: tuple[Finding, ...], changed_files: frozenset[str]) -> tuple[str, ...]:
     """Findings outside the changed set must say so.
 
     One message per finding whose ``file`` is not in ``changed_files`` and
@@ -523,7 +517,7 @@ def _render_findings_by_severity(findings: tuple[Finding, ...]) -> str:
 
 
 def _counts(findings: tuple[Finding, ...]) -> dict[Severity, int]:
-    counts = {sev: 0 for sev in Severity}
+    counts = dict.fromkeys(Severity, 0)
     for f in findings:
         counts[f.severity] += 1
     return counts
@@ -743,9 +737,8 @@ def main(argv: list[str]) -> int:
             del rest[flag_at : flag_at + 2]
 
         if not rest:
-            usage = (
-                f"usage: schema.py {kind} <json> [out.md] "
-                "[--changed-files <list>]" + (" [--ci]" if kind == "review" else "")
+            usage = f"usage: schema.py {kind} <json> [out.md] [--changed-files <list>]" + (
+                " [--ci]" if kind == "review" else ""
             )
             print(json.dumps({"error": usage}), file=sys.stderr)
             return 2

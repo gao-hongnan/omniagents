@@ -152,6 +152,33 @@ reports.
   twin**: an ABC with one production implementation and an in-memory fake
   exercised across the test suite.
 
+### Hunt: Shallow Wrapper (Deletion Test)
+
+- **When**: the diff adds a module, class, or function that mostly forwards to
+  one collaborator, or whose interface is nearly as wide as the implementation
+  it hides.
+- **Protocol**:
+    1. List its callees and callers — `query_graph_tool` `callees_of` and
+       `callers_of` on the new symbol. A single callee it forwards to is the
+       first signal.
+    2. Apply the deletion test: inline the unit into its callers. Does
+       complexity concentrate back across them (real work was hidden), merely
+       relocate one hop unchanged, or vanish (callers get simpler)?
+    3. Compare interface surface to behaviour hidden: what must a caller still
+       know — parameters, ordering, error modes, return sentinels — that the
+       wrapper failed to encapsulate? A pass-through that re-exposes the
+       collaborator's contract is the finding.
+- **Evidence bar**: the forwarded callee plus what the caller must still know
+  despite the wrapper.
+- **Falsifiers**: it is a real seam (≥2 implementations — a test fake isolating
+  a heavy dependency counts); it adapts a true-external boundary; it hides a
+  genuinely complex sequence (retry, parse, error-mapping) behind the one call.
+- **Exemplar**: SUGGESTION 80 — "`UserRepo.get()` forwards 1:1 to
+  `session.get()` and re-exposes its exception set; deleting it removes a hop
+  and hides nothing." / **Noise twin**: a repository that hides query
+  construction, row mapping, and caching behind `get_active_users()` — one call,
+  real work hidden.
+
 ### Hunt: Public Contract Drift
 
 - **When**: the diff changes the shape of an exported API — signature,

@@ -7,9 +7,7 @@ _conn.execute("CREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, tot
 
 
 def fetch_orders(user_id: int) -> list[tuple[int, int]]:
-    return _conn.execute(
-        "SELECT id, total FROM orders WHERE user_id = ?", (user_id,)
-    ).fetchall()
+    return _conn.execute("SELECT id, total FROM orders WHERE user_id = ?", (user_id,)).fetchall()
 
 
 def fetch_orders_bulk(user_ids: list[int]) -> list[tuple[int, int, int]]:

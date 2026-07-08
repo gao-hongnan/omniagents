@@ -1,6 +1,5 @@
 """User domain model."""
 
-import os
 from dataclasses import dataclass
 
 
