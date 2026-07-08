@@ -9,6 +9,8 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-07-08
+
 ## [0.6.0] - 2026-07-04
 
 ### Added
