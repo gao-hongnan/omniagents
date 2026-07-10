@@ -212,6 +212,10 @@ Use `class X(Y): ...` only when:
 
 Default to `Literal[...]` for one-signature closed sets.
 
+The trigger is call sites, not declarations: a parameter typed `str` that
+only ever receives a fixed set of bare literals is already a closed set —
+type it before the literals multiply.
+
 Use `Literal["a", "b"]` when:
 
 - The closed set appears in one signature.

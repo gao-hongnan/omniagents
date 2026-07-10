@@ -9,6 +9,20 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- `omniagents-python`, `omniagents-typescript`: the `typings` skills now catch
+  closed sets hiding at call sites — a `str` / `string` parameter fed only
+  bare literals (`record("result_probe")`, `publish(state="failed")`) must be
+  typed as the closed set it is (`Literal[...]` / `StrEnum` in Python, a
+  literal or `as const`-derived union in TypeScript), enum members and
+  derived-union members are never stringified or widened back to plain
+  strings at call sites, and inline numeric literals with semantic weight are
+  promoted to named constants (`Final` in Python, module-level `const` in
+  TypeScript). Previously every closed-set rule triggered only from declared
+  constants, so magic strings feeding string-typed parameters slipped through
+  reviews.
+
 ## [0.7.0] - 2026-07-08
 
 ## [0.6.0] - 2026-07-04

@@ -4,15 +4,17 @@ description: >-
   Use when writing or reviewing Python 3.14+ with strict type-safety enforced:
   generics with PEP 695 syntax, annotationlib / deferred annotations,
   Protocol vs ABC, ParamSpec decorators, TypeIs / TypeGuard narrowing,
-  TypedDict / ReadOnly, Literal vs StrEnum, NewType vs aliases, or any time
-  mypy / pyright / pyrefly / ty is configured, run, or failing.
+  TypedDict / ReadOnly, magic strings / numbers vs Literal / StrEnum / Final,
+  NewType vs aliases, or any time mypy / pyright / pyrefly / ty is
+  configured, run, or failing.
 when_to_use: >-
   Trigger for Python files, pyproject typing configuration, strict checker
   failures, type annotation design, runtime annotation introspection,
   PEP 695 generics, PEP 696 defaults, PEP 705 ReadOnly TypedDict keys,
   PEP 742 TypeIs predicates, PEP 649 / PEP 749 deferred annotations, decorator
   signatures, Protocol boundaries, NewType identifiers, enum/literal choices,
-  or public API typing reviews.
+  magic-string and magic-number promotion, stringly-typed parameters, or
+  public API typing reviews.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []
@@ -183,6 +185,19 @@ chosen and which they have rejected.
   `Flag` / `IntFlag` when bitwise combination is the point.
 - **`Literal[...]` for ad-hoc closed sets in one signature.** Promote to
   `StrEnum` the moment the same set appears in a second signature.
+- **A `str` parameter fed only bare literals is an unlabeled closed set.**
+  Closed sets rarely arrive as declared constants; they enter the code as
+  inline strings at call sites — step names, states, modes, kinds, event
+  names — feeding a parameter typed `str`
+  (`record("result_probe")`, `publish(state="failed")`). That parameter's
+  real contract is the closed set: type it `Literal[...]` or `StrEnum` so a
+  typo is a checker error instead of a silent runtime miss. Test seams,
+  instrumentation hooks, and log/metric labels are not exempt.
+- **Enums are not stringified at call sites.** Passing
+  `code=str(ErrorCode.DEADLINE_EXCEEDED)` into a `code: str` parameter
+  erases the closed set the enum exists to enforce. The signature takes the
+  enum type (or a union of enum types); conversion to `str` happens once, at
+  the serialization boundary.
 - **`LiteralString` from [PEP 675](https://peps.python.org/pep-0675/) for
   SQL, shell, and format-string parameters.** Functions that compose user
   input into queries or commands take `LiteralString`, not `str`, so the
@@ -200,7 +215,10 @@ chosen and which they have rejected.
   `x: int = Field(ge=0)`.
 - **`Final` for module-level constants and class attrs not meant to be
   reassigned.** Use `MAX_RETRIES: Final = 3` and
-  `Final[frozenset[str]]` for immutable container constants.
+  `Final[frozenset[str]]` for immutable container constants. Inline numeric
+  literals with semantic weight — timeouts, caps, retry budgets, thresholds,
+  protocol codes — are promoted to named `Final` constants; identity values
+  and unit conversions (`0`, `1`, `* 1000`) stay inline.
 - **`assert_never` in unreachable exhaustive branches.** A new variant added
   to a discriminated union must break the build at every `case _:` or final
   `else`, not silently fall through at runtime.

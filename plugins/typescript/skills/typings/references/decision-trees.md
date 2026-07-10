@@ -54,6 +54,10 @@ signature and break consumers when the implementation changes.
 
 Default to an `as const` object.
 
+The trigger is call sites, not declarations: a parameter typed `string` that
+only ever receives a fixed set of bare literals is already a closed set —
+type it before the literals multiply.
+
 Use `as const` objects when:
 
 - You need a closed value set.

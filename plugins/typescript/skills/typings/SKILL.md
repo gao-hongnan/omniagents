@@ -4,7 +4,8 @@ description: >-
   Use when writing or reviewing TypeScript 6.0+ with strict type-safety:
   tsconfig defaults and deprecations, explicit global types, rootDir / paths /
   moduleResolution, import attributes, generics with T-prefix names, branded
-  types, discriminated unions with `never` exhaustiveness, Result types, Zod
+  types, discriminated unions with `never` exhaustiveness, Result types,
+  magic strings / numbers vs literal unions and named constants, Zod
   boundaries, `satisfies`, assertion functions, inferred type predicates,
   `using`, standard decorators, `unknown` vs `any`, or `// @ts-expect-error`.
 when_to_use: >-
@@ -13,7 +14,8 @@ when_to_use: >-
   generics, branded types, discriminated unions, Result vs throw, Zod schema
   boundaries, `using` / Disposable, standard decorators, inferred type
   predicates, `satisfies`, assertion functions, const type parameters,
-  template literal types, or public API typing reviews.
+  template literal types, magic-string and magic-number promotion,
+  stringly-typed parameters, or public API typing reviews.
 paths:
   - "**/*.ts"
   - "**/*.tsx"
@@ -215,6 +217,24 @@ this skill have chosen, and which they have rejected.
   `type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus];`. This
   gives compile-time exhaustiveness, avoids enum-specific emit and reverse
   mappings, and keeps members easy to tree-shake.
+- **A `string` parameter fed only bare literals is an unlabeled closed set.**
+  Closed sets rarely arrive as declared constants; they enter the code as
+  inline strings at call sites — step names, states, modes, kinds, event
+  names — feeding a parameter typed `string`
+  (`record("result_probe")`, `publish({ state: "failed" })`). That
+  parameter's real contract is the closed set: type it as a literal union or
+  an `as const`-derived union so a typo is a compile error instead of a
+  silent runtime miss. Test seams, instrumentation hooks, and log/metric
+  labels are not exempt.
+- **Derived unions are not widened at call sites.** Passing
+  `String(ErrorCode.DeadlineExceeded)` — or the member re-typed as `string`
+  — into a `code: string` parameter erases the closed set the union
+  enforces. The signature takes the derived union type; conversion to plain
+  `string` happens once, at the serialization boundary.
+- **Inline numeric literals with semantic weight are named constants.**
+  Timeouts, caps, retry budgets, thresholds, and protocol codes get a
+  module-level `const PER_ATTEMPT_CAP_MS = 60_000`; identity values and
+  unit conversions (`0`, `1`, `* 1000`) stay inline.
 - **`satisfies` over `as` for type-checked literals.** Use
   `const config = { … } satisfies AppConfig;` when validating a literal
   against a type without widening it. `as` casts are reserved for the
