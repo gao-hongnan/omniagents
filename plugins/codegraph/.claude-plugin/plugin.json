@@ -1,6 +1,6 @@
 {
   "name": "codegraph",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "CodeGraph MCP: tree-sitter knowledge graph with symbol search, callers/callees, and impact analysis, auto-syncing on file changes",
   "author": {
     "name": "GAO Hongnan",

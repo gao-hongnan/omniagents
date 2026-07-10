@@ -9,6 +9,8 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-10
+
 ### Changed
 
 - `omniagents-python`, `omniagents-typescript`: the `typings` skills now catch
