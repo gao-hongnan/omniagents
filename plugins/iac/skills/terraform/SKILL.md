@@ -162,6 +162,7 @@ maximal knobs.
 
   ```hcl
   resource "aws_elasticache_parameter_group" "this" {
+    name   = "${var.name}-params"
     family = "redis7"
     parameter {
       name  = "maxmemory-policy"
