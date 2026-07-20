@@ -191,6 +191,15 @@ maximal knobs.
   }
   ```
 
+  The parameter group is not garnish. Provider defaults tune for
+  *caches* — `default.redis7` ships `volatile-lru`, which silently
+  evicts keys under memory pressure. A cache tolerates that; queue or
+  job state does not. Any workload whose keys are **state rather than
+  cache** must override the default parameter group (`noeviction` for
+  Redis) at T2: a stateful workload left on a provider-default
+  parameter group is a T2 gap even when every other tiering row
+  passes.
+
 - **T3 — regulated.** Everything in T2, plus a customer-managed KMS
   key (`kms_key_id`) with a key policy scoped to the consuming service
   role; full log delivery (slow-log and engine-log to CloudWatch Logs
