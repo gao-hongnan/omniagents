@@ -161,6 +161,14 @@ maximal knobs.
   on connection/engine errors.
 
   ```hcl
+  resource "aws_elasticache_parameter_group" "this" {
+    family = "redis7"
+    parameter {
+      name  = "maxmemory-policy"
+      value = "noeviction"
+    }
+  }
+
   resource "aws_elasticache_replication_group" "this" {
     replication_group_id       = var.name
     engine                     = "redis"
@@ -170,6 +178,7 @@ maximal knobs.
     transit_encryption_enabled = true
     auth_token_wo              = var.auth_token_wo # write-only, TF >=1.11
     auth_token_wo_version      = var.auth_token_wo_version
+    parameter_group_name       = aws_elasticache_parameter_group.this.name
     snapshot_retention_limit   = 7 # named retention
   }
 
@@ -220,8 +229,8 @@ Read only the reference relevant to the current decision. Each file
 carries its own headings; cite a specific rule as
 `references/<file>.md#<anchor>`, where `<anchor>` is the kebab-case
 slug of the heading text exactly as written — for example
-`security-and-gates.md#secrets-mechanics` or
-`modern-features.md#terraform-test`.
+`security-and-gates.md#secrets` or
+`modern-features.md#testing`.
 
 ## Routing: deep dives go to terraform-skill
 
