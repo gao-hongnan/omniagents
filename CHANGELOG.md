@@ -9,6 +9,22 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- `omniagents-iac`: new plugin — infrastructure-as-code conventions, two
+  skills. `terraform` is a house-layer rulebook (module design, state and
+  environments, security and gates, modern features 1.3→1.15, and a
+  T1/T2/T3 tiering framework: name your tier before naming controls) that
+  routes deep failure-mode and state-surgery work to Anton Babenko's
+  `terraform-skill` instead of restating it — wired into this marketplace
+  as an external entry (`ref: v1.17.1`) and a declared plugin dependency.
+  `docker` is a full production catalogue: Dockerfile layering, cache and
+  bind mounts, base-image discipline (Alpine-for-Python ban), the
+  canonical uv two-phase build, compose file-layering / profiles /
+  single-host production, CIS-derived runtime hardening, supply chain
+  (SBOM, provenance, cosign, Trivy as the house scanner), and CI
+  build-push / multi-arch / tag-strategy conventions.
+
 ## [0.8.0] - 2026-07-10
 
 ### Changed
