@@ -194,6 +194,19 @@
         "scoping",
         "map-territory"
       ]
+    },
+    {
+      "name": "omniagents-iac",
+      "source": "./plugins/iac",
+      "description": "Infrastructure-as-code conventions: Terraform module patterns + hygiene and production Docker/compose rulebook",
+      "category": "infrastructure",
+      "keywords": [
+        "terraform",
+        "docker",
+        "compose",
+        "iac",
+        "aws"
+      ]
     }
   ]
 }
