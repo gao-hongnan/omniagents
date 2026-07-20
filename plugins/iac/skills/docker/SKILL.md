@@ -111,6 +111,10 @@ full rationale and source links.
 
 ## Tiering
 
+The row labels below are the shared infra reference set (identical
+across the omniagents-iac skills); the container-specific mapping
+follows in prose.
+
 | Control | T1 demo/portfolio | T2 production | T3 regulated |
 |---|---|---|---|
 | Encryption in transit + AUTH | optional (VPC-scoped SG suffices) | required | required (mandated wrappers) |
@@ -151,6 +155,7 @@ FROM python:3.14-slim@sha256:REPLACE_WITH_PINNED_DIGEST AS builder
 COPY --from=uv /uv /uvx /bin/
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
+    UV_NO_PROGRESS=1 \
     UV_PROJECT_ENVIRONMENT=/app/.venv
 WORKDIR /app
 
@@ -168,8 +173,8 @@ RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
     uv sync --locked --no-editable --no-dev
 
 FROM python:3.14-slim@sha256:REPLACE_WITH_PINNED_DIGEST AS runtime
-RUN groupadd --gid 1000 app && \
-    useradd --uid 1000 --gid app --no-create-home app
+RUN groupadd --gid 10001 app && \
+    useradd --uid 10001 --gid app --no-create-home app
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:${PATH}"
 WORKDIR /app
