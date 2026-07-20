@@ -207,6 +207,21 @@
         "iac",
         "aws"
       ]
+    },
+    {
+      "name": "terraform-skill",
+      "source": {
+        "source": "github",
+        "repo": "antonbabenko/terraform-skill",
+        "ref": "v1.17.1"
+      },
+      "description": "Deep Terraform/OpenTofu skill by Anton Babenko (external, Apache-2.0) — failure diagnosis, state surgery, migrations. omniagents-iac:terraform routes deep dives here.",
+      "category": "infrastructure",
+      "keywords": [
+        "terraform",
+        "opentofu",
+        "external"
+      ]
     }
   ]
 }

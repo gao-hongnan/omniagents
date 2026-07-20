@@ -9,6 +9,9 @@
   "homepage": "https://github.com/gao-hongnan/omniagents",
   "repository": "https://github.com/gao-hongnan/omniagents",
   "license": "MIT",
+  "dependencies": [
+    { "name": "terraform-skill" }
+  ],
   "keywords": [
     "terraform",
     "docker",
