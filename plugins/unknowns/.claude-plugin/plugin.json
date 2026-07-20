@@ -1,6 +1,6 @@
 {
   "name": "omniagents-unknowns",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Blindspot pass for unfamiliar territory: survey the codebase or domain, surface the user's unknown unknowns, and turn them into a sharper prompt before work begins",
   "author": {
     "name": "GAO Hongnan",

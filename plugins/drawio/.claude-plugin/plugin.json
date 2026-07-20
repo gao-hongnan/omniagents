@@ -1,7 +1,7 @@
 {
   "name": "drawio",
   "description": "Generate native .drawio diagrams from Claude Code — author as Mermaid or XML with optional ELK auto-layout, export PNG/SVG/PDF with embedded XML, or open via app.diagrams.net URL.",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "author": {
     "name": "draw.io"
   },

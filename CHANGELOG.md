@@ -9,6 +9,8 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-20
+
 ### Added
 
 - `omniagents-iac`: new plugin — infrastructure-as-code conventions, two
