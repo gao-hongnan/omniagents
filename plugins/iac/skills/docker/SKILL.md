@@ -145,7 +145,7 @@ toolchain.
 
 ```dockerfile
 # syntax=docker/dockerfile:1
-FROM ghcr.io/astral-sh/uv:0.5.11@sha256:REPLACE_WITH_PINNED_DIGEST AS uv
+FROM ghcr.io/astral-sh/uv:0.9.6@sha256:REPLACE_WITH_PINNED_DIGEST AS uv
 
 FROM python:3.14-slim@sha256:REPLACE_WITH_PINNED_DIGEST AS builder
 COPY --from=uv /uv /uvx /bin/
@@ -173,7 +173,7 @@ RUN groupadd --gid 1000 app && \
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:${PATH}"
 WORKDIR /app
-COPY --chown=app:app . .
+# no source COPY: --no-editable installed the package into the venv
 USER app:app
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD ["python", "-c", "import sys; sys.exit(0)"]
@@ -198,7 +198,7 @@ RUN --mount=type=cache,target=/root/.npm \
 COPY . .
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.27-alpine@sha256:REPLACE_WITH_PINNED_DIGEST AS runtime
+FROM nginxinc/nginx-unprivileged:1.27@sha256:REPLACE_WITH_PINNED_DIGEST AS runtime
 # nginx-unprivileged already runs as a non-root `nginx` user on ports
 # >1024 — no separate USER step needed; verify UID if you swap images.
 COPY --from=build --chown=nginx:nginx /app/dist /usr/share/nginx/html

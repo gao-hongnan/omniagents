@@ -210,7 +210,7 @@ services:
           memory: 512M
 ```
 
-Twelve lines, every one of them closing a specific escape hatch
+Sixteen lines, every one of them closing a specific escape hatch
 described above — none of it is decorative. A service block missing
 any one of `read_only`, `cap_drop: [ALL]`, `no-new-privileges`, or an
 explicit `user:` is a review-blocking finding on a production compose
@@ -883,7 +883,7 @@ Source: <https://docs.docker.com/build/metadata/attestations/>
   image built, and can I trust that description," which is exactly
   the input [cosign verification](#signing) needs to confirm an image
   came from the workflow it claims to.
-  Source: <https://slsa.dev/spec/v1.0/provenance>
+  Source: <https://slsa.dev/spec/v1.2/provenance>
 
 `mode=min` provenance records only minimal builder info — enough to
 say an attestation exists, not enough to meaningfully verify the build

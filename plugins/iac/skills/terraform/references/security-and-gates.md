@@ -356,7 +356,7 @@ bundled core rules alone:
 # .tflint.hcl
 plugin "aws" {
   enabled = true
-  version = "0.35.0"
+  version = "0.35.0" # illustrative — pin the current release
   source  = "github.com/terraform-linters/tflint-ruleset-aws"
 }
 ```
@@ -377,7 +377,7 @@ PR never reaches CI already broken:
 ```yaml
 repos:
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.96.1
+    rev: v1.96.1  # illustrative — pin the current tag
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
@@ -417,6 +417,11 @@ data "aws_iam_policy_document" "plan_trust" {
       variable = "token.actions.githubusercontent.com:sub"
       values   = ["repo:my-org/my-repo:ref:refs/heads/main"]
     }
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = ["sts.amazonaws.com"]
+    }
   }
 }
 ```
@@ -447,10 +452,12 @@ console change during an incident. Run `terraform plan` on a cron
 (nightly, or a few times a day for high-change environments) against
 every state and alert on a non-empty diff — a scheduled plan that
 comes back non-empty means something changed outside the pipeline and
-needs an owner, not necessarily an immediate `apply`. The Google Cloud
-best practices for cross-config communication cover the multi-state
-version of the same drift concern, where one state's drift cascades
-into a consumer state through remote-state data —
+needs an owner, not necessarily an immediate `apply`. Google Cloud's
+cross-config-communication guide covers the related multi-state
+concern from a different angle: avoid implicit cross-config
+dependencies created by ad hoc data-source lookups, and prefer
+explicit remote-state or data-only module contracts between stacks
+instead —
 https://docs.cloud.google.com/docs/terraform/best-practices/cross-config-communication.
 
 Surface cost deltas on every PR with Infracost, not only at the

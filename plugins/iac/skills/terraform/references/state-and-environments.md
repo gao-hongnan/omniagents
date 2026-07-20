@@ -15,16 +15,19 @@ Every root uses a remote backend. Never commit state to version
 control, and never let a root fall back to local state outside the
 one-time bootstrap root covered below.
 
-- **Remote, versioned, encrypted, access-logged, public-blocked.** The
-  S3 bucket backing state must have versioning enabled (state file
-  corruption or a bad apply is recoverable from a prior object
-  version), server-side encryption on by default, a public access
-  block on all four settings, and access logging turned on so reads of
-  state — which can contain secrets — are auditable. See the S3
-  backend reference —
+- **Remote, versioned, encrypted.** The S3 bucket backing state must
+  have versioning enabled (state file corruption or a bad apply is
+  recoverable from a prior object version) and server-side encryption
+  on by default. See the S3 backend reference —
   https://developer.hashicorp.com/terraform/language/backend/s3 — and
   AWS Prescriptive Guidance's backend page —
   https://docs.aws.amazon.com/prescriptive-guidance/latest/terraform-aws-provider-best-practices/backend.html.
+- **Public-blocked, access-logged — house rule, beyond the cited
+  baselines.** The same bucket also gets a public access block on all
+  four settings and access logging turned on, so reads of state —
+  which can contain secrets — are auditable. See AWS's S3 security
+  best practices guide —
+  https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html.
 
   ```hcl
   terraform {
@@ -74,7 +77,9 @@ one-time bootstrap root covered below.
   backend writes a `.tflock` companion object next to the state object
   and uses conditional writes for mutual exclusion, so a lock table is
   no longer required. `dynamodb_table` is deprecated on the S3
-  backend — do not wire a new one. Same source —
+  backend — do not wire a new one. The backend docs document the
+  `.tflock` object and the IAM permissions it requires; mechanically,
+  the locking itself rides on S3 conditional writes —
   https://developer.hashicorp.com/terraform/language/backend/s3.
 
 - **Migrating an existing DynamoDB-locked backend.** Do not cut over
@@ -157,8 +162,10 @@ repository, or held only by the platform team) precisely because it
 is the one root that must still apply if the main bucket is ever lost.
 Either choice is fine; pick one and document it in the bootstrap
 root's own README, because the alternative is an on-call engineer
-discovering the answer during an outage. The Google Cloud operations
-guide covers the equivalent GCS-bucket bootstrap sequencing —
+discovering the answer during an outage. Google Cloud's Terraform
+operations guide covers general operational practices for running
+Terraform at scale (it does not specifically address bucket-bootstrap
+sequencing) —
 https://docs.cloud.google.com/docs/terraform/best-practices/operations.
 
 ## Blast radius

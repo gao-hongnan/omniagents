@@ -290,7 +290,7 @@ warranted.
 # ADD legitimate use #1 — fetch a remote artifact, checksum-verified.
 # Without --checksum this is an unverified network fetch baked into the
 # image — don't ship that.
-ADD --checksum=sha256:1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f \
+ADD --checksum=sha256:REPLACE_WITH_REAL_CHECKSUM \
     https://example.com/geolite2/GeoLite2-City.tar.gz /tmp/geoip.tar.gz
 
 # ADD legitimate use #2 — local compressed archive, auto-extracted on copy.
@@ -413,14 +413,14 @@ tier, not all three:
 
 ```dockerfile
 # Default — Debian slim, glibc, manylinux wheels install without a source build.
-FROM python:3.14-slim@sha256:1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f AS base
+FROM python:3.14-slim@sha256:REPLACE_WITH_PINNED_DIGEST AS base
 
 # BANNED for Python — musl libc breaks/forces-source-build manylinux wheels.
 # FROM python:3.14-alpine AS base
 
 # Hardened prod tier (CONTESTED — see above): near-zero CVE, no shell, SBOM
 # and signature attached by Chainguard's build pipeline.
-# FROM cgr.dev/chainguard/python:latest@sha256:9a1f3c7e2b4d6a8f0c2e4b6a8d0f2e4c6a8b0d2f4e6a8c0b2d4f6a8e0c2b4d6a AS base
+# FROM cgr.dev/chainguard/python:latest@sha256:REPLACE_WITH_PINNED_DIGEST AS base
 ```
 
 This same alpine caveat does **not** apply uniformly to every language —
@@ -491,7 +491,7 @@ compiled Python or Node dependencies running inside it at all.
 
 # Tag for readability, digest for immutability — the pair is the pin.
 # Renovate's docker:pinDigests preset keeps this current via PR, not by hand.
-FROM python:3.14.0-slim@sha256:1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f
+FROM python:3.14.0-slim@sha256:REPLACE_WITH_PINNED_DIGEST
 ```
 
 ```json
@@ -593,11 +593,11 @@ resolver (`uv`) or the source tree into the runtime image.
 ```dockerfile
 # syntax=docker/dockerfile:1
 
-FROM python:3.14-slim@sha256:1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f AS builder
+FROM python:3.14-slim@sha256:REPLACE_WITH_PINNED_DIGEST AS builder
 
 # Pinned uv binary, copied in — never `pip install uv` or curl a script.
 # Check https://github.com/astral-sh/uv/releases for the current release.
-COPY --from=ghcr.io/astral-sh/uv:0.9.6@sha256:7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.9.6@sha256:REPLACE_WITH_PINNED_DIGEST /uv /uvx /bin/
 
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
@@ -620,9 +620,10 @@ COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
     uv sync --locked --no-editable --no-dev
 
-FROM python:3.14-slim@sha256:1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f AS runtime
+FROM python:3.14-slim@sha256:REPLACE_WITH_PINNED_DIGEST AS runtime
 
-RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin app
+RUN groupadd --gid 10001 app && \
+    useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin app
 
 # Runtime never gets uv — copy only the venv the builder produced.
 COPY --from=builder --chown=10001:10001 /app/.venv /app/.venv
@@ -789,7 +790,7 @@ toolchain — only the compiled output and a static file server.
 ```dockerfile
 # syntax=docker/dockerfile:1
 
-FROM node:22.11.0-slim@sha256:7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d AS build
+FROM node:22.11.0-slim@sha256:REPLACE_WITH_PINNED_DIGEST AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -799,7 +800,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 COPY . .
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.27@sha256:9a1f3c7e2b4d6a8f0c2e4b6a8d0f2e4c6a8b0d2f4e6a8c0b2d4f6a8e0c2b4d6a AS static
+FROM nginxinc/nginx-unprivileged:1.27@sha256:REPLACE_WITH_PINNED_DIGEST AS static
 
 COPY --from=build --chown=101:101 /app/dist /usr/share/nginx/html
 # Custom conf must `listen 8080;` — the unprivileged base can't bind 80.
@@ -861,7 +862,7 @@ but Caddy's config file is markedly simpler for the common "serve this
 directory, healthcheck this path" case:
 
 ```dockerfile
-FROM caddy:2.9@sha256:5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f AS static
+FROM caddy:2.9@sha256:REPLACE_WITH_PINNED_DIGEST AS static
 COPY --from=build /app/dist /srv
 COPY Caddyfile /etc/caddy/Caddyfile
 ```

@@ -148,6 +148,10 @@ Sources for the actions pinned above:
 <https://github.com/docker/login-action>,
 <https://github.com/docker/build-push-action>.
 
+Action versions shown (`@v6`, `@v5`, …) are the current majors at
+writing — adopt whatever is current and let Renovate/Dependabot track
+them, as with the Buildx floor.
+
 ### Cache mistakes worth naming
 
 | Mistake | Symptom | Fix |
@@ -381,7 +385,7 @@ context in one step, and its output feeds directly into
     images: ghcr.io/OWNER/REPO
     labels: |
       org.opencontainers.image.licenses=Apache-2.0
-      org.opencontainers.image.description=Alignment pipeline API
+      org.opencontainers.image.description=Example service API
 - uses: docker/build-push-action@v6
   with:
     context: .
