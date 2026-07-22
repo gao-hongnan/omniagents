@@ -15,8 +15,10 @@ One marketplace lists many plugins, and each plugin entry only needs a `name`
 and a `source` telling Claude Code where to fetch it from.
 
 This repository _is_ a marketplace. The catalog lives at
-`.claude-plugin/marketplace.json`; each of the thirteen plugins under
-`plugins/*` carries its own `.claude-plugin/plugin.json`:
+`.claude-plugin/marketplace.json`; each of the sixteen plugins under `plugins/*`
+carries its own `.claude-plugin/plugin.json` (one further entry,
+`terraform-skill`, is sourced externally from GitHub rather than a local
+directory):
 
 | Layer       | File                                        | Role                                |
 | ----------- | ------------------------------------------- | ----------------------------------- |
@@ -66,23 +68,25 @@ for the authoritative pages.
 
 ## Plugin catalogue
 
-| Plugin                       | Type             | Skills / Tools                                                                                                                                                                 | Requires                                                                                        |
-| ---------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| `omniagents-python`          | Skills           | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                                                                                   | —                                                                                               |
-| `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                                                                                            | —                                                                                               |
-| `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                                                                                     | —                                                                                               |
-| `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`, `omniagents-writing:blueprint` (format-clean HTML/SVG diagrams via coordinate discipline) | Python 3 optional (for the `check_diagram.py` linter)                                           |
-| `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — triaged parallel specialists (correctness, security, performance, design, testing, operability) + verifier + adjudicator                       | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
-| `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                                                                              | `uv` on PATH                                                                                    |
-| `codegraph`                  | MCP (stdio)      | Code knowledge-graph tools (symbol search, callers/callees, impact analysis)                                                                                                   | Node.js + npm on PATH (for `npx`)                                                               |
-| `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                                                                                   | `CONTEXT7_API_KEY`                                                                              |
-| `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                                                                                            | `uv` on PATH + Google OAuth creds                                                               |
-| `playwright`                 | MCP (stdio)      | Browser automation + accessibility-tree page snapshots                                                                                                                         | Node.js 18+ on PATH                                                                             |
-| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                                                                               | macOS                                                                                           |
-| `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                                               | `git` + `bash`                                                                                  |
-| `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session                                                               | —                                                                                               |
-| `omniagents-unknowns`        | Skills           | `omniagents-unknowns:blindspot-pass` — `/blindspot-pass [task/area]` surveys unfamiliar territory and reports your unknown unknowns, ending in a sharper prompt                | —                                                                                               |
-| `drawio` (vendored)          | Skill            | `drawio:drawio` — native `.drawio` diagrams from Mermaid or draw.io XML, ELK auto-layout, PNG/SVG/PDF/`url` export                                                             | draw.io Desktop (optional — Mermaid conversion + PNG/SVG/PDF export only)                       |
+| Plugin                       | Type             | Skills / Tools                                                                                                                                                                                         | Requires                                                                                        |
+| ---------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `omniagents-python`          | Skills           | `omniagents-python:typings`, `omniagents-python:docstrings`, `omniagents-python:performance`                                                                                                           | —                                                                                               |
+| `omniagents-typescript`      | Skills           | `omniagents-typescript:typings`, `omniagents-typescript:docstrings`                                                                                                                                    | —                                                                                               |
+| `omniagents-design-patterns` | Skills           | `omniagents-design-patterns:software`, `omniagents-design-patterns:system`                                                                                                                             | —                                                                                               |
+| `omniagents-writing`         | Skills           | `omniagents-writing:measured-persuasion`, `omniagents-writing:markdown-conventions`, `omniagents-writing:blueprint` (format-clean HTML/SVG diagrams via coordinate discipline)                         | Python 3 optional (for the `check_diagram.py` linter)                                           |
+| `omniagents-reviewer`        | Skills + Command | `/omniagents-reviewer:review` — triaged parallel specialists (correctness, security, performance, design, testing, operability) + verifier + adjudicator                                               | `code-review-graph`, `omniagents-python`, `omniagents-typescript`, `omniagents-design-patterns` |
+| `code-review-graph`          | MCP (stdio)      | Tree-sitter knowledge graph tools                                                                                                                                                                      | `uv` on PATH                                                                                    |
+| `codegraph`                  | MCP (stdio)      | Code knowledge-graph tools (symbol search, callers/callees, impact analysis)                                                                                                                           | Node.js + npm on PATH (for `npx`)                                                               |
+| `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                                                                                                           | `CONTEXT7_API_KEY`                                                                              |
+| `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                                                                                                                    | `uv` on PATH + Google OAuth creds                                                               |
+| `playwright`                 | MCP (stdio)      | Browser automation + accessibility-tree page snapshots                                                                                                                                                 | Node.js 18+ on PATH                                                                             |
+| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                                                                                                       | macOS                                                                                           |
+| `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                                                                       | `git` + `bash`                                                                                  |
+| `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session                                                                                       | —                                                                                               |
+| `omniagents-unknowns`        | Skills           | `omniagents-unknowns:blindspot-pass` — `/blindspot-pass [task/area]` surveys unfamiliar territory and reports your unknown unknowns, ending in a sharper prompt                                        | —                                                                                               |
+| `omniagents-iac`             | Skills           | `omniagents-iac:docker` — production Dockerfile/compose rulebook; `omniagents-iac:terraform` — module hygiene + T1/T2/T3 tiering, routes deep failure-mode and state-surgery work to `terraform-skill` | `terraform-skill`                                                                               |
+| `terraform-skill` (external) | Skill            | `terraform-skill:terraform-skill` — deep Terraform/OpenTofu skill by Anton Babenko: failure-mode diagnosis, state surgery, migrations (Apache-2.0)                                                     | —                                                                                               |
+| `drawio` (vendored)          | Skill            | `drawio:drawio` — native `.drawio` diagrams from Mermaid or draw.io XML, ELK auto-layout, PNG/SVG/PDF/`url` export                                                                                     | draw.io Desktop (optional — Mermaid conversion + PNG/SVG/PDF export only)                       |
 
 ---
 
@@ -135,6 +139,8 @@ claude plugin install notifications@omniagents
 claude plugin install doc-drift@omniagents
 claude plugin install omniagents-pedagogy@omniagents
 claude plugin install omniagents-unknowns@omniagents
+claude plugin install omniagents-iac@omniagents
+claude plugin install terraform-skill@omniagents
 ```
 
 ### Scope options
@@ -179,6 +185,8 @@ claude plugin update notifications@omniagents
 claude plugin update doc-drift@omniagents
 claude plugin update omniagents-pedagogy@omniagents
 claude plugin update omniagents-unknowns@omniagents
+claude plugin update omniagents-iac@omniagents
+claude plugin update terraform-skill@omniagents
 ```
 
 Inside Claude Code, the equivalent commands are:
@@ -288,6 +296,8 @@ claude plugin uninstall notifications@omniagents --prune
 claude plugin uninstall doc-drift@omniagents --prune
 claude plugin uninstall omniagents-pedagogy@omniagents --prune
 claude plugin uninstall omniagents-unknowns@omniagents --prune
+claude plugin uninstall omniagents-iac@omniagents --prune
+claude plugin uninstall terraform-skill@omniagents --prune
 ```
 
 If the plugin was installed with a non-default scope, pass the matching
@@ -544,6 +554,13 @@ Claude Code official documentation cited above:
   pinned ref and full provenance live in `plugins/drawio/UPSTREAM.md`. We vendor
   the files (rather than a git submodule) so the marketplace sees normal paths
   and we can review upstream diffs before adopting them.
+- **`terraform-skill`** is not vendored — it is registered as an external
+  `github` source pointing at
+  [antonbabenko/terraform-skill](https://github.com/antonbabenko/terraform-skill)
+  (Apache-2.0, by Anton Babenko), pinned to `ref: v1.17.1` in
+  `.claude-plugin/marketplace.json` and declared as a plugin dependency of
+  `omniagents-iac`. `omniagents-iac:terraform` is a house-layer rulebook that
+  routes deep failure-mode and state-surgery work to it instead of restating it.
 
 ## License
 
