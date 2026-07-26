@@ -12,24 +12,28 @@
     {
       "name": "omniagents-python",
       "source": "./plugins/python",
-      "description": "Python conventions: NumPy/Sphinx docstrings + strict typing + performance rules",
+      "description": "Python conventions: NumPy/Sphinx docstrings + strict typing + performance + testing rules",
       "category": "language-conventions",
       "keywords": [
         "python",
         "docstrings",
         "typing",
-        "performance"
+        "performance",
+        "testing",
+        "pytest"
       ]
     },
     {
       "name": "omniagents-typescript",
       "source": "./plugins/typescript",
-      "description": "TypeScript conventions: TSDoc + strict typing rules",
+      "description": "TypeScript conventions: TSDoc + strict typing + testing rules",
       "category": "language-conventions",
       "keywords": [
         "typescript",
         "tsdoc",
-        "typing"
+        "typing",
+        "testing",
+        "vitest"
       ]
     },
     {

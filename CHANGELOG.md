@@ -9,6 +9,59 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- `omniagents-python`, `omniagents-typescript`: new `testing` skill in each
+  plugin — a strict, enterprise-grade rulebook for `pytest` (Python 3.14+ /
+  pytest 9) and `Vitest 4` (TS 6.0+) suites. Both enforce the same spine:
+  tests are typed and linted like `src/`; warnings-as-errors and strict
+  runner config; determinism by construction (faked network/clock/sleep/rng,
+  no real timers); order-independent, parallel-safe suites; assert outcomes,
+  not call traffic ("name the mutant each test kills"); and designed seams
+  over global patching. Enterprise coverage includes suite architecture
+  (unit/integration split, conftest/`projects` layering), the test-double
+  vocabulary, boundary control (`MockTransport`/respx, MSW, autospec vs
+  fakes), hermeticity and ambient state (`tmp_path`/`vi.stubEnv`,
+  env/global/cache isolation, `vi.hoisted`), typed test-data builders
+  (polyfactory for pydantic; `satisfies` builders for TS), property-based
+  and model-based testing (hypothesis / fast-check), integration via
+  testcontainers with transaction isolation, cross-team contract testing
+  (Pact / schemathesis), coverage/mutation gates, and log/accessibility as
+  tested contracts (`caplog` / `vitest-axe`). Each skill defers the
+  red-green-refactor process to superpowers' `test-driven-development` and
+  is the write-side complement to the `omniagents-reviewer` testing
+  protocol. The Python skill additionally sorts every check into three gate
+  tiers (G1 blocking / G2 gated job / G3 scheduled canary), so
+  nondeterministic work gets a declared home off the merge path instead of
+  contradicting the determinism spine: network hermeticity enforced by
+  `--disable-socket` rather than convention, a remote-failure taxonomy in
+  place of single-sad-path boundary tests, retry / circuit-breaker /
+  idempotency assertions, type-level tests (`assert_type`,
+  `pyright --verifytypes`) mirroring the TypeScript sibling, OpenTelemetry
+  spans as tested contracts alongside logs, pytest 9's core `subtests` and
+  native `[tool.pytest]` TOML configuration, memory and benchmark gates
+  (pytest-memray; pytest-benchmark vs instruction counting) at G2, and the
+  harness-tests-versus-LLM-evals boundary at G3. Chaos tooling and profiling
+  workflows are explicitly scoped out and routed elsewhere.
+- `omniagents-python`, `omniagents-typescript`: the `testing` skills ship
+  hub-and-spoke — a lean routing `SKILL.md` per language plus `references/`
+  split by level (`unit`, `integration`) and concern
+  (`doubles-and-boundaries`, `determinism`, `property-based`,
+  `gates-and-ci`; Python adds `fixtures-and-factories`, `resilience`,
+  `evals`; TypeScript adds `components`). Every reference file cites its
+  primary sources (Fowler, Google's SWE book, Khorikov, Meszaros, GOOS,
+  Beck, Feathers, Dodds, Hillel Wayne, and official tool docs) with package
+  versions verified 2026-07-26. The research dossier behind the split — 53
+  source entries, 26 package verifications, and the eight corrections it
+  forced (pytest 9.1 removals already shipped, Hypothesis's auto-loaded
+  built-in `ci` profile, Vitest 4's `restoreMocks` narrowing and its
+  mandatory `mockReset` pairing, Playwright 1.62 first-class component
+  testing, among others) — is committed at
+  `docs/superpowers/specs/2026-07-26-testing-skill-references-research.md`.
+  Hub routing was verified by fourteen fresh-agent retrieval tests (14/14
+  correct first-hop) and methodology coverage was audited file-by-file
+  against the dossier canon.
+
 ## [0.9.0] - 2026-07-20
 
 ### Added

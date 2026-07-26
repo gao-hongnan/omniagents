@@ -1,7 +1,7 @@
 {
   "name": "omniagents-typescript",
   "version": "0.9.0",
-  "description": "TypeScript conventions: TSDoc + strict typing rules",
+  "description": "TypeScript conventions: TSDoc + strict typing + testing rules",
   "author": {
     "name": "GAO Hongnan",
     "email": "hongnangao@gmail.com"
@@ -13,6 +13,8 @@
     "typescript",
     "tsdoc",
     "typing",
+    "testing",
+    "vitest",
     "conventions"
   ],
   "skills": "./skills/"
