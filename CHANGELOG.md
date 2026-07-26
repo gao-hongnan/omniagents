@@ -9,6 +9,8 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-07-26
+
 ### Added
 
 - `omniagents-python`, `omniagents-typescript`: new `testing` skill in each

@@ -1,6 +1,6 @@
 {
   "name": "code-review-graph",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Code Review Graph MCP: tree-sitter knowledge graph tooling for impact analysis and structural review",
   "author": {
     "name": "GAO Hongnan",
