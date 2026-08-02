@@ -1,0 +1,132 @@
+{
+  "name": "omniagents",
+  "owner": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "metadata": {
+    "description": "Coding conventions, writing style, and design pattern skills",
+    "version": "0.10.0"
+  },
+  "plugins": [
+    {
+      "name": "omniagents-python",
+      "source": "./plugins/python",
+      "description": "Python conventions: NumPy/Sphinx docstrings + strict typing + performance + testing rules",
+      "category": "language-conventions",
+      "keywords": [
+        "python",
+        "docstrings",
+        "typing",
+        "performance",
+        "testing",
+        "pytest"
+      ]
+    },
+    {
+      "name": "omniagents-typescript",
+      "source": "./plugins/typescript",
+      "description": "TypeScript conventions: TSDoc + strict typing + testing rules",
+      "category": "language-conventions",
+      "keywords": [
+        "typescript",
+        "tsdoc",
+        "typing",
+        "testing",
+        "vitest"
+      ]
+    },
+    {
+      "name": "omniagents-design-patterns",
+      "source": "./plugins/design-patterns",
+      "description": "Strict-typed Python 3.13+ design pattern catalogue plus deep-module design philosophy (software + system + codebase-design)",
+      "category": "architecture",
+      "keywords": [
+        "design-patterns",
+        "python",
+        "architecture",
+        "system-design",
+        "deep-modules"
+      ]
+    },
+    {
+      "name": "omniagents-writing",
+      "source": "./plugins/writing",
+      "description": "Measured-persuasion writing, markdown conventions, and blueprint format-clean HTML/SVG diagram generation",
+      "category": "writing",
+      "keywords": [
+        "writing",
+        "markdown",
+        "persuasion",
+        "diagrams",
+        "architecture",
+        "svg"
+      ]
+    },
+    {
+      "name": "drawio",
+      "source": "./plugins/drawio",
+      "description": "draw.io diagram skill (vendored from jgraph/drawio-mcp): author as Mermaid or draw.io XML with optional ELK auto-layout; export PNG/SVG/PDF with embedded XML or open via app.diagrams.net (draw.io Desktop optional, only for conversion/export)",
+      "category": "writing",
+      "keywords": [
+        "drawio",
+        "diagrams",
+        "mermaid",
+        "architecture",
+        "vendored"
+      ]
+    },
+    {
+      "name": "omniagents-reviewer",
+      "source": "./plugins/reviewer",
+      "description": "Multi-specialist code reviewer: parallel correctness, security, performance, design, and testing agents with orchestrator dispatch and verification layer",
+      "category": "code-review",
+      "keywords": [
+        "code-review",
+        "security",
+        "performance",
+        "testing",
+        "multi-agent"
+      ]
+    },
+    {
+      "name": "omniagents-pedagogy",
+      "source": "./plugins/pedagogy",
+      "description": "Incremental teaching skill: structured Socratic dialogue for deep code understanding via /coding-teacher",
+      "category": "learning",
+      "keywords": [
+        "teaching",
+        "pedagogy",
+        "learning",
+        "debugging",
+        "code-review"
+      ]
+    },
+    {
+      "name": "omniagents-unknowns",
+      "source": "./plugins/unknowns",
+      "description": "Blindspot pass: survey unfamiliar territory, surface unknown unknowns, and turn them into a sharper prompt before work begins",
+      "category": "productivity",
+      "keywords": [
+        "unknowns",
+        "blindspot",
+        "prompting",
+        "scoping",
+        "map-territory"
+      ]
+    },
+    {
+      "name": "omniagents-iac",
+      "source": "./plugins/iac",
+      "description": "Infrastructure-as-code conventions: Terraform module patterns + hygiene and production Docker/compose rulebook",
+      "category": "infrastructure",
+      "keywords": [
+        "terraform",
+        "docker",
+        "compose",
+        "iac",
+        "aws"
+      ]
+    }
+  ]
+}

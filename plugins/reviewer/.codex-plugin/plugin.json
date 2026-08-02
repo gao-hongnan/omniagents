@@ -1,0 +1,35 @@
+{
+  "name": "omniagents-reviewer",
+  "version": "0.10.0",
+  "description": "Multi-specialist code review plugin: triaged parallel specialists (correctness, security, performance, design, testing, operability) driven by hunt-protocol skills, with verifier and adjudicator precision gates and REVIEW.md repo configuration",
+  "author": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "homepage": "https://github.com/gao-hongnan/omniagents",
+  "repository": "https://github.com/gao-hongnan/omniagents",
+  "license": "MIT",
+  "keywords": [
+    "code-review",
+    "security",
+    "performance",
+    "correctness",
+    "design",
+    "testing",
+    "multi-agent"
+  ],
+  "dependencies": [
+    {
+      "name": "code-review-graph"
+    },
+    {
+      "name": "omniagents-python"
+    },
+    {
+      "name": "omniagents-typescript"
+    },
+    {
+      "name": "omniagents-design-patterns"
+    }
+  ]
+}

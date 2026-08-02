@@ -9,6 +9,18 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **OpenAI Codex marketplace support** — the repo now doubles as a Codex
+  plugin marketplace (Codex CLI ≥ 0.146). `scripts/sync-codex.sh` (run via
+  `make sync-codex`, and automatically inside `make release`) generates a
+  `.codex-plugin/plugin.json` byte-copy for every skill-bearing plugin plus
+  the catalog at `.agents/plugins/marketplace.json`, filtered to the
+  plugins that ship `skills/`. Hooks, subagents, MCP wrappers, and the
+  external `terraform-skill` remain Claude-only. Install with
+  `codex plugin marketplace add gao-hongnan/omniagents`, then
+  `codex plugin add <plugin>@omniagents`.
+
 ## [0.10.0] - 2026-07-26
 
 ### Added

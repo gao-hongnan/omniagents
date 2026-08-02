@@ -10,6 +10,10 @@ MARKETPLACE := .claude-plugin/marketplace.json
 validate:
 	claude plugin validate .
 
+.PHONY: sync-codex
+sync-codex:
+	@./scripts/sync-codex.sh
+
 # ==================================================================
 # Release  (lockstep — every plugin moves together under one version)
 # ==================================================================
@@ -27,6 +31,7 @@ release:
 help:
 	@echo "Quality:"
 	@echo "  make validate                Validate the marketplace manifest"
+	@echo "  make sync-codex              Regenerate the Codex marketplace from the Claude manifests"
 	@echo ""
 	@echo "Release (lockstep — all plugins share one version):"
 	@echo "  make release VERSION=x.y.z   Bump all manifests, stamp CHANGELOG, validate, commit, tag vX.Y.Z"

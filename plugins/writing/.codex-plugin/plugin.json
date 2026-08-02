@@ -1,0 +1,22 @@
+{
+  "name": "omniagents-writing",
+  "version": "0.10.0",
+  "description": "Measured-persuasion writing, markdown conventions, and blueprint format-clean HTML/SVG diagram generation",
+  "author": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "homepage": "https://github.com/gao-hongnan/omniagents",
+  "repository": "https://github.com/gao-hongnan/omniagents",
+  "license": "MIT",
+  "keywords": [
+    "writing",
+    "persuasion",
+    "markdown",
+    "conventions",
+    "diagrams",
+    "svg",
+    "architecture"
+  ],
+  "skills": "./skills/"
+}

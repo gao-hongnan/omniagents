@@ -80,8 +80,18 @@ bump() {  # $1=file  $2=jq path (e.g. .version)
 
 # 1. Bump versions. The marketplace carries its version at .metadata.version;
 #    every plugin.json carries it at the top-level .version.
+#    (The find above also matches .codex-plugin/plugin.json copies; bumping
+#    them is harmless since the next step regenerates them anyway.)
 bump "$MARKETPLACE" '.metadata.version'
 for f in "${MANIFESTS[@]:1}"; do bump "$f" '.version'; done
+
+# 1.5 Regenerate the Codex-side manifests from the bumped Claude manifests so
+#     both marketplaces publish in lockstep (Codex also keys its plugin cache
+#     on the version string). See scripts/sync-codex.sh.
+./scripts/sync-codex.sh
+CHANGED+=(".agents/plugins/marketplace.json")
+while IFS= read -r f; do CHANGED+=("$f"); done \
+	< <(find plugins -maxdepth 3 -path '*/.codex-plugin/plugin.json' | sort)
 
 # 2. Stamp the CHANGELOG: insert a dated section after "## [Unreleased]" so its
 #    accumulated entries become this release, leaving a fresh empty Unreleased.

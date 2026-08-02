@@ -1,0 +1,20 @@
+{
+  "name": "omniagents-pedagogy",
+  "version": "0.10.0",
+  "description": "Incremental teaching skill for deep code understanding via Socratic dialogue",
+  "author": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "homepage": "https://github.com/gao-hongnan/omniagents",
+  "repository": "https://github.com/gao-hongnan/omniagents",
+  "license": "MIT",
+  "keywords": [
+    "teaching",
+    "pedagogy",
+    "learning",
+    "debugging",
+    "code-review"
+  ],
+  "skills": "./skills/"
+}

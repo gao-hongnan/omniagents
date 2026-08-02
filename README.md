@@ -1,7 +1,9 @@
 # omniagents
 
 A Claude Code plugin suite — coding conventions, design patterns, and MCP server
-integrations packaged as installable skills.
+integrations packaged as installable skills. The skill-bearing plugins are also
+published to OpenAI Codex from the same repo — see
+[OpenAI Codex support](#openai-codex-support).
 
 ---
 
@@ -238,6 +240,100 @@ Example — install `omniagents-python` for the whole team:
 ```bash
 claude plugin install omniagents-python@omniagents --scope project
 ```
+
+---
+
+## OpenAI Codex support
+
+This repository doubles as an **OpenAI Codex plugin marketplace** (Codex CLI ≥
+0.146). Codex's plugin system mirrors Claude Code's — a
+`.codex-plugin/plugin.json` per plugin and a catalog at
+`.agents/plugins/marketplace.json` — and both formats are compatible supersets
+of the Claude ones (identical core fields; extra keys and Claude-style string
+`source` entries are accepted). The Codex artifacts are therefore **generated,
+never hand-edited**: `make sync-codex` byte-copies each
+`.claude-plugin/plugin.json` to `.codex-plugin/plugin.json` and filters the
+catalog, and `make release` re-runs the sync so both marketplaces publish in
+lockstep (Codex, like Claude Code, keys its plugin cache on the version string).
+
+Why `.agents/` and not `.codex-plugin/` for the catalog: the location is
+Codex's, not ours. Codex resolves a marketplace root by probing, in order,
+`.agents/plugins/marketplace.json`, `.agents/plugins/api_marketplace.json`,
+`.claude-plugin/marketplace.json`, and `.cursor-plugin/marketplace.json` — the
+`MARKETPLACE_MANIFEST_RELATIVE_PATHS` constant in
+[`codex-rs/core-plugins/src/marketplace.rs`](https://github.com/openai/codex/blob/main/codex-rs/core-plugins/src/marketplace.rs);
+`.codex-plugin/marketplace.json` is not probed at all. `.agents/` is OpenAI's
+vendor-neutral namespace (the
+[Agent Skills spec](https://agentskills.io/specification) standardizes only the
+SKILL.md format, leaving discovery paths to each product). Note the third entry:
+Codex would fall back to reading our Claude catalog directly via its compat
+shim. We generate the `.agents/` catalog anyway because it is probed **first** —
+so Codex users get the curated skill-bearing subset below rather than all Claude
+entries (hook plugins, MCP wrappers, external sources) — and because it is the
+documented primary path OpenAI's own
+[openai/plugins](https://github.com/openai/plugins) catalog uses, rather than a
+compatibility fallback.
+
+A plugin is published to Codex **iff it ships a `skills/` directory** — SKILL.md
+is the cross-agent standard, and Codex loads these skills unchanged: frontmatter
+beyond `name`/`description` is tolerated, and skills are namespaced
+`<plugin>:<skill>` exactly as in Claude Code (so `omniagents-python:typings` and
+`omniagents-typescript:typings` coexist). Invoke one explicitly with `$<skill>`
+in the Codex CLI, or let Codex select it implicitly from the `description`.
+Claude `commands/` need no port — Codex auto-migrates them into invokable skills
+at install time.
+
+What stays Claude-only, and why:
+
+| Excluded                                                                                 | Reason                                                    |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `notifications`, `doc-drift`                                                             | Claude Code hook events; Codex has a different hook model |
+| `omniagents-tech-lead`                                                                   | Claude subagents/commands only — no skills to publish     |
+| `context7`, `codegraph`, `code-review-graph`, `google-workspace`, `notion`, `playwright` | MCP wrappers — add these servers natively via `codex mcp` |
+| `terraform-skill` (external)                                                             | GitHub-sourced Claude entry; install upstream directly    |
+
+Note that `omniagents-reviewer` is published for its seven review skills, but
+its multi-agent `/review` pipeline (subagents + verifier + adjudicator) runs
+only in Claude Code.
+
+### Install (Codex)
+
+```bash
+codex plugin marketplace add gao-hongnan/omniagents
+codex plugin add omniagents-python@omniagents
+codex plugin add omniagents-typescript@omniagents
+codex plugin add omniagents-design-patterns@omniagents
+codex plugin add omniagents-writing@omniagents
+codex plugin add omniagents-reviewer@omniagents
+codex plugin add omniagents-pedagogy@omniagents
+codex plugin add omniagents-unknowns@omniagents
+codex plugin add omniagents-iac@omniagents
+codex plugin add drawio@omniagents
+```
+
+From a local clone, substitute the path:
+`codex plugin marketplace add ./omniagents`.
+
+Inside the Codex TUI, `/plugins` opens the marketplace browser instead — switch
+sources with the tabs, install from there, and press Space on an installed
+plugin to toggle it.
+
+### Update (Codex)
+
+```bash
+codex plugin marketplace upgrade      # refresh the git marketplace snapshot
+codex plugin add omniagents-python@omniagents   # re-add is idempotent; picks up the new version
+```
+
+### Verify (Codex)
+
+```bash
+codex plugin list        # installed plugins show STATUS installed
+codex debug prompt-input | grep -oE 'omniagents-[a-z-]+:[a-z-]+' | sort -u
+```
+
+The second command renders the model-visible prompt without calling the model;
+every installed skill should appear in it, namespaced `<plugin>:<skill>`.
 
 ---
 
@@ -624,6 +720,21 @@ Claude Code official documentation cited above:
 3. [Plugins reference](https://code.claude.com/docs/en/plugins-reference)
 4. [Discover and install plugins](https://code.claude.com/docs/en/discover-plugins)
 5. [Plugin settings — managed settings & `strictKnownMarketplaces`](https://code.claude.com/docs/en/settings)
+
+OpenAI Codex documentation and sources for the
+[Codex support](#openai-codex-support) section:
+
+1. [Build skills](https://developers.openai.com/codex/skills) — SKILL.md format
+   and the `.agents/skills` discovery locations
+2. [Use plugins](https://developers.openai.com/codex/plugins) — `/plugins`
+   browser, install and management flows
+3. [openai/plugins](https://github.com/openai/plugins) — OpenAI's official
+   plugin marketplace; reference layout for `.codex-plugin/plugin.json` and
+   `.agents/plugins/marketplace.json`
+4. [openai/codex — `marketplace.rs`](https://github.com/openai/codex/blob/main/codex-rs/core-plugins/src/marketplace.rs)
+   — `MARKETPLACE_MANIFEST_RELATIVE_PATHS`, the catalog locations Codex probes
+5. [Agent Skills specification](https://agentskills.io/specification) — the
+   cross-agent SKILL.md format (directory discovery is per-product)
 
 ---
 

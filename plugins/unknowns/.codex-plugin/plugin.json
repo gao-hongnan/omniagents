@@ -1,0 +1,20 @@
+{
+  "name": "omniagents-unknowns",
+  "version": "0.10.0",
+  "description": "Blindspot pass for unfamiliar territory: survey the codebase or domain, surface the user's unknown unknowns, and turn them into a sharper prompt before work begins",
+  "author": {
+    "name": "GAO Hongnan",
+    "email": "hongnangao@gmail.com"
+  },
+  "homepage": "https://github.com/gao-hongnan/omniagents",
+  "repository": "https://github.com/gao-hongnan/omniagents",
+  "license": "MIT",
+  "keywords": [
+    "unknowns",
+    "blindspot",
+    "prompting",
+    "scoping",
+    "map-territory"
+  ],
+  "skills": "./skills/"
+}
