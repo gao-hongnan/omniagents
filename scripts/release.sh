@@ -52,10 +52,13 @@ MARKETPLACE=".claude-plugin/marketplace.json"
 CHANGELOG="CHANGELOG.md"
 [ -f "$MARKETPLACE" ] || { echo "error: $MARKETPLACE not found in $ROOT"; exit 1; }
 
-# Manifests to bump: the marketplace + every plugin.json.
+# Manifests to bump: the marketplace + every TRACKED plugin.json. Untracked
+# plugin dirs (work in progress) must not be bumped or dragged into the
+# release commit; anything releasable is committed already since the tree is
+# required to be clean.
 MANIFESTS=("$MARKETPLACE")
 while IFS= read -r f; do MANIFESTS+=("$f"); done \
-	< <(find plugins -maxdepth 3 -name plugin.json | sort)
+	< <(git ls-files -- 'plugins/*/.claude-plugin/plugin.json' 'plugins/*/.codex-plugin/plugin.json' | sort)
 
 CHANGED=("${MANIFESTS[@]}")
 [ -f "$CHANGELOG" ] && CHANGED+=("$CHANGELOG")
@@ -91,7 +94,7 @@ for f in "${MANIFESTS[@]:1}"; do bump "$f" '.version'; done
 ./scripts/sync-codex.sh
 CHANGED+=(".agents/plugins/marketplace.json")
 while IFS= read -r f; do CHANGED+=("$f"); done \
-	< <(find plugins -maxdepth 3 -path '*/.codex-plugin/plugin.json' | sort)
+	< <(git ls-files -- 'plugins/*/.codex-plugin/plugin.json' | sort)
 
 # 2. Stamp the CHANGELOG: insert a dated section after "## [Unreleased]" so its
 #    accumulated entries become this release, leaving a fresh empty Unreleased.
