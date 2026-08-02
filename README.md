@@ -90,6 +90,88 @@ for the authoritative pages.
 
 ---
 
+## Under evaluation — not yet packaged
+
+Candidates that have been researched but are deliberately **absent** from
+`.claude-plugin/marketplace.json`, and therefore have no install command. They
+are recorded here so the evaluation — and the reason for the verdict — is
+versioned rather than lost in a chat log.
+
+### `graphiti` — temporal knowledge-graph agent memory
+
+[getzep/graphiti](https://github.com/getzep/graphiti) (Apache-2.0, by Zep) is a
+temporal context-graph engine. You feed it _episodes_ — chat turns, documents,
+JSON payloads — and an LLM extracts entities and relationships into a graph that
+updates incrementally, without batch recomputation.
+
+Its distinguishing property is **bi-temporal fact invalidation**: when new
+information contradicts an existing fact, the old edge is not deleted but
+stamped with `invalid_at`, so both _what is true now_ and _what did we believe
+in March_ remain answerable. Every node and edge retains provenance back to the
+episode that produced it. Retrieval is hybrid — semantic embeddings, BM25, and
+graph traversal, with RRF, MMR, and graph-distance rerankers. Entity and edge
+types can be prescribed as Pydantic models rather than left to the LLM.
+
+#### Why it is not packaged
+
+Every MCP plugin in the catalogue above is zero-infra: `npx -y`, `uvx`, or a
+hosted HTTP endpoint. Graphiti would be the first to require a **running graph
+database** (Neo4j or FalkorDB) alongside an LLM API key, and a `.mcp.json`
+cannot start a container.
+
+There is no shortcut around that. `graphiti-core` is published to PyPI (0.29.3,
+Python 3.10–3.13), but the MCP server ships only inside the upstream repository
+under `mcp_server/` — there is no `graphiti-mcp` package to `uvx`. Packaging it
+would mean shipping a manual setup step whose failure mode is silent: the tools
+appear in `claude mcp list`, and every call errors.
+
+A second consideration is running cost. Each episode triggers several LLM calls
+— entity extraction, deduplication against existing nodes, edge extraction,
+temporal invalidation — so ingestion is measured in seconds and cents per
+episode. It is a write-heavy system to be fed deliberately, not a drop-in vector
+store.
+
+#### Trialling it without touching this repo
+
+```bash
+git clone https://github.com/getzep/graphiti ~/src/graphiti
+cd ~/src/graphiti/mcp_server
+cp .env.example .env      # set OPENAI_API_KEY; FalkorDB is the compose default
+docker compose up -d
+claude mcp add --scope user graphiti --transport sse http://localhost:8000/sse
+```
+
+Confirm the transport and path against what the server logs on boot — some
+builds serve `/mcp` rather than `/sse`.
+
+#### Decision criterion
+
+`codegraph` and `code-review-graph` already answer _what calls what_ from
+deterministic tree-sitter parses. Graphiti's non-overlapping claim is memory of
+**decisions and their history** — why a design was chosen, and when that
+reasoning changed. Adopt it only if a period of real use produces queries that
+neither structural graph nor a hand-curated notes file can answer.
+
+#### Shape if adopted
+
+Three files, following the `codegraph` pattern — `plugins/graphiti/.mcp.json`,
+`plugins/graphiti/.claude-plugin/plugin.json`, and a `README.md` carrying the
+database setup — plus a catalogue row and a `marketplace.json` entry stating the
+dependency the way `google-workspace` does:
+
+```json
+{
+    "mcpServers": {
+        "graphiti": {
+            "type": "sse",
+            "url": "http://localhost:8000/sse"
+        }
+    }
+}
+```
+
+---
+
 ## Prerequisites
 
 - Claude Code CLI — `claude --version`
