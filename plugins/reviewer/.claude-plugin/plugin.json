@@ -1,6 +1,6 @@
 {
   "name": "omniagents-reviewer",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Multi-specialist code review plugin: triaged parallel specialists (correctness, security, performance, design, testing, operability) driven by hunt-protocol skills, with verifier and adjudicator precision gates and REVIEW.md repo configuration",
   "author": {
     "name": "GAO Hongnan",

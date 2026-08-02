@@ -1,6 +1,6 @@
 {
   "name": "omniagents-pedagogy",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Incremental teaching skill for deep code understanding via Socratic dialogue",
   "author": {
     "name": "GAO Hongnan",

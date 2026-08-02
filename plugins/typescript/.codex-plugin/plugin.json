@@ -1,6 +1,6 @@
 {
   "name": "omniagents-typescript",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "TypeScript conventions: TSDoc + strict typing + testing rules",
   "author": {
     "name": "GAO Hongnan",

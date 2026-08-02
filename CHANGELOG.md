@@ -9,6 +9,8 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-02
+
 ### Added
 
 - **OpenAI Codex marketplace support** — the repo now doubles as a Codex
