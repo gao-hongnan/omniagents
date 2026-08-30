@@ -16,11 +16,10 @@ when_to_use: >-
   integration tests, adding a regression test for a bugfix, test-only diffs,
   flaky tests, sleep in tests, unseeded randomness, mock or patch target
   choices, autospec, fixture scope and autouse decisions, async test hangs,
-  snapshot testing, coverage thresholds, mutation testing (mutmut), xdist
-  parallelization, filterwarnings, tmp_path / env-var isolation, caplog /
-  capsys log assertions, OpenTelemetry span or metric assertions, test data
-  factories (polyfactory), Pact / schemathesis contract testing, hypothesis
-  stateful testing, type-level tests (assert_type, pytest-mypy-plugins),
+  mutation testing (mutmut), xdist parallelization, filterwarnings,
+  tmp_path / env-var isolation, caplog / capsys log assertions, test data
+  factories (polyfactory), Pact / schemathesis contract testing,
+  assert_type / pytest-mypy-plugins,
   benchmark or performance-regression gates (pytest-benchmark, codspeed),
   memory limits and leak detection (memray), tests reaching the real network,
   deadlocks or thread-race stress, fuzzing, chaos or fault-injection requests,
