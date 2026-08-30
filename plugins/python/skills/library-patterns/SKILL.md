@@ -64,6 +64,12 @@ verbatim — do not restate its rules here.
   `message`. Bare `RuntimeError` / `Exception` at boundaries is rejected.
 - Untrusted input is validated through Pydantic at the boundary (see
   `python:pydantic`); inside trusted code, prefer plain typed objects.
+- Domain identifiers are `NewType`s, not bare primitives. openai-python
+  types every id that crosses its API this way (`FileId`, `BatchId`) so a
+  `file_id` cannot be passed where a `batch_id` is expected; a client
+  wrapper that models ids as plain `str` gives up that guarantee. Closed
+  request-parameter sets are `Literal[...]`, promoted to `StrEnum` on
+  second use. See `python:typings` § Aliases, NewTypes, and Closed Sets.
 - Streaming responses are consumed inside `async with` blocks. Raw
   `stream=True` returns held past the lifetime of the `async with` are
   rejected — they leak file descriptors and event-loop tasks.
@@ -529,13 +535,12 @@ When defining a tool for a model to call, use the SDK's typed-tool helper —
 do not hand-roll `input_schema` dictionaries.
 
 ```python
-from enum import Enum
-from typing import Union
+from enum import StrEnum
 import openai
 from pydantic import BaseModel
 
 
-class Table(str, Enum):
+class Table(StrEnum):
     orders = "orders"
     customers = "customers"
 
@@ -543,7 +548,7 @@ class Table(str, Enum):
 class Condition(BaseModel):
     column: str
     operator: str
-    value: Union[str, int]
+    value: str | int
 
 
 class Query(BaseModel):

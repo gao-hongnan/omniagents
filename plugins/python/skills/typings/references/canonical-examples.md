@@ -7,6 +7,23 @@ review asks "what should this look like here?"
 Prefer examples that encode a boundary, invariant, or checker behavior. Avoid
 examples that only demonstrate syntax.
 
+## Contents
+
+- [Protocol Boundary With Runtime Admission](#protocol-boundary-with-runtime-admission)
+- [Generic Result With Type Defaults](#generic-result-with-type-defaults)
+- [ParamSpec Decorator Preserving Signature](#paramspec-decorator-preserving-signature)
+- [Self For Fluent APIs And Constructors](#self-for-fluent-apis-and-constructors)
+- [TypeIs For Bidirectional Narrowing](#typeis-for-bidirectional-narrowing)
+- [TypedDict Boundary With ReadOnly Keys](#typeddict-boundary-with-readonly-keys)
+- [Pydantic Boundary With Annotated Metadata](#pydantic-boundary-with-annotated-metadata)
+- [Pydantic Discriminated Union Boundary](#pydantic-discriminated-union-boundary)
+- [Alias Versus NewType Versus LiteralString](#alias-versus-newtype-versus-literalstring)
+- [Type Aliases For Recursive Data](#type-aliases-for-recursive-data)
+- [StrEnum For Shared Closed Sets](#strenum-for-shared-closed-sets)
+- [Override For Base-Class Contracts](#override-for-base-class-contracts)
+- [Context Managers Use Generator Types](#context-managers-use-generator-types)
+- [Annotation Introspection In Python 3.14](#annotation-introspection-in-python-314)
+
 ## Protocol Boundary With Runtime Admission
 
 Use this when a plugin loader receives unknown objects at runtime but internal
@@ -270,16 +287,28 @@ def parse_webhook(raw: dict[str, object]) -> WebhookEnvelope:
 
 ## Alias Versus NewType Versus LiteralString
 
-Use `type` aliases for readability, `NewType` for nominal IDs, and
-`LiteralString` for command/query fragments that must not contain untrusted
-runtime strings.
+Use `NewType` for domain identifiers that cross signatures (the openai-python
+SDK types every domain id this way: `FileId`, `BatchId`), `type` aliases for
+pure readability, and `LiteralString` for command/query fragments that must
+not contain untrusted runtime strings. The payoff of `NewType` is the
+swapped-argument error: `bucket` and `region` are both `str`, but
+`BucketName` and `Region` are not.
 
 ```python
 from typing import LiteralString, NewType
 
 
-type EmailAddress = str
+type EmailAddress = str  # readability only: any str is acceptable
 UserId = NewType("UserId", str)
+BucketName = NewType("BucketName", str)
+Region = NewType("Region", str)
+
+
+def replicate(bucket: BucketName, source: Region, destination: Region) -> None: ...
+
+
+replicate(BucketName("logs"), Region("us-east-1"), Region("eu-west-1"))
+replicate(Region("us-east-1"), BucketName("logs"), Region("eu-west-1"))  # checker error
 
 
 def select_user(

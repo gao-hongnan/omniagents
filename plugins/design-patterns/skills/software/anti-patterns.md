@@ -29,6 +29,37 @@ fix — it does not belong on this list.
   `Final`, `@override`, `Literal`, `NewType`, `TypedDict`, and the annotation
   evaluation policy assumed by this catalogue; see `SKILL.md` conventions.
 
+## Contents
+
+- [god-object-god-module](#god-object-god-module)
+- [anemic-domain-model](#anemic-domain-model)
+- [feature-envy](#feature-envy)
+- [shotgun-surgery-divergent-change](#shotgun-surgery-divergent-change)
+- [primitive-obsession](#primitive-obsession)
+- [stringly-typed-apis](#stringly-typed-apis)
+- [stringly-typed-booleans](#stringly-typed-booleans)
+- [boolean-flag-parameters](#boolean-flag-parameters)
+- [hidden-temporal-coupling](#hidden-temporal-coupling)
+- [happy-path-only-error-handling](#happy-path-only-error-handling)
+- [exception-swallowing](#exception-swallowing)
+- [over-mocking-in-tests](#over-mocking-in-tests)
+- [premature-abstraction](#premature-abstraction)
+- [speculative-generality](#speculative-generality)
+- [big-ball-of-mud](#big-ball-of-mud)
+- [circular-imports](#circular-imports)
+- [leaky-abstractions](#leaky-abstractions)
+- [interface-segregation-violations](#interface-segregation-violations)
+- [liskov-violations](#liskov-violations)
+- [dead-code-tolerance](#dead-code-tolerance)
+- [magic-numbers-magic-strings](#magic-numbers-magic-strings)
+- [scattered-configuration](#scattered-configuration)
+- [comments-as-apology](#comments-as-apology)
+- [type-erosion](#type-erosion)
+- [hand-rolled-boundary-coercion](#hand-rolled-boundary-coercion)
+- [mutable-default-arguments](#mutable-default-arguments)
+- [review-checklist](#review-checklist)
+- [references](#references)
+
 ## god-object-god-module
 
 **Symptom.** A class or module that accumulates unrelated responsibilities.
@@ -1426,7 +1457,10 @@ def cleanup() -> None:
     delete_old_sessions(7)  # 7 what?
 ```
 
-**Fixed.** Name them with `Final`.
+**Fixed.** Name them with `Final` — and when the value is _configuration_
+(a timeout, budget, or limit an operator would override or inspect), it
+belongs in the consolidated settings tree, not in another module constant
+(see [scattered-configuration](#scattered-configuration)).
 
 ```python
 from typing import Final
@@ -1457,6 +1491,74 @@ once.
 **References.** Beck, _Implementation Patterns_, 2008, ch. 8 ("Number"). Fowler,
 _Refactoring_, 2nd ed., 2018, ch. 9 — _Replace Magic Number with Symbolic
 Constant_.
+
+---
+
+## scattered-configuration
+
+**Symptom.** Configuration values — timeouts, retry budgets, limits, URLs,
+thresholds — spread across per-module `Final` constants, re-stated
+signature defaults, and direct `os.environ` reads. The same default literal
+appears in a config field _and_ a function signature, or the same
+pattern/limit constant lives in two modules. Changing behavior requires
+finding every copy.
+
+**Why it hurts.** A default with two owners has already drifted: callers
+that omit the parameter silently diverge from configured ones, and no test
+can notice the split. Operators cannot override or inspect what is
+scattered, and each new module re-decides values that were decided once.
+
+**Bad.**
+
+```python
+# config.py
+DEFAULT_REGION: Final[str] = "us-east-1"
+# presets.py — the preset re-hardcodes the field's default
+region: str = "us-east-1",
+# keys.py — config.key_log_prefix_segments has its own 2
+def render_key(..., prefix_segments: int = 2): ...
+```
+
+**Fixed.** One consolidated settings tree — pydantic `BaseSettings` for a
+service, or a frozen `BaseModel` config object the consumer nests when a
+reusable library must not own the env namespace. Signatures read from it;
+they never re-state its values. Module `Final` constants remain only for
+true program constants no operator would vary.
+
+```python
+from pydantic import BaseModel, ConfigDict
+
+
+class StorageSettings(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    region: str = "us-east-1"
+    key_log_prefix_segments: int = 2
+
+
+def render_key(settings: StorageSettings, raw: str) -> str:
+    segments = settings.key_log_prefix_segments  # one owner, one default
+    ...
+```
+
+**Type-safety / static-analysis notes.** `frozen=True` makes configuration
+immutable after load; `validate_default=True` catches bad defaults at
+startup rather than in production. Review mechanics: grep for the same
+literal in two files, and for signature defaults that mirror a settings
+field.
+
+**When NOT to refactor.** True program constants (protocol codes, byte
+math, a regex used in one place) stay `Final` — not every named number is
+configuration. Deliberate defaults are fine; _duplicated_ defaults are the
+smell.
+
+**Real-world examples.** openai-python consolidates every tunable onto
+typed config objects instead of scattering defaults across call sites.
+Twelve-Factor config-in-the-environment only works when one loader owns
+the mapping.
+
+**References.** `python:pydantic` § Settings (this marketplace) — settings
+consolidation and the migration move from scattered constants.
 
 ---
 
@@ -1544,25 +1646,29 @@ def display(user: Any) -> str:
 **Fixed.**
 
 ```python
-from typing import NewType, TypedDict
+from typing import NewType
+
+from pydantic import BaseModel, ConfigDict
 
 UserId = NewType("UserId", str)
 
-class UserPayload(TypedDict):
+
+class UserPayload(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
     name: str
     email: str
 
+
 def fetch_user(uid: UserId) -> UserPayload:
-    raw = http_get(f"/users/{uid}")
-    # Validate at the boundary: never trust what the network returns.
-    name = raw.get("name")
-    email = raw.get("email")
-    if not isinstance(name, str) or not isinstance(email, str):
-        raise ValueError(f"malformed user payload: {raw!r}")
-    return {"name": name, "email": email}
+    raw = http_get(f"/users/{uid}")  # returns dict[str, object]
+    # Parse at the boundary: never trust what the network returns.
+    # A declared schema — not a hand-rolled isinstance chain per field.
+    return UserPayload.model_validate(raw)  # raises naming the field
+
 
 def display(user: UserPayload) -> str:
-    return f"{user['name']} <{user['email']}>"
+    return f"{user.name} <{user.email}>"
 ```
 
 **Type-safety / static-analysis notes.**
@@ -1588,6 +1694,82 @@ tightened them. Heavy `kwargs: Any` usage in CLI wrappers. Pre-PEP 589
 591, "Adding a final qualifier to typing," 2019. PEP 698, "Override
 decorator," 2022. _mypy docs_, "Strict mode,"
 <https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-strict>.
+
+---
+
+## hand-rolled-boundary-coercion
+
+**Symptom.** A family of private helpers — `_as_str`, `_as_int(value,
+default)`, `_as_optional_int`, `_as_mapping` — narrowing `object`-typed
+payload fields with `isinstance` checks, including the
+`isinstance(x, int) and not isinstance(x, bool)` dance. Call sites grow
+`or ""` / `or 0` fallbacks and sentinel defaults (`_EPOCH` for a missing
+date). Often defended by a module docstring: "responses are narrowed, not
+trusted."
+
+**Why it hurts.** Each helper re-derives strictness, defaults, and error
+paths by hand, and the edges leak: a missing value becomes a fabricated
+`""`, `0`, or sentinel indistinguishable from real data, so the failure
+mode is silent corruption instead of a validation error. The family grows
+one helper at a time until the module owns a private, untested validation
+library.
+
+**Bad.**
+
+```python
+def _as_int(value: object, default: int = 0) -> int:
+    return (
+        value
+        if isinstance(value, int) and not isinstance(value, bool)
+        else default
+    )
+
+
+size = _as_int(response.get("ContentLength"))  # missing → fabricated 0
+etag = ETag(_as_str(response.get("ETag")) or "")  # missing → fake empty ETag
+```
+
+**Fixed.** Parse untrusted payloads with a declared boundary schema — a
+pydantic `TypeAdapter` or a small response `BaseModel`. Strictness is
+chosen once, bool-for-int is rejected, absence is modeled as `T | None`
+instead of fabricated, and malformed payloads raise instead of corrupting.
+Use a `TypeIs` predicate when the goal is only to narrow for the checker —
+a predicate, never a coercer.
+
+```python
+from pydantic import BaseModel, ConfigDict
+
+
+class HeadObjectResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    content_length: int
+    etag: str | None = None  # absence is modeled, never fabricated
+
+
+head = HeadObjectResponse.model_validate(response)  # errors name the field
+```
+
+**Type-safety / static-analysis notes.** No checker flags the helper
+bodies — their danger is silence, not untypedness. Review triggers: three
+or more `_as_*` / `_coerce_*` isinstance helpers in one module; the
+bool-exclusion dance (a hand-built validator by definition); `or ""` /
+`or 0` on payload reads; a docstring arguing the pattern — adjudicate the
+claim, don't defer to it.
+
+**When NOT to refactor.** One or two genuine predicates with domain
+semantics (not shape coercion) are fine — as `TypeIs`. Trusted internal
+data that is already typed needs no boundary parse; do not re-validate
+your own constructors.
+
+**Real-world examples.** SDK response handling written before the project
+adopted pydantic. The docstring-defense pattern is common and the argument
+is usually correct — narrowing untrusted responses matters — while the
+conclusion (hand-roll it per field) is what fails.
+
+**References.** `python:pydantic` § TypeAdapter and `python:typings`
+§ Traps Reviewers Should Catch (this marketplace). PEP 742, "TypeIs,"
+2024.
 
 ---
 
@@ -1669,8 +1851,14 @@ When reading a diff, scan for these in order:
    Abstractions)
 8. **Type discipline** — any `Any`, bare `cast`, `# type: ignore` without a
    code? (Type Erosion)
-9. **Defaults** — any mutable defaults? (Mutable Default Arguments)
-10. **Constants** — any magic numbers without `Final`? (Magic Numbers / Strings)
+9. **Boundaries** — are untrusted payloads parsed by a declared schema, or
+   narrowed by hand-rolled isinstance coercion helpers with fabricated
+   fallbacks? (Hand-Rolled Boundary Coercion)
+10. **Defaults** — any mutable defaults? (Mutable Default Arguments)
+11. **Constants** — any magic numbers without `Final`, configuration
+    scattered across module constants, or the same default re-stated in a
+    signature and a config field? (Magic Numbers / Strings, Scattered
+    Configuration)
 
 If a single diff triggers three or more of these, reject and ask for a smaller,
 more focused change.

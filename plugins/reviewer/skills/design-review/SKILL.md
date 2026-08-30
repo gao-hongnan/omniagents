@@ -200,6 +200,42 @@ reports.
   **Noise twin**: a breaking rename whose diff updates every caller, with
   the graph confirming none remain.
 
+### Hunt: Domain-Value Discipline
+
+- **When**: the diff adds or edits signatures over bare primitives, new
+  module-level constants, or reads of untrusted `object` / `dict` payloads.
+- **Protocol**:
+    1. Scan signatures for same-shape primitives that could be swapped
+       (`bucket: str` beside `region: str` in one call). The fix is
+       `NewType` domain IDs — openai-python types every domain id this way
+       (`FileId`, `BatchId`) — or a value object where invariants exist.
+    2. Scan payload reads for hand-rolled isinstance coercion (a `_as_*`
+       helper family, the `isinstance(x, int) and not isinstance(x, bool)`
+       dance) and fabricated fallbacks (`or ""`, sentinel `_EPOCH`,
+       default `0`). The fix is a pydantic boundary model / `TypeAdapter`
+       (see the preloaded `python:pydantic` skill, § TypeAdapter);
+       checker-only narrowing is a `TypeIs` predicate, never a coercer.
+    3. Scan defaults and constants for two owners: the same literal as a
+       config field default and a signature default, or one
+       pattern/limit constant in two modules. The fix is consolidation
+       into the settings/config tree — one owner, signatures reference it.
+- **Evidence bar**: the signature / helper / duplication sites, plus the
+  named failure the current shape permits (swapped argument, silently
+  corrupted value, drifted default).
+- **Falsifiers**: the primitives are genuinely interchangeable (a pure
+  readability alias is acceptable); the constants are true program
+  constants (protocol codes, byte math), not configuration; the module
+  already parses via a declared schema; a docstring defends the pattern —
+  adjudicate the claim against the preloaded skills rather than deferring,
+  and note that a documented, argued exception (a library deliberately
+  not owning the env namespace) can resolve the finding legitimately.
+- **Exemplar**: IMPORTANT 85 — "nine `_as_*` isinstance coercers with 72
+  call sites narrow SDK responses, fabricating `ETag("")` and `size=0`
+  for missing fields — corrupted values are indistinguishable from real
+  ones; a response-model boundary declares the guarantees once." /
+  **Noise twin**: two isinstance predicates with domain semantics, typed
+  `TypeIs`, no fabricated fallbacks.
+
 ## Severity Anchors
 
 Grade with the contract's Severity Rubric and elevation rule. In this
@@ -229,3 +265,11 @@ the contract's Taste Test:
   callees.
 - Shared mutable state as an implicit communication channel; catch-all
   utility modules accreting dependencies.
+- Same-shape bare primitives in one signature where a swapped argument
+  still type-checks; domain IDs typed as plain `str` / `int` aliases.
+- Hand-rolled isinstance coercion helper families at payload boundaries,
+  with fabricated fallbacks (`or ""`, sentinel defaults) instead of
+  modeled absence.
+- Configuration scattered across module constants; the same default
+  re-stated in a signature and a config field.
+- Closed-set `str` parameters fed only bare literals at every call site.

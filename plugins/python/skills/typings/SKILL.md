@@ -5,16 +5,18 @@ description: >-
   generics with PEP 695 syntax, annotationlib / deferred annotations,
   Protocol vs ABC, ParamSpec decorators, TypeIs / TypeGuard narrowing,
   TypedDict / ReadOnly, magic strings / numbers vs Literal / StrEnum / Final,
-  NewType vs aliases, or any time mypy / pyright / pyrefly / ty is
-  configured, run, or failing.
+  NewType vs aliases, domain IDs vs bare str/int primitives (primitive
+  obsession), or any time mypy / pyright / pyrefly / ty is configured, run,
+  or failing.
 when_to_use: >-
   Trigger for Python files, pyproject typing configuration, strict checker
   failures, type annotation design, runtime annotation introspection,
   PEP 695 generics, PEP 696 defaults, PEP 705 ReadOnly TypedDict keys,
   PEP 742 TypeIs predicates, PEP 649 / PEP 749 deferred annotations, decorator
   signatures, Protocol boundaries, NewType identifiers, enum/literal choices,
-  magic-string and magic-number promotion, stringly-typed parameters, or
-  public API typing reviews.
+  magic-string and magic-number promotion, stringly-typed parameters,
+  isinstance coercion helpers, bare-primitive parameters needing domain IDs,
+  or public API typing reviews.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []
@@ -175,10 +177,18 @@ chosen and which they have rejected.
   recursive aliases such as `type JSONValue = str | int | float | bool | None
   | list[JSONValue] | dict[str, JSONValue]`. Module-level
   `X: TypeAlias = ...` is rejected in new code.
-- **`NewType` for nominal id-like distinctions.** Use
-  `UserId = NewType("UserId", str)` when the checker must distinguish
-  `UserId` from a raw `str` despite identical runtime representation. Use
-  `type UserId = str` only when it is a readability alias.
+- **`NewType` for domain identifiers that cross signatures.** The checker
+  must distinguish whenever two same-shape primitives could be swapped at a
+  call site — ids, tokens, bucket and key names — and the cheapest sound
+  distinction is `BucketName = NewType("BucketName", str)` with identical
+  runtime representation. The openai-python SDK types every domain id this
+  way (`FileId`, `BatchId`). A `type X = str` alias carries zero static
+  information: it names a primitive, it does not type it — use an alias
+  only when any `str` is genuinely acceptable and the name is pure
+  readability. `NewType` is the static half of the contract; runtime
+  validation of untrusted input at the boundary is the dynamic half.
+  Neither replaces the other, and "runtime validation is the entire
+  point" is a false choice.
 - **`StrEnum` / `IntEnum` for closed string and integer sets.** Module-level
   string constants describing one closed set collapse into a `StrEnum`
   subclass with `auto()`. Use `IntEnum` for numeric protocol codes and
@@ -218,10 +228,44 @@ chosen and which they have rejected.
   `Final[frozenset[str]]` for immutable container constants. Inline numeric
   literals with semantic weight — timeouts, caps, retry budgets, thresholds,
   protocol codes — are promoted to named `Final` constants; identity values
-  and unit conversions (`0`, `1`, `* 1000`) stay inline.
+  and unit conversions (`0`, `1`, `* 1000`) stay inline. But a constant
+  whose value is *configuration* — anything an operator would want to
+  override, inspect, or vary per environment — belongs in the project's
+  pydantic Settings tree (see the `pydantic` skill, § Settings), not in
+  another module constant. A default stated in two places (a signature
+  default and a config field, or two modules) has already drifted: one
+  owner, and signatures reference it.
 - **`assert_never` in unreachable exhaustive branches.** A new variant added
   to a discriminated union must break the build at every `case _:` or final
   `else`, not silently fall through at runtime.
+
+## Traps Reviewers Should Catch
+
+- **Hand-rolled isinstance coercion helpers.** A family of `_as_str` /
+  `_as_int` / `_as_optional_int` helpers narrowing `object`-typed payloads —
+  including the `isinstance(x, int) and not isinstance(x, bool)` dance — is
+  a hand-built validator. If the goal is narrowing for the checker only, it
+  is a `TypeIs` predicate. If the goal is parsing an untrusted payload, it
+  is a pydantic `TypeAdapter` or boundary model (see the `pydantic` skill,
+  § TypeAdapter): strict int-not-bool behavior, declared shapes, and error
+  paths come free instead of being re-derived per helper.
+- **Value-fabrication fallbacks.** `value or ""`, a sentinel default such
+  as `datetime(1970, 1, 1)`, or `0` substituted for a missing count invents
+  data indistinguishable from the real thing. Model the field `T | None`
+  and make absence explicit at the consumer.
+- **A domain name that is only a `type` alias.** `type BucketName = str`
+  reads like a domain type and checks like `str`. If the name deserves to
+  exist, it deserves `NewType`; if any `str` is genuinely fine, the alias is
+  a costume — inline the primitive.
+- **Defaults with two owners.** The same literal as a config field default
+  and a function-signature default (or the same pattern/limit constant in
+  two modules) has already drifted. One owner — the settings object — and
+  signatures reference it.
+- **Docstring-defended smells.** A module docstring arguing for a pattern
+  ("responses are narrowed, not trusted", "runtime validation is the entire
+  point") is a claim to adjudicate against these rules, not authority to
+  defer to. An argument for hand-narrowing usually means the boundary wants
+  pydantic, not more helpers.
 
 ## References
 

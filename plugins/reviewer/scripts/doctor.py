@@ -129,7 +129,7 @@ def _git_tracked(repo: Path, path: Path) -> bool | None:
             timeout=10,
             check=False,
         )
-    except OSError, subprocess.TimeoutExpired:
+    except (OSError, subprocess.TimeoutExpired):
         return None
     return proc.returncode == 0
 

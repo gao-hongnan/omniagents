@@ -190,18 +190,25 @@ Use a union return for:
 
 ### Type Alias vs NewType vs Subclass
 
-Default to a `type` alias for descriptive renames.
+Default to `NewType` for domain identifiers; default to a `type` alias for
+generic machinery (JSON values, container shapes) and pure readability
+renames. The test for "must the checker distinguish?" is whether two
+same-shape primitives could be swapped at a call site — most
+bare-primitive domain fields fail it.
 
 Use `type X = Y` when:
 
-- `X` and `Y` are interchangeable.
+- `X` and `Y` are interchangeable and any `Y` is genuinely acceptable.
 - The name improves readability only.
 
 Use `NewType("X", Y)` when:
 
-- The checker must distinguish `X` from raw `Y`.
-- Runtime representation should stay identical.
-- The type is an ID-like value.
+- The value is a domain identifier, token, or name crossing signatures.
+- Two same-shape primitives could be swapped by mistake — `bucket` and
+  `region` are both `str`; `BucketName` and `Region` are not.
+- Runtime representation should stay identical. Runtime validation of
+  untrusted input happens separately at the boundary; the two are
+  complements, not alternatives.
 
 Use `class X(Y): ...` only when:
 

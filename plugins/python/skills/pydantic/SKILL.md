@@ -261,6 +261,25 @@ def parse_tags(raw: object) -> list[str]:
     return tag_adapter.validate_python(raw)
 ```
 
+A `TypeAdapter` — or a small boundary `BaseModel` — is also the replacement
+for hand-rolled isinstance coercion helpers at an untrusted boundary. A
+family of `_as_str` / `_as_int(value, default)` helpers narrowing
+`dict[str, object]` SDK or env payloads re-derives strictness, defaults,
+and error paths per function and still misses the edges
+(`isinstance(x, int)` accepts `True`; pydantic rejects bool-for-int even
+in lax mode). A declared shape makes the guarantees once:
+
+```python
+from pydantic import BaseModel, ConfigDict
+
+
+class HeadObjectResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    content_length: int  # strictness chosen once, not per helper
+    etag: str | None = None  # absence is modeled, never fabricated
+```
+
 ## RootModel
 
 Use [`RootModel`](https://pydantic.dev/docs/validation/latest/concepts/models)
@@ -328,6 +347,17 @@ APP_DATABASE__NAME=app
 APP_DATABASE__PASSWORD=secret
 ```
 
+**Migrating to settings:** sweep for scattered module-level `Final`
+constants, re-stated signature defaults, and `os.environ` reads that are
+configuration (timeouts, retry budgets, URLs, operator-facing limits).
+Each becomes one field in the settings tree and the module constant is
+deleted, not kept as an alias — a default that exists in two places has
+already drifted, and signatures reference the settings object rather than
+re-stating its values. A reusable library that wants the consumer to own
+the env namespace exports a frozen `BaseModel` config object instead of
+`BaseSettings` and lets the consumer nest it: same single-owner rule,
+different env owner.
+
 ## Settings Testing
 
 Do not instantiate settings at import time in modules under test. Provide a
@@ -377,6 +407,16 @@ def auth_header(credentials: ApiCredentials) -> dict[str, str]:
   services after validation.
 - **`dict[str, Any]` as a boundary.** Replace with `BaseModel`, `TypedDict`,
   or `TypeAdapter` depending on whether runtime validation is needed.
+- **Hand-rolled isinstance coercion at a parse boundary.** `_as_*` helper
+  families over `object` payloads re-implement validation per field.
+  Replace with a `TypeAdapter` or boundary model (§ TypeAdapter); use a
+  `TypeIs` predicate when only checker narrowing is wanted, never a
+  coercer.
+- **Configuration as scattered module constants.** `Final` timeouts,
+  retries, URLs, and limits spread across modules — or the same default
+  re-stated in a signature and a config field — is a settings model
+  waiting to happen (§ Settings). One owner; everything else references
+  it.
 - **Silent coercion for config.** Prefer strict settings when deployment
   mistakes should fail fast.
 - **Nested settings that are plain classes.** Sub-settings should inherit from

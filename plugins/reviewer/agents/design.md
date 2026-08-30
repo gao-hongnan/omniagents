@@ -11,6 +11,7 @@ model: inherit
 color: purple
 skills:
     - omniagents-python:typings
+    - omniagents-python:pydantic
     - omniagents-python:library-patterns
     - omniagents-typescript:typings
     - omniagents-typescript:library-patterns
