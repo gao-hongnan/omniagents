@@ -9,6 +9,51 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Python production bar across skills** — the python, design-patterns,
+  and reviewer plugins now enforce the applicable openai-python subset
+  (NewType domain IDs, `Literal`/`StrEnum` closed sets, pydantic at every
+  parse boundary, consolidated single-owner settings, no value
+  fabrication). `omniagents-reviewer` gains a **Domain-Value Discipline**
+  hunt plus Recall Sweep checks in `design-review`, and the design
+  specialist preloads `omniagents-python:pydantic`, so audits now reach
+  the content. `omniagents-design-patterns` ships the new
+  **`codebase-design`** skill (Ousterhout interface depth: deep vs
+  shallow modules, information hiding, deletion test, design-it-twice) —
+  previously referenced by the marketplace manifest but never published —
+  and the `software` anti-patterns catalogue gains two entries,
+  `scattered-configuration` and `hand-rolled-boundary-coercion`, plus a
+  table of contents and two review-checklist items.
+- `omniagents-python:typings`: "Traps Reviewers Should Catch" section
+  (isinstance-coercion families, fabricated fallbacks, costume aliases,
+  two-owner defaults, docstring-defended smells); `NewType` rebalanced
+  from alias-default to boundary-driven with an openai-python
+  `FileId`-style domain-ID example; the `Final` rule routes
+  configuration-valued constants to a pydantic Settings tree; trigger
+  vocabulary extended; table of contents in canonical examples.
+- `omniagents-python:pydantic`: `TypeAdapter`/boundary models positioned
+  as the replacement for hand-rolled isinstance coercion at untrusted
+  boundaries; two new Anti-Patterns; the Settings section documents the
+  migration from scattered module constants to one settings tree
+  (including the sanctioned library exception that exports a frozen
+  config object for the consumer to nest).
+- `omniagents-python:library-patterns`: domain-identifier
+  non-negotiable (`NewType` ids, `Literal` request params) and
+  `StrEnum` / PEP 604 consistency fixes in examples.
+- Source dossier for all of the above with verification record:
+  `docs/superpowers/specs/2026-08-30-python-production-bar.md`; the
+  skill-quality audit research doc is now tracked.
+
+### Fixed
+
+- `omniagents-python:testing` trigger wording trimmed back under the
+  per-skill listing budget (tail keywords were silently truncated).
+- `plugins/reviewer/scripts/doctor.py` had a Python 2 `except` syntax
+  error and could not run at all.
+- design-patterns manifest (Claude + Codex), marketplace, and README now
+  consistently describe the three-skill layout.
+
 ## [0.11.0] - 2026-08-02
 
 ### Added
