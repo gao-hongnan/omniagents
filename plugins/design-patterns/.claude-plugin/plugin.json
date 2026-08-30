@@ -1,6 +1,6 @@
 {
   "name": "omniagents-design-patterns",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Strict-typed Python 3.13+ design pattern catalogue, split into three skills: software (in-service patterns — GoF, functional/ADTs, DDD, architectural, in-process concurrency, code anti-patterns), system (cross-service patterns — reliability, communication, distributed, data, scaling, cloud, distributed anti-patterns), and codebase-design (Ousterhout interface depth — deep vs shallow modules, information hiding, deletion test, design-it-twice).",
   "author": {
     "name": "GAO Hongnan",

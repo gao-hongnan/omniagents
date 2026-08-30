@@ -1,6 +1,6 @@
 {
   "name": "omniagents-python",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Python conventions: NumPy/Sphinx docstrings + strict typing + performance + testing rules",
   "author": {
     "name": "GAO Hongnan",

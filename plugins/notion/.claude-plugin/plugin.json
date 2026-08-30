@@ -1,6 +1,6 @@
 {
   "name": "notion",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Notion MCP: Pages, databases, and workspace content via @notionhq/notion-mcp-server",
   "author": {
     "name": "GAO Hongnan",
