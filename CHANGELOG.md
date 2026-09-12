@@ -9,6 +9,8 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-12
+
 ### Changed
 
 - **BREAKING — `omniagents-iac` is now `omniagents-devops`** (directory
