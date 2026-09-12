@@ -9,6 +9,8 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-09-12
+
 ### Added
 
 - **`omniagents-iac:github-actions`** — a production rulebook for
