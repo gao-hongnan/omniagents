@@ -9,6 +9,37 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **`omniagents-iac:github-actions`** — a production rulebook for
+  GitHub Actions workflows and custom actions, built on the same shape
+  as the `docker` and `terraform` skills: thirteen default-posture
+  non-negotiables (explicit `permissions`, SHA-pinned `uses` **with**
+  an automated bumper, no untrusted context in `run:` bodies,
+  `concurrency` and `timeout-minutes` everywhere, explicit `shell: bash`
+  for `pipefail`, no fork code under `pull_request_target` /
+  `workflow_run`, OIDC over static cloud keys, `persist-credentials:
+  false`, no trigger filters on required checks, named secrets over
+  `secrets: inherit`, no caches in release workflows, and
+  actionlint + zizmor as the CI-for-the-CI gate), the shared T1/T2/T3
+  tiering table mapped to pipelines, and two quick-paths (canonical PR
+  CI, OIDC deploy behind an environment gate). Five references:
+  `workflow-design.md` (triggers, the required-check filter trap, job
+  graph, concurrency, matrix, shell discipline, contexts and
+  environment files, caching, artifacts, runners, platform limits),
+  `security.md` (permissions scopes, supply chain and CVE-2025-30066,
+  script and `GITHUB_ENV` injection, fork-PR trust boundaries with the
+  safe `workflow_run` handoff, cache poisoning and ArtiPACKED, secrets,
+  OIDC `sub` claim design, environments, self-hosted runners, runtime
+  hardening, compromise runbook), `reuse.md` (reusable-workflow vs
+  composite vs JS/Docker decision table, `action.yml` reference,
+  versioning and immutable publishing, testing an action),
+  `gates-and-release.md` (actionlint/zizmor config with SARIF upload,
+  Dependabot for actions, required checks and merge queue, environment
+  protection rules, release workflow shape with trusted publishing and
+  provenance, cost control), and `smells.md` (35 named smells with
+  severity, symptom, fix, and a ten-question review checklist).
+
 ## [0.12.0] - 2026-08-30
 
 ### Added
