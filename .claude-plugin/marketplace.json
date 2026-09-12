@@ -200,18 +200,19 @@
       ]
     },
     {
-      "name": "omniagents-iac",
-      "source": "./plugins/iac",
-      "description": "Infrastructure-as-code conventions: Terraform module hygiene, production Docker/compose rulebook, and GitHub Actions workflow standards + smell catalogue",
+      "name": "omniagents-devops",
+      "source": "./plugins/devops",
+      "description": "DevOps conventions across the delivery path: Terraform module hygiene, production Docker/compose rulebook, and GitHub Actions workflow standards + smell catalogue",
       "category": "infrastructure",
       "keywords": [
+        "devops",
         "terraform",
         "docker",
         "compose",
-        "iac",
-        "aws",
         "github-actions",
-        "ci-cd"
+        "ci-cd",
+        "iac",
+        "aws"
       ]
     },
     {
@@ -222,7 +223,7 @@
         "repo": "antonbabenko/terraform-skill",
         "ref": "v1.17.1"
       },
-      "description": "Deep Terraform/OpenTofu skill by Anton Babenko (external, Apache-2.0) — failure diagnosis, state surgery, migrations. omniagents-iac:terraform routes deep dives here.",
+      "description": "Deep Terraform/OpenTofu skill by Anton Babenko (external, Apache-2.0) — failure diagnosis, state surgery, migrations. omniagents-devops:terraform routes deep dives here.",
       "category": "infrastructure",
       "keywords": [
         "terraform",

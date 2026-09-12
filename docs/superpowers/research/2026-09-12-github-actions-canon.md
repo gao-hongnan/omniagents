@@ -1,4 +1,4 @@
-# GitHub Actions Canon — source dossier for `omniagents-iac:github-actions`
+# GitHub Actions Canon — source dossier for `omniagents-devops:github-actions`
 
 Research behind the `github-actions` skill (shipped 2026-09-12, unreleased at
 time of writing). This dossier is the **source of truth for edits**: change a
@@ -7,9 +7,19 @@ docker and terraform canons follow.
 
 ## Scope decision
 
-The skill lives in `plugins/iac/`, not in a new plugin and not in
+The skill lives in `plugins/devops/`, not in a new plugin and not in
 `plugins/workflow/` (which is a byte-exact MIT import and must not be
-hand-edited). Rationale: `omniagents-iac` already owns the CI surface —
+hand-edited).
+
+**Naming history:** the skill shipped in v0.13.0 under `omniagents-iac`
+(`plugins/iac/`). That name was wrong — the plugin holds provisioning
+(terraform), packaging (docker), and pipelines (github-actions), and only the
+first is infrastructure-as-code in any standard sense. Renamed to
+`omniagents-devops` / `plugins/devops/` in v1.0.0. Do not re-file CI/CD content
+under an "iac" label again.
+
+Rationale for keeping the three together: this plugin already owns the CI
+surface —
 `docker/references/ci-and-release.md` covers `docker/build-push-action`,
 BuildKit `type=gha` cache, multi-arch fan-out, OCI labels, tag strategy, and
 registry lifecycle. The new skill cross-references that file rather than

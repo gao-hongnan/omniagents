@@ -1,7 +1,7 @@
 {
-  "name": "omniagents-iac",
+  "name": "omniagents-devops",
   "version": "0.13.0",
-  "description": "Infrastructure-as-code conventions: Terraform module patterns + hygiene (house layer over antonbabenko/terraform-skill), production Docker/compose rulebook, and a GitHub Actions production rulebook with a named workflow-smell catalogue",
+  "description": "DevOps conventions across the delivery path: Terraform module patterns + hygiene (house layer over antonbabenko/terraform-skill), production Docker/compose rulebook, and a GitHub Actions production rulebook with a named workflow-smell catalogue",
   "author": {
     "name": "GAO Hongnan",
     "email": "hongnangao@gmail.com"
@@ -15,15 +15,16 @@
     }
   ],
   "keywords": [
+    "devops",
     "terraform",
     "docker",
     "compose",
-    "iac",
-    "aws",
-    "conventions",
     "github-actions",
     "ci-cd",
-    "supply-chain"
+    "iac",
+    "aws",
+    "supply-chain",
+    "conventions"
   ],
   "skills": "./skills/"
 }

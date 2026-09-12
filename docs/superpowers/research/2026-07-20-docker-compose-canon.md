@@ -1,5 +1,5 @@
 # Production Docker/Compose Rulebook Corpus — July 2026
-(research digest from web-research agent; source material for omniagents-iac docker skill)
+(research digest from web-research agent; source material for omniagents-devops docker skill)
 
 ## 1. Dockerfile canon
 

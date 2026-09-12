@@ -112,7 +112,7 @@ full rationale and source links.
 ## Tiering
 
 The row labels below are the shared infra reference set (identical
-across the omniagents-iac skills); the container-specific mapping
+across the omniagents-devops skills); the container-specific mapping
 follows in prose.
 
 | Control | T1 demo/portfolio | T2 production | T3 regulated |

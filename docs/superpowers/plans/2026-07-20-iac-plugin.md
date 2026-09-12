@@ -1,5 +1,11 @@
 # omniagents-iac Plugin Implementation Plan
 
+> **Historical record.** This document describes the plugin as designed and built
+> on 2026-07-20 under the name `omniagents-iac` (`plugins/iac/`). The plugin was
+> renamed to `omniagents-devops` (`plugins/devops/`) in v1.0.0 after the
+> `github-actions` skill made the "infrastructure-as-code" label plainly wrong.
+> Names below are left as written; read them as the historical ones.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the `omniagents-iac` plugin — a `terraform` house-layer skill that links to antonbabenko/terraform-skill instead of repeating it, and a full-catalogue `docker` skill — per the approved spec at `docs/superpowers/specs/2026-07-20-iac-plugin-design.md`.

@@ -9,6 +9,33 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING — `omniagents-iac` is now `omniagents-devops`** (directory
+  `plugins/iac/` → `plugins/devops/`). The plugin holds three skills —
+  `terraform` (provisioning), `docker` (packaging), and `github-actions`
+  (pipelines) — and only the first is infrastructure-as-code in any standard
+  sense. The label described one of three skills, so it was wrong; the skills
+  themselves are unchanged in content by this release.
+
+  **Migration** — the install name and the skill prefixes both change:
+
+  ```bash
+  # Claude
+  claude plugin uninstall omniagents-iac@omniagents --prune
+  claude plugin marketplace update omniagents
+  claude plugin install omniagents-devops@omniagents
+
+  # Codex
+  codex plugin remove omniagents-iac@omniagents
+  codex plugin add omniagents-devops@omniagents
+  ```
+
+  Skill invocation names change from `omniagents-iac:<skill>` to
+  `omniagents-devops:<skill>` (`terraform`, `docker`, `github-actions`).
+  Anything pinned to `v0.13.0` or earlier is unaffected and keeps the old
+  names.
+
 ## [0.13.0] - 2026-09-12
 
 ### Added

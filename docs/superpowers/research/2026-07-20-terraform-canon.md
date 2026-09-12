@@ -1,5 +1,5 @@
 # Production Terraform Rulebook Corpus — verified July 2026
-(research digest from web-research agent; source material for omniagents-iac terraform skill)
+(research digest from web-research agent; source material for omniagents-devops terraform skill)
 
 Version baseline: Terraform 1.15 (Apr 2026) / 1.14 (Nov 2025) are the supported lines (endoflife.date/terraform). OpenTofu ~1.10–1.12.
 

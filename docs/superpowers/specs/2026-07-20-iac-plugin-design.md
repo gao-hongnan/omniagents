@@ -1,5 +1,11 @@
 # omniagents-iac plugin — design
 
+> **Historical record.** This document describes the plugin as designed and built
+> on 2026-07-20 under the name `omniagents-iac` (`plugins/iac/`). The plugin was
+> renamed to `omniagents-devops` (`plugins/devops/`) in v1.0.0 after the
+> `github-actions` skill made the "infrastructure-as-code" label plainly wrong.
+> Names below are left as written; read them as the historical ones.
+
 - **Date:** 2026-07-20
 - **Status:** approved design, pending implementation plan
 - **Repo:** gao-hongnan/omniagents, branch `feat/iac-plugin`

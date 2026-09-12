@@ -86,7 +86,7 @@ for the authoritative pages.
 | `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                                                                       | `git` + `bash`                                                                                  |
 | `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session                                                                                       | —                                                                                               |
 | `omniagents-unknowns`        | Skills           | `omniagents-unknowns:blindspot-pass` — `/blindspot-pass [task/area]` surveys unfamiliar territory and reports your unknown unknowns, ending in a sharper prompt                                        | —                                                                                               |
-| `omniagents-iac`             | Skills           | `omniagents-iac:docker` — production Dockerfile/compose rulebook; `omniagents-iac:github-actions` — workflow/action production rulebook + named smell catalogue (permissions, SHA pinning, script injection, OIDC, reuse, gates); `omniagents-iac:terraform` — module hygiene + T1/T2/T3 tiering, routes deep failure-mode and state-surgery work to `terraform-skill` | `terraform-skill`                                                                               |
+| `omniagents-devops`             | Skills           | `omniagents-devops:docker` — production Dockerfile/compose rulebook; `omniagents-devops:github-actions` — workflow/action production rulebook + named smell catalogue (permissions, SHA pinning, script injection, OIDC, reuse, gates); `omniagents-devops:terraform` — module hygiene + T1/T2/T3 tiering, routes deep failure-mode and state-surgery work to `terraform-skill` | `terraform-skill`                                                                               |
 | `terraform-skill` (external) | Skill            | `terraform-skill:terraform-skill` — deep Terraform/OpenTofu skill by Anton Babenko: failure-mode diagnosis, state surgery, migrations (Apache-2.0)                                                     | —                                                                                               |
 | `drawio` (vendored)          | Skill            | `drawio:drawio` — native `.drawio` diagrams from Mermaid or draw.io XML, ELK auto-layout, PNG/SVG/PDF/`url` export                                                                                     | draw.io Desktop (optional — Mermaid conversion + PNG/SVG/PDF export only)                       |
 
@@ -223,7 +223,7 @@ claude plugin install notifications@omniagents
 claude plugin install doc-drift@omniagents
 claude plugin install omniagents-pedagogy@omniagents
 claude plugin install omniagents-unknowns@omniagents
-claude plugin install omniagents-iac@omniagents
+claude plugin install omniagents-devops@omniagents
 claude plugin install terraform-skill@omniagents
 ```
 
@@ -307,7 +307,7 @@ codex plugin add omniagents-writing@omniagents
 codex plugin add omniagents-reviewer@omniagents
 codex plugin add omniagents-pedagogy@omniagents
 codex plugin add omniagents-unknowns@omniagents
-codex plugin add omniagents-iac@omniagents
+codex plugin add omniagents-devops@omniagents
 codex plugin add drawio@omniagents
 ```
 
@@ -363,7 +363,7 @@ claude plugin update notifications@omniagents
 claude plugin update doc-drift@omniagents
 claude plugin update omniagents-pedagogy@omniagents
 claude plugin update omniagents-unknowns@omniagents
-claude plugin update omniagents-iac@omniagents
+claude plugin update omniagents-devops@omniagents
 claude plugin update terraform-skill@omniagents
 ```
 
@@ -474,7 +474,7 @@ claude plugin uninstall notifications@omniagents --prune
 claude plugin uninstall doc-drift@omniagents --prune
 claude plugin uninstall omniagents-pedagogy@omniagents --prune
 claude plugin uninstall omniagents-unknowns@omniagents --prune
-claude plugin uninstall omniagents-iac@omniagents --prune
+claude plugin uninstall omniagents-devops@omniagents --prune
 claude plugin uninstall terraform-skill@omniagents --prune
 ```
 
@@ -752,7 +752,7 @@ OpenAI Codex documentation and sources for the
   [antonbabenko/terraform-skill](https://github.com/antonbabenko/terraform-skill)
   (Apache-2.0, by Anton Babenko), pinned to `ref: v1.17.1` in
   `.claude-plugin/marketplace.json` and declared as a plugin dependency of
-  `omniagents-iac`. `omniagents-iac:terraform` is a house-layer rulebook that
+  `omniagents-devops`. `omniagents-devops:terraform` is a house-layer rulebook that
   routes deep failure-mode and state-surgery work to it instead of restating it.
 
 ## License

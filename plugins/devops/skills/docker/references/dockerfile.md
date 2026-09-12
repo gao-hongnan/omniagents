@@ -1,6 +1,6 @@
 # Dockerfile
 
-Catalogue-depth Dockerfile reference for the omniagents-iac docker skill —
+Catalogue-depth Dockerfile reference for the omniagents-devops docker skill —
 the rules a reviewer enforces on every `Dockerfile` in this shop, each
 traced to its source, plus worked sketches for the two stacks this org
 ships most: Python/uv services and Vite-built static frontends. Voice and
