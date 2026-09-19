@@ -9,6 +9,28 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **`omniagents-design-patterns:system` → `growth.md`** — an eighth reference
+  file (~509 lines), the load-indexed entry into the catalogue. The other seven
+  files answer *which shape*; this one answers *which resource saturates next,
+  and which shape relieves it*, split by write path and read path. Anchors-not-
+  triggers table (how payload size, working set, and write mix move every
+  threshold), USE-method saturation signals, a Little's Law sizing sketch, then
+  Rungs 0–4 — each naming what breaks, the signal that proves it, the smallest
+  move on each path, the contracts that move makes mandatory, its stop sign, and
+  the entry elsewhere in the skill holding the sketch. Ends with anti-ladder
+  failure modes and a capacity-review checklist.
+
+### Changed
+
+- **`omniagents-design-patterns:system`** — routes load-shaped questions ("what
+  breaks next", a capacity review, a raw load number) to `growth.md` first, and
+  widens the skill description to cover capacity planning. `data.md` gains a
+  Storage Engine entry (B-tree vs LSM by the RUM trade) that the ladder's write
+  amplification rung depends on; `communication.md` picks up the matching
+  cross-reference.
+
 ## [1.0.0] - 2026-09-12
 
 ### Changed

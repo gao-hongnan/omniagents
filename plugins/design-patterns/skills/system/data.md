@@ -40,6 +40,7 @@ consequences.
     - [Eventual Consistency](#eventual-consistency)
     - [Read Repair and Anti-entropy](#read-repair-and-anti-entropy)
     - [Change Data Capture (CDC)](#change-data-capture-cdc)
+    - [Storage Engine: B-Tree vs LSM](#storage-engine-b-tree-vs-lsm)
     - [Tombstones and Soft Delete](#tombstones-and-soft-delete)
     - [Saga's data consequences](#sagas-data-consequences)
     - [When to reach for what](#when-to-reach-for-what)
@@ -49,7 +50,7 @@ consequences.
 
 ## The big picture
 
-Five questions:
+Six questions:
 
 1. **Read shape diverges from write shape?** → CQRS (lightweight or full).
 2. **Reconstruct historical state? Audit _why_ the state is what it is?** →
@@ -58,8 +59,10 @@ Five questions:
 4. **One DB struggles with load?** → Replication first, then Sharding.
 5. **Services trampling each other through shared schema?** → Database per
    Service.
+6. **Write path disk-bound after batching?** → Storage Engine: LSM for the
+   append-heavy tables, B-tree for the rest.
 
-Every other pattern here serves one of those five.
+Every other pattern here serves one of those six.
 
 ---
 
@@ -1046,6 +1049,150 @@ not capture deletes. Fix: CDC, every time.
 
 ---
 
+## Storage Engine: B-Tree vs LSM
+
+**Intent.** Choose, per table, the on-disk structure that matches the write/read
+mix. A **B-tree** (Postgres heap + B-tree indexes, InnoDB's clustered B+tree)
+updates pages in place: point reads and range scans are cheap, writes are random
+I/O. An **LSM-tree** (RocksDB, LevelDB, Cassandra, ScyllaDB, HBase, MyRocks)
+appends: writes go to an in-memory memtable and a sequential commit log, flush as
+sorted immutable segments (SSTables), and background compaction merges segments.
+Writes are sequential; reads may consult several segments.
+
+**The trade (RUM).** Every access method pays in at least one of Read, Update,
+or Memory (space) amplification; none minimizes all three.
+
+| | B-tree | LSM-tree |
+| --- | --- | --- |
+| Write amplification | high: page in place + affected index pages + WAL + full-page images; MVCC dead tuples | low at ingest (sequential); compaction rewrites each byte several times |
+| Read amplification | low: one root-to-leaf path per lookup | higher: memtable + several levels; Bloom filters skip most segments |
+| Space amplification | moderate: fragmentation, bloat until VACUUM | tiered: high (duplicates across runs); levelled: ~1.1× |
+| Range scans | excellent, ordered leaves | good, but merged across segments |
+| Tail latency | checkpoint I/O spikes; VACUUM contention | compaction stalls; write stalls when the first level backs up |
+| Deletes | in place | tombstones until compaction (`gc_grace_seconds`) |
+| Transactions | native, multi-row, cross-table | per partition or per key in most stores; no joins |
+| Sweet spot | OLTP with mixed reads, joins, constraints | write-heavy, append-mostly, key + range access |
+
+**When to reach for it (LSM).**
+
+- Write amplification or write IOPS is the _measured_ bottleneck _after_ the
+  write path has been batched (`growth.md`, rung 3). Batching alone usually buys
+  an order of magnitude; the engine change buys the next.
+- The table is append-mostly: events, telemetry, messages, feeds, time series.
+  Updates in place are rare; deletes are by time partition.
+- Access is by partition key plus a range on a sort key. Queries are known up
+  front.
+- The read path can tolerate Bloom-filter misses and compaction jitter at p99.
+
+**Sketch.** A modelling rule before code: an LSM table is designed _from the
+query_ — one partition key that bounds every read, one sort key that orders it,
+and one row per event rather than an aggregate updated in place.
+
+```python
+from dataclasses import dataclass
+from datetime import datetime
+from enum import StrEnum
+from typing import NewType, Protocol
+
+
+TenantId = NewType("TenantId", str)
+EventId = NewType("EventId", str)
+
+
+class ActivityKind(StrEnum):
+    VIEWED = "viewed"
+    LIKED = "liked"
+    SHARED = "shared"
+
+
+@dataclass(frozen=True, slots=True)
+class ActivityEvent:
+    """One immutable row. Aggregates are derived by scanning the range, never by
+    updating a counter in place."""
+
+    tenant_id: TenantId        # partition key: bounds every read to one partition
+    occurred_at: datetime      # sort key: a range scan is the only read shape
+    event_id: EventId          # tie-breaker within a timestamp; idempotent re-append
+    kind: ActivityKind
+    payload: bytes
+
+
+class ActivityLog(Protocol):
+    """Append-only port. No update, no delete-by-row: expiry is by partition or TTL."""
+
+    async def append(self, events: list[ActivityEvent]) -> None: ...
+
+    async def scan(
+        self,
+        tenant_id: TenantId,
+        *,
+        since: datetime,
+        until: datetime,
+        limit: int,
+    ) -> list[ActivityEvent]: ...
+```
+
+**Type-safety notes.**
+
+- The port exposes only the shapes the engine serves well: `append` and a
+  bounded `scan` by partition plus range. A `find_by_kind` without `tenant_id`
+  would be a scatter-gather across every partition; its absence from the
+  `Protocol` is the design.
+- `limit` is required, not defaulted: an unbounded range scan over an LSM table
+  is the read-amplification failure mode.
+- Re-appending an event with the same `(tenant_id, occurred_at, event_id)` must
+  be idempotent at the store (identical rows collapse), so the ingest consumer
+  in `growth.md` rung 2 can retry safely.
+
+**When NOT to use.**
+
+- Read-heavy tables with strict p99 point-read budgets: the levels cost, and
+  Bloom filters are probabilistic.
+- Anything needing multi-row transactions, foreign keys, or ad-hoc joins: the
+  catalogue, the ledger, the user table. Keep those on the B-tree store.
+- The write path has not been batched. The engine is rung 3; batching is rung 2.
+- The team cannot operate compaction: strategy tuning, disk headroom for
+  compaction (often 50%), and tombstone / anti-entropy schedules are ongoing
+  work, not a one-time migration.
+- A relational middle path exists: time-partitioned tables with partition drop,
+  `BRIN` indexes on append-only tables, and unlogged or batched staging tables
+  carry the reference workload a long way on Postgres.
+
+**Real-world examples.**
+
+- _Meta._ MyRocks replaced InnoDB under the user database for space and write
+  amplification; RocksDB underlies it and much of the industry's embedded
+  storage.
+- _Cassandra / ScyllaDB._ Wide-column LSM stores; Discord moved its message
+  store from Cassandra to ScyllaDB (2023) for tail latency under compaction and
+  GC pauses.
+- _Postgres._ Heap plus B-tree; carries write-heavy workloads far with
+  partitioning and batching, which is why the engine change is rung 3 and not
+  rung 1.
+- _CockroachDB / TiKV._ Distributed SQL on an LSM key-value layer (Pebble,
+  RocksDB) — the two shapes composed.
+
+**Anti-pattern variant.** _"Cassandra for everything."_ A relational OLTP schema
+moved wholesale to a wide-column store; joins are re-implemented in application
+code, one table per query pattern multiplies write fan-out, and the ledger loses
+its transactions. Fix: move only the append-heavy tables; keep the relational
+core relational; join at the read model ([Materialized View](#materialized-view)).
+
+**References.**
+
+- O'Neil, P., Cheng, E., Gawlick, D., O'Neil, E., "The Log-Structured Merge-Tree
+  (LSM-Tree)", _Acta Informatica_ 33, 1996.
+- Athanassoulis, M., et al., "Designing Access Methods: The RUM Conjecture",
+  EDBT 2016.
+- DDIA, ch. 3 — "Comparing B-Trees and LSM-Trees".
+- Matsunobu, Y., Dong, S., Lee, H., "MyRocks: LSM-Tree Database Storage Engine
+  Serving Facebook's Social Graph", VLDB 2020.
+- Discord Engineering, "How Discord Stores Trillions of Messages", 2023.
+- RocksDB wiki — _Compaction_, _Write Amplification_; ScyllaDB docs —
+  _Compaction strategies_.
+
+---
+
 ## Tombstones and Soft Delete
 
 **Intent.** Mark a record deleted without physical removal. In append-only /
@@ -1202,15 +1349,18 @@ Stop at the first honest "yes".
    Service** + events + explicit API.
 6. **A single-replica DB cannot serve load?** → **Replication first** (read
    replicas, semi-sync); shard only when replication is fully used.
-7. **Cross-region active-active needed?** → **CRDT multi-leader** for tolerant
+7. **Write amplification is the measured bottleneck after batching?** → **LSM
+   storage engine** for the append-heavy tables only; the relational core
+   stays on the B-tree store.
+8. **Cross-region active-active needed?** → **CRDT multi-leader** for tolerant
    data; **partitioned single-leader** otherwise.
-8. **Feed warehouse / search / other service from source DB without app
+9. **Feed warehouse / search / other service from source DB without app
    change?** → **CDC**, or the **outbox + CDC hybrid** for clean domain events.
-9. **Domain is a sequence of events; "why is state what it is" matters?** →
-   **Event Sourcing** + full CQRS.
-10. **Delete with undelete / audit / compliance?** → **Soft delete /
+10. **Domain is a sequence of events; "why is state what it is" matters?** →
+    **Event Sourcing** + full CQRS.
+11. **Delete with undelete / audit / compliance?** → **Soft delete /
     tombstones** + retention pipeline.
-11. **Saga produces user-visible intermediate states?** → Project saga state
+12. **Saga produces user-visible intermediate states?** → Project saga state
     into the read model; model compensation events explicitly.
 
 ---
@@ -1235,3 +1385,5 @@ Stop at the first honest "yes".
     window.
 12. Saga intermediate state visible in the read model, not hidden in the
     orchestrator.
+13. Storage engine chosen per table by measured write and read amplification;
+    LSM tables expose append plus bounded range scan only (`growth.md`, rung 3).

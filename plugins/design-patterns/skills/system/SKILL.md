@@ -6,7 +6,8 @@ description: >-
   rate limits, idempotency, DLQs, REST/gRPC/GraphQL/pub-sub, service mesh,
   webhooks, Saga, Raft/Paxos, distributed locks, CQRS, event sourcing, outbox,
   sharding, replication, caching, autoscaling, sidecars, strangler migrations,
-  distributed monoliths, cascading failures, retry storms, or shared databases.
+  distributed monoliths, cascading failures, retry storms, shared databases,
+  capacity planning, or what breaks at the next 10× load.
 ---
 
 # System Patterns — Across Services
@@ -16,8 +17,10 @@ processes, regions, or operators: reliability (timeout, retry, circuit
 breaker, bulkhead), communication (pub/sub, API gateway, BFF, service
 mesh), distributed coordination (saga, leader election, Raft, CRDTs),
 data architecture (CQRS, event sourcing, sharding, replication),
-scaling (cache, load balancing, autoscaling), cloud topology (sidecar,
-ambassador, strangler fig, cell-based), system-level anti-patterns.
+scaling (cache, load balancing, autoscaling), the growth ladder (what
+saturates at each order of magnitude, split by write and read path),
+cloud topology (sidecar, ambassador, strangler fig, cell-based),
+system-level anti-patterns.
 For in-service concerns (class boundaries, domain modelling, in-process
 concurrency, code smells), load the `software` skill from this plugin
 instead.
@@ -88,15 +91,16 @@ canonical examples and rationale behind each rule. If both plugins are
 installed, you can load it via the Skill tool when you need the deep reference,
 but this catalogue does not require it to be loaded to be correct.
 
-## Reference index (~10,800 lines across 7 refs)
+## Reference index (~11,500 lines across 8 refs)
 
 | File | Read when… |
 | --- | --- |
 | [`reliability.md`](reliability.md) | A call crosses a process / network / disk / queue boundary: Timeout, Retry + Exponential Backoff + Full Jitter, Circuit Breaker, Bulkhead, Rate Limiting (Token Bucket / Leaky Bucket / GCRA), Adaptive Concurrency Limits (Netflix-style), Idempotency Keys (Stripe-style), Dead-Letter Queue, Hedged Requests (Dean & Barroso), Fallback / Graceful Degradation, Health Checks (liveness vs readiness vs startup), Heartbeat, Backpressure. Includes a stacking-order guide. |
 | [`communication.md`](communication.md) | Designing the channel between services: Request/Reply (REST vs gRPC vs GraphQL with type-safety triage), Pub/Sub (Kafka / RabbitMQ / Redis Streams / SNS-SQS / GCP Pub/Sub with delivery-semantics table), Event-Driven Architecture (thin vs fat events), API Gateway (and the "smart pipes / dumb endpoints" anti-pattern), Backend-for-Frontend, Service Mesh, Webhooks (HMAC + replay window), Long Polling / SSE / WebSockets, Async Request-Reply (`202 + Location + Retry-After`), Claim Check. |
 | [`distributed.md`](distributed.md) | Coordinating across nodes: Saga (orchestration vs choreography), Two-Phase Commit (and why it's almost always wrong), Raft pseudocode + Paxos overview, Leader Election (lease-based with renewable TTL), Distributed Lock with fencing (the Kleppmann–Antirez exchange), Heartbeat / phi-accrual failure detector, Vector Clocks / Lamport Timestamps, CRDTs (G-Counter, PN-Counter, OR-Set, LWW-Register), Quorum Reads/Writes (N/R/W), Gossip Protocols. |
-| [`data.md`](data.md) | Shaping persistent state: CQRS (lightweight vs full), Event Sourcing (replay, snapshot, projection), Outbox (`FOR UPDATE SKIP LOCKED`), Inbox (consumer-side dedup), Materialized View, Database per Service (with migration steps from a shared DB), Sharding (range / hash with consistent hashing + vnodes / directory / geographic), Replication (single-leader / multi-leader / leaderless / semi-sync), Eventual Consistency (read-your-writes, monotonic reads, causal), Read Repair / Anti-entropy, Change Data Capture (Debezium-style), Soft Delete / Tombstones. |
+| [`data.md`](data.md) | Shaping persistent state: CQRS (lightweight vs full), Event Sourcing (replay, snapshot, projection), Outbox (`FOR UPDATE SKIP LOCKED`), Inbox (consumer-side dedup), Materialized View, Database per Service (with migration steps from a shared DB), Sharding (range / hash with consistent hashing + vnodes / directory / geographic), Replication (single-leader / multi-leader / leaderless / semi-sync), Storage Engine (B-tree vs LSM by the RUM trade), Eventual Consistency (read-your-writes, monotonic reads, causal), Read Repair / Anti-entropy, Change Data Capture (Debezium-style), Soft Delete / Tombstones. |
 | [`scaling.md`](scaling.md) | Performance and scale: Cache-Aside (with single-flight stampede protection), Read-Through, Write-Through, Write-Behind, Refresh-Ahead (XFetch probabilistic), CDN / Edge (`stale-while-revalidate`, surrogate keys), Vertical vs Horizontal Scaling (the "scale-up first" pragmatic argument), Auto-scaling (reactive / predictive / scheduled, KEDA-style queue-age triggers), Load Balancing (round-robin / least-conn / consistent-hash / power-of-two-choices / EWMA), Connection Pooling (HikariCP / PgBouncer math), Backpressure-aware Scaling. |
+| [`growth.md`](growth.md) | The question arrives as a load number, a capacity review, or "what breaks next": the load-indexed ladder. Anchors-not-triggers table (how payload size, working set, and write mix move every threshold), USE-method saturation-signal table, Little's Law sizing sketch, then Rungs 0–4 — one box; connections and unindexed reads (pooler / cache-aside + replicas); fsync-bound commits, replication lag, one cache node (durable log + batched appliers / sharded cache + read shards); write amplification and viral keys (LSM tables / in-process L1); coordination and blast radius (cells, multi-leader). Each rung: what breaks · signal · write move · read move · contracts it creates · stop sign · links to the entry holding the sketch. Anti-ladder failures and a capacity review checklist. |
 | [`cloud.md`](cloud.md) | Topology decisions: Sidecar, Ambassador (and the Sidecar-vs-Ambassador direction split), Adapter (system-level), Anti-Corruption Layer (system-level, one-way DDD translation), Strangler Fig (route-table proxy), Choreography vs Orchestration, Service Discovery (server-side LB vs client-side Consul/Eureka), Configuration as Service (LaunchDarkly / Unleash), Async Request-Reply, Claim Check (S3 + queue), Compensating Transaction, Throttling Gateway, Bulkheading at Infra Level (cells / AZs), Cell-Based Architecture (AWS-style with jump-consistent hashing). |
 | [`anti-patterns.md`](anti-patterns.md) | Distributed-architecture review: Distributed Monolith, Chatty Interfaces (N+1 RPC + chained sync calls), Two-Phase Commit Abuse, Shared Database, Death Star Architecture, Premature Microservices Adoption, Synchronous Cross-Service Calls (when async fits), Sticky Sessions Everywhere, Hot Path DB Locking, Single Point of Failure, Cascading Failures, Retry Storms (with the 243× amplification math), Naive Caching, Lift-and-Shift, Vendor Lock-in by Default, Observability as Afterthought, Configuration Drift, Time Bombs, Big Bang Migrations. Each entry includes a real production incident (Knight Capital, S3 us-east-1, CrowdStrike, Healthcare.gov) where the anti-pattern fired. |
 
@@ -110,6 +114,9 @@ file has a Table of Contents at the top; jump to the specific anchor.
    of one. If no, skip this skill — these references are about
    *shape*, not algorithms or business logic.
 2. **Pick the axis.**
+   - Entering from a load number, a capacity review, or "what breaks
+     next" → `growth.md` first; each rung routes to the axis file that
+     holds the sketch
    - Cross-boundary failure → `reliability.md`
    - Channel choice (sync / async / event-driven / streaming) →
      `communication.md`
@@ -137,8 +144,8 @@ file has a Table of Contents at the top; jump to the specific anchor.
 
 Anchor on the heading exactly as written in the file — for example
 `reliability.md#circuit-breaker`, `data.md#event-sourcing`,
-`cloud.md#strangler-fig`. Anchors are kebab-case slugs of the heading
-text.
+`cloud.md#strangler-fig`, `growth.md#what-every-rung-adds`. Anchors are
+kebab-case slugs of the heading text.
 
 ## What this skill does NOT cover
 

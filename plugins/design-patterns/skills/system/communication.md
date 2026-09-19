@@ -45,9 +45,9 @@ Before reaching for a pattern, decide along three axes:
 The pairs that fall out:
 
 - **sync, 1:1, best-effort** → request/reply over HTTP/gRPC.
-  ([request-reply-sync](#request-reply-sync))
+  ([request-reply-sync](#requestreply-sync))
 - **async, 1:N, at-least-once** → pub/sub topic.
-  ([pub-sub-async](#pub-sub-async))
+  ([pub-sub-async](#pubsub-async))
 - **async, 1:1, at-least-once** → message queue / job queue.
 - **sync, 1:1, long-running** → asynchronous request-reply with polling or
   callback. ([asynchronous-request-reply](#asynchronous-request-reply))
