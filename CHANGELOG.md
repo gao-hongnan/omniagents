@@ -9,6 +9,8 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-19
+
 ### Added
 
 - **`omniagents-devops:kong`** — a research-first playbook for Kong Gateway and

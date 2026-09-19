@@ -1,6 +1,6 @@
 {
   "name": "doc-drift",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Documentation drift detection hook: alerts when code changes may have stale line numbers, broken file references, or outdated code snippets in docs",
   "author": {
     "name": "GAO Hongnan",

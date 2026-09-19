@@ -1,6 +1,6 @@
 {
   "name": "omniagents-devops",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "DevOps conventions across the delivery path: Terraform module patterns + hygiene (house layer over antonbabenko/terraform-skill), production Docker/compose rulebook, a GitHub Actions production rulebook with a named workflow-smell catalogue, and a research-first Kong Gateway/Konnect playbook",
   "author": {
     "name": "GAO Hongnan",
