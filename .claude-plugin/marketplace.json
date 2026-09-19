@@ -202,7 +202,7 @@
     {
       "name": "omniagents-devops",
       "source": "./plugins/devops",
-      "description": "DevOps conventions across the delivery path: Terraform module hygiene, production Docker/compose rulebook, and GitHub Actions workflow standards + smell catalogue",
+      "description": "DevOps conventions across the delivery path: Terraform module hygiene, production Docker/compose rulebook, GitHub Actions workflow standards + smell catalogue, and a research-first Kong Gateway/Konnect playbook",
       "category": "infrastructure",
       "keywords": [
         "devops",
@@ -211,6 +211,10 @@
         "compose",
         "github-actions",
         "ci-cd",
+        "kong",
+        "api-gateway",
+        "konnect",
+        "gitops",
         "iac",
         "aws"
       ]

@@ -11,6 +11,21 @@ the bump rules and the release workflow.
 
 ### Added
 
+- **`omniagents-devops:kong`** — a research-first playbook for Kong Gateway and
+  Konnect. Deliberately encodes **no Kong best practices**: Kong ships several
+  gateway releases a year and the same question has different correct answers in
+  OSS, Enterprise, and Konnect, so a frozen rulebook would rot silently. It
+  encodes the research protocol instead — anchor version/edition/deployment
+  mode/config tool before answering; check for (and offer to install) Kong's own
+  bundled agent skills; pull current docs via context7 with a source-precedence
+  order and an explicit distrust list; route by question genre across decK vs
+  kongctl vs KIC/Operator vs the two Terraform providers vs custom-plugin
+  authoring; verify the traps where model priors are reliably stale
+  (Enterprise-only plugin gating, plugin execution order, `BasePlugin` removed in
+  3.0, DB-less read-only Admin API); then cite version + edition + URL on every
+  recommendation. Closes with a T1/T2/T3 enterprise table sharing the infra
+  reference rows used across the other `omniagents-devops` skills.
+
 - **`omniagents-design-patterns:system` → `growth.md`** — an eighth reference
   file (~509 lines), the load-indexed entry into the catalogue. The other seven
   files answer *which shape*; this one answers *which resource saturates next,
