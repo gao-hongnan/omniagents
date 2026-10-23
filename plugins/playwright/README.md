@@ -15,13 +15,13 @@ The plugin MCP config is in `.mcp.json`:
     "playwright": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@playwright/mcp@latest"]
+      "args": ["@playwright/mcp@0.0.83"]
     }
   }
 }
 ```
 
-`@playwright/mcp@latest` is fetched and launched by `npx` on demand, so there is
+`@playwright/mcp@0.0.83` is fetched and launched by `npx` on demand, so there is
 no global install to maintain. The server speaks `stdio`.
 
 ## Prerequisites
@@ -52,7 +52,7 @@ Example — headless Chromium with an isolated profile:
     "playwright": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@playwright/mcp@latest", "--headless", "--isolated"]
+      "args": ["@playwright/mcp@0.0.83", "--headless", "--isolated"]
     }
   }
 }
@@ -72,7 +72,7 @@ Expected details include:
 Scope: Project config (shared via .mcp.json)
 Type: stdio
 Command: npx
-Args: @playwright/mcp@latest
+Args: @playwright/mcp@0.0.83
 ```
 
 Then check health:

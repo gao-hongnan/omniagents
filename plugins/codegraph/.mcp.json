@@ -3,7 +3,7 @@
     "codegraph": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@colbymchenry/codegraph", "serve", "--mcp"]
+      "args": ["-y", "@colbymchenry/codegraph@1.6.2", "serve", "--mcp"]
     }
   }
 }

@@ -24,7 +24,7 @@ The plugin MCP config is in `.mcp.json`:
     "google_workspace": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["workspace-mcp"],
+      "args": ["workspace-mcp==2.1.2"],
       "env": {
         "GOOGLE_OAUTH_CLIENT_ID": "${GOOGLE_OAUTH_CLIENT_ID}",
         "GOOGLE_OAUTH_CLIENT_SECRET": "${GOOGLE_OAUTH_CLIENT_SECRET}",
@@ -130,7 +130,7 @@ Expected details include:
 Scope: Project config (shared via .mcp.json)
 Type: stdio
 Command: uvx
-Args: workspace-mcp
+Args: workspace-mcp==2.1.2
 ```
 
 Then check health:
@@ -149,7 +149,7 @@ If the server is listed but fails to connect, run the launch command directly
 to see any startup errors:
 
 ```bash
-uvx workspace-mcp
+uvx workspace-mcp==2.1.2
 ```
 
 ## References

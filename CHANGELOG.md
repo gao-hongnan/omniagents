@@ -9,6 +9,17 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **MCP version pinning (gap L6)** — every stdio MCP launch command now names
+  an exact version instead of floating (`@playwright/mcp@0.0.83`,
+  `@colbymchenry/codegraph@1.6.2`, `@notionhq/notion-mcp-server@2.5.2`,
+  `uvx code-review-graph==2.3.9` with no `--upgrade`, `uvx
+  workspace-mcp==2.1.2`), in the root `.mcp.json`, the five plugin
+  `.mcp.json` files, and every documented command. Releases are reproducible:
+  rolling back the tag now rolls back the MCP code too. The README states the
+  bump policy (MCP versions bump in a normal release PR).
+
 ## [1.3.0] - 2026-10-15
 
 ### Added

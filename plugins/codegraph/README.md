@@ -83,7 +83,7 @@ Expected details include:
 Scope: Project config (shared via .mcp.json)
 Type: stdio
 Command: npx
-Args: -y @colbymchenry/codegraph serve --mcp
+Args: -y @colbymchenry/codegraph@1.6.2 serve --mcp
 ```
 
 Then check health:
@@ -99,7 +99,7 @@ the project-scoped MCP server if prompted.
 If the server is found but fails to connect, run the launch command directly:
 
 ```bash
-npx -y @colbymchenry/codegraph serve --mcp
+npx -y @colbymchenry/codegraph@1.6.2 serve --mcp
 ```
 
 Common causes are `npx`/Node.js not being on `PATH`, or network access being

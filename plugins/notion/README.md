@@ -19,7 +19,7 @@ The MCP server is defined in [`.mcp.json`](./.mcp.json):
     "mcpServers": {
         "notionApi": {
             "command": "npx",
-            "args": ["-y", "@notionhq/notion-mcp-server"],
+            "args": ["-y", "@notionhq/notion-mcp-server@2.5.2"],
             "env": {
                 "NOTION_TOKEN": "${NOTION_TOKEN}"
             }

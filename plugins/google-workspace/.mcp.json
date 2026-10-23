@@ -3,7 +3,7 @@
     "google_workspace": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["workspace-mcp"],
+      "args": ["workspace-mcp==2.1.2"],
       "env": {
         "GOOGLE_OAUTH_CLIENT_ID": "${GOOGLE_OAUTH_CLIENT_ID}",
         "GOOGLE_OAUTH_CLIENT_SECRET": "${GOOGLE_OAUTH_CLIENT_SECRET}",

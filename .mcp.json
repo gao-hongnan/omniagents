@@ -10,17 +10,17 @@
     "code-review-graph": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["--upgrade", "code-review-graph", "serve"]
+      "args": ["code-review-graph==2.3.9", "serve"]
     },
     "codegraph": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@colbymchenry/codegraph", "serve", "--mcp"]
+      "args": ["-y", "@colbymchenry/codegraph@1.6.2", "serve", "--mcp"]
     },
     "google_workspace": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["workspace-mcp"],
+      "args": ["workspace-mcp==2.1.2"],
       "env": {
         "GOOGLE_OAUTH_CLIENT_ID": "${GOOGLE_OAUTH_CLIENT_ID}",
         "GOOGLE_OAUTH_CLIENT_SECRET": "${GOOGLE_OAUTH_CLIENT_SECRET}",
@@ -29,7 +29,7 @@
     },
     "notionApi": {
       "command": "npx",
-      "args": ["-y", "@notionhq/notion-mcp-server"],
+      "args": ["-y", "@notionhq/notion-mcp-server@2.5.2"],
       "env": {
         "NOTION_TOKEN": "${NOTION_TOKEN}"
       }
@@ -37,7 +37,7 @@
     "playwright": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@playwright/mcp@latest"]
+      "args": ["@playwright/mcp@0.0.83"]
     }
   }
 }

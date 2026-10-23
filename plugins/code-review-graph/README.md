@@ -25,19 +25,19 @@ The plugin MCP config is in `.mcp.json`:
     "code-review-graph": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["--upgrade", "code-review-graph", "serve"]
+      "args": ["code-review-graph==2.3.9", "serve"]
     }
   }
 }
 ```
 
 `type: "stdio"` makes the transport explicit for Claude Code. Claude starts the
-server process with `uvx --upgrade code-review-graph serve`.
+server process with `uvx code-review-graph==2.3.9 serve`.
 
-The `--upgrade` flag tells `uvx` to check PyPI for a newer version before
-launching. If already at the latest version, it starts immediately from cache
-(fast path). This ensures the server auto-updates whenever a new release is
-published without any manual action required.
+The version is pinned (`==2.3.9`) so every launch runs the exact release
+this marketplace shipped and starts immediately from cache. Upgrades happen
+deliberately, as version bumps in a normal release PR — see the README bump
+policy.
 
 To force an upgrade outside of Claude:
 
@@ -59,7 +59,7 @@ Expected details include:
 Scope: Project config (shared via .mcp.json)
 Type: stdio
 Command: uvx
-Args: code-review-graph serve
+Args: code-review-graph==2.3.9 serve
 ```
 
 Then check health:
@@ -75,7 +75,7 @@ approve the project-scoped MCP server if prompted.
 If the server is found but fails to connect, run the launch command directly:
 
 ```bash
-uvx code-review-graph serve
+uvx code-review-graph==2.3.9 serve
 ```
 
 Common causes are `uvx` not being on `PATH`, network access being unavailable

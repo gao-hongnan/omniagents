@@ -403,6 +403,16 @@ string changes**, the version must advance on every published change. The
 | minor | A new skill/agent, or new guidance that changes output             |
 | major | A broken contract: renamed/removed a skill, command, or convention |
 
+### MCP server versions
+
+Every stdio MCP launch command in this repo names an **exact version**
+(`pkg@x.y.z` for `npx`, `pkg==x.y.z` for `uvx`) — no `@latest`, no `--upgrade`.
+Rolling back a release tag must also roll back the MCP code users execute, and
+an unpinned `npx`/`uvx` on every session start is a supply-chain risk. MCP
+versions are bumped in a normal release PR: update the pin in the plugin's
+`.mcp.json` (and the root `.mcp.json` copy plus the README's documented
+commands), note it under `[Unreleased]`, and release as usual.
+
 ### Channels — how users choose a version
 
 A "channel" is simply this repo added at a different git ref. Users select a
@@ -499,7 +509,7 @@ claude plugin uninstall omniagents-python@omniagents --prune --keep-data
 
 ### code-review-graph
 
-The plugin starts the server automatically via `uvx code-review-graph serve`. No
+The plugin starts the server automatically via `uvx code-review-graph==2.3.9 serve`. No
 extra configuration is needed beyond having `uv` on your PATH.
 
 Verify:
@@ -514,14 +524,14 @@ Expected output:
 Scope: Project config (shared via .mcp.json)
 Type: stdio
 Command: uvx
-Args: code-review-graph serve
+Args: code-review-graph==2.3.9 serve
 ```
 
 If the server is found but fails to connect, run the launch command directly to
 diagnose:
 
 ```bash
-uvx code-review-graph serve
+uvx code-review-graph==2.3.9 serve
 ```
 
 Common causes are `uvx` not on PATH or a first-run package download failure.
@@ -529,8 +539,8 @@ Common causes are `uvx` not on PATH or a first-run package download failure.
 ### codegraph
 
 The plugin launches [`codegraph`](https://github.com/colbymchenry/codegraph) via
-`npx -y @colbymchenry/codegraph serve --mcp`. No global install or configuration
-is needed; `npx` resolves and runs the latest published version on each launch.
+`npx -y @colbymchenry/codegraph@1.6.2 serve --mcp`. No global install or
+configuration is needed; the version is pinned so launches are reproducible.
 The server indexes the working project with tree-sitter into a local, persistent
 graph and keeps it in sync via a background file watcher.
 
@@ -546,14 +556,14 @@ Expected output:
 Scope: Project config (shared via .mcp.json)
 Type: stdio
 Command: npx
-Args: -y @colbymchenry/codegraph serve --mcp
+Args: -y @colbymchenry/codegraph@1.6.2 serve --mcp
 ```
 
 If the server is found but fails to connect, run the launch command directly to
 diagnose:
 
 ```bash
-npx -y @colbymchenry/codegraph serve --mcp
+npx -y @colbymchenry/codegraph@1.6.2 serve --mcp
 ```
 
 Common causes are `npx`/Node.js not on PATH or a first-run package download
@@ -595,7 +605,7 @@ configured to send one when present.
 
 ### google-workspace
 
-The plugin starts the MCP server via `uvx workspace-mcp`. Three environment
+The plugin starts the MCP server via `uvx workspace-mcp==2.1.2`. Three environment
 variables must be exported before launching Claude Code:
 
 ```bash
@@ -622,13 +632,13 @@ Expected output:
 Scope: Project config (shared via .mcp.json)
 Type: stdio
 Command: uvx
-Args: workspace-mcp
+Args: workspace-mcp==2.1.2
 ```
 
 ### playwright
 
 No configuration or API key is required. The plugin launches Microsoft's
-Playwright MCP via `npx @playwright/mcp@latest`, which gives agents browser
+Playwright MCP via `npx @playwright/mcp@0.0.83`, which gives agents browser
 automation driven by the accessibility tree — navigate, click, type, and capture
 structured page snapshots.
 
@@ -647,7 +657,7 @@ Expected output:
 Scope: Project config (shared via .mcp.json)
 Type: stdio
 Command: npx
-Args: @playwright/mcp@latest
+Args: @playwright/mcp@0.0.83
 ```
 
 Common flags such as `--headless`, `--browser <name>`, and `--isolated` can be
