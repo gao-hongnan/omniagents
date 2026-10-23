@@ -128,6 +128,19 @@
       ]
     },
     {
+      "name": "notion",
+      "source": "./plugins/notion",
+      "description": "Notion MCP: pages, databases, and workspace content via @notionhq/notion-mcp-server",
+      "category": "integrations",
+      "keywords": [
+        "notion",
+        "mcp",
+        "pages",
+        "databases",
+        "knowledge-base"
+      ]
+    },
+    {
       "name": "playwright",
       "source": "./plugins/playwright",
       "description": "Playwright MCP: browser automation and accessibility-tree page snapshots via Microsoft's @playwright/mcp (requires Node.js 18+)",

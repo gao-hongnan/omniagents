@@ -9,6 +9,17 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Catalogue hygiene (gap L1)** — deleted the orphaned `plugins/tech-lead/`
+  directory (a bare manifest that was never listed in the marketplace and never
+  shipped an agent), and properly catalogued `notion` (a working MCP wrapper
+  that the root `.mcp.json` already used but that was missing from
+  `marketplace.json`, the README catalogue, and the install/update/uninstall
+  lists). The 2026-07-31 skill-quality audit now carries a correction noting
+  its §3 imports were never committed. `release.sh` no longer bumps two
+  never-published manifests on every release.
+
 ## [1.3.0] - 2026-10-15
 
 ### Added

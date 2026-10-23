@@ -17,7 +17,7 @@ One marketplace lists many plugins, and each plugin entry only needs a `name`
 and a `source` telling Claude Code where to fetch it from.
 
 This repository _is_ a marketplace. The catalog lives at
-`.claude-plugin/marketplace.json`; each of the sixteen plugins under `plugins/*`
+`.claude-plugin/marketplace.json`; each of the seventeen plugins under `plugins/*`
 carries its own `.claude-plugin/plugin.json` (one further entry,
 `terraform-skill`, is sourced externally from GitHub rather than a local
 directory):
@@ -81,6 +81,7 @@ for the authoritative pages.
 | `codegraph`                  | MCP (stdio)      | Code knowledge-graph tools (symbol search, callers/callees, impact analysis)                                                                                                                           | Node.js + npm on PATH (for `npx`)                                                               |
 | `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                                                                                                           | `CONTEXT7_API_KEY`                                                                              |
 | `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                                                                                                                    | `uv` on PATH + Google OAuth creds                                                               |
+| `notion`                     | MCP (stdio)      | Notion pages, databases, and workspace content via `@notionhq/notion-mcp-server`                                                                                                                       | Node.js 18+ on PATH + Notion connection token                                                  |
 | `playwright`                 | MCP (stdio)      | Browser automation + accessibility-tree page snapshots                                                                                                                                                 | Node.js 18+ on PATH                                                                             |
 | `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                                                                                                       | macOS                                                                                           |
 | `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                                                                       | `git` + `bash`                                                                                  |
@@ -183,6 +184,8 @@ dependency the way `google-workspace` does:
 - For `context7`: a Context7 API key from <https://context7.com/dashboard>
 - For `google-workspace`: Google OAuth credentials — see
   `plugins/google-workspace/README.md`
+- For `notion`: Node.js 18+ on PATH and a Notion connection token — see
+  `plugins/notion/README.md`
 - For `playwright`: Node.js 18+ on PATH — `node --version` (first run downloads
   a browser)
 - For `notifications`: macOS (uses built-in `osascript`)
@@ -218,6 +221,7 @@ claude plugin install code-review-graph@omniagents
 claude plugin install codegraph@omniagents
 claude plugin install context7@omniagents
 claude plugin install google-workspace@omniagents
+claude plugin install notion@omniagents
 claude plugin install playwright@omniagents
 claude plugin install notifications@omniagents
 claude plugin install doc-drift@omniagents
@@ -288,7 +292,6 @@ What stays Claude-only, and why:
 | Excluded                                                                                 | Reason                                                    |
 | ---------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | `notifications`, `doc-drift`                                                             | Claude Code hook events; Codex has a different hook model |
-| `omniagents-tech-lead`                                                                   | Claude subagents/commands only — no skills to publish     |
 | `context7`, `codegraph`, `code-review-graph`, `google-workspace`, `notion`, `playwright` | MCP wrappers — add these servers natively via `codex mcp` |
 | `terraform-skill` (external)                                                             | GitHub-sourced Claude entry; install upstream directly    |
 
@@ -358,6 +361,7 @@ claude plugin update code-review-graph@omniagents
 claude plugin update codegraph@omniagents
 claude plugin update context7@omniagents
 claude plugin update google-workspace@omniagents
+claude plugin update notion@omniagents
 claude plugin update playwright@omniagents
 claude plugin update notifications@omniagents
 claude plugin update doc-drift@omniagents
@@ -469,6 +473,7 @@ claude plugin uninstall code-review-graph@omniagents --prune
 claude plugin uninstall codegraph@omniagents --prune
 claude plugin uninstall context7@omniagents --prune
 claude plugin uninstall google-workspace@omniagents --prune
+claude plugin uninstall notion@omniagents --prune
 claude plugin uninstall playwright@omniagents --prune
 claude plugin uninstall notifications@omniagents --prune
 claude plugin uninstall doc-drift@omniagents --prune
@@ -624,6 +629,20 @@ Type: stdio
 Command: uvx
 Args: workspace-mcp
 ```
+
+### notion
+
+The plugin launches the official Notion MCP server via
+`npx -y @notionhq/notion-mcp-server`. Create a connection at
+<https://app.notion.com/developers/connections> (Access-token method), then set
+the token before launching Claude Code:
+
+```bash
+export NOTION_TOKEN="ntn_your_token_here"
+claude
+```
+
+Full setup and the tool list are in `plugins/notion/README.md`.
 
 ### playwright
 
