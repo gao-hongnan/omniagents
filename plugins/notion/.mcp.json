@@ -2,9 +2,12 @@
   "mcpServers": {
     "notionApi": {
       "command": "npx",
-      "args": ["-y", "@notionhq/notion-mcp-server"],
+      "args": [
+        "-y",
+        "@notionhq/notion-mcp-server"
+      ],
       "env": {
-        "NOTION_TOKEN": "${NOTION_TOKEN}"
+        "NOTION_TOKEN": "${user_config.notion_token}"
       }
     }
   }

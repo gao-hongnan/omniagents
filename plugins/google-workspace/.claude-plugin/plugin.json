@@ -17,5 +17,26 @@
     "docs",
     "google-workspace",
     "mcp"
-  ]
+  ],
+  "userConfig": {
+    "google_oauth_client_id": {
+      "type": "string",
+      "title": "Google OAuth client ID",
+      "description": "OAuth client ID (*.apps.googleusercontent.com) of the Google Cloud project authorized for the workspace MCP server.",
+      "required": true
+    },
+    "google_oauth_client_secret": {
+      "type": "string",
+      "title": "Google OAuth client secret",
+      "description": "OAuth client secret matching the client ID above.",
+      "required": true,
+      "sensitive": true
+    },
+    "user_google_email": {
+      "type": "string",
+      "title": "Google account email",
+      "description": "The Google account email whose Gmail/Drive/Calendar the server operates on; the OAuth consent screen names it.",
+      "required": true
+    }
+  }
 }

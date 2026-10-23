@@ -21,7 +21,7 @@ The MCP server is defined in [`.mcp.json`](./.mcp.json):
             "command": "npx",
             "args": ["-y", "@notionhq/notion-mcp-server"],
             "env": {
-                "NOTION_TOKEN": "${NOTION_TOKEN}"
+                "NOTION_TOKEN": "${user_config.notion_token}"
             }
         }
     }
@@ -39,19 +39,18 @@ The MCP server is defined in [`.mcp.json`](./.mcp.json):
    connection"**
 4. Copy the token (format `ntn_****`)
 
-### 2. Export the token
+### 2. Provide the token via `userConfig`
 
-Add to your shell profile (`~/.zshrc`, `~/.bashrc`, etc.):
-
-```bash
-export NOTION_TOKEN="ntn_your_secret_here"
-```
-
-Then reload:
+The plugin declares the token as `userConfig` (`sensitive: true`) in
+`.claude-plugin/plugin.json`. Claude Code prompts for it when the plugin is
+enabled, stores it in the OS keychain, and substitutes it into the server's
+environment — nothing goes into your shell profile:
 
 ```bash
-source ~/.zshrc
+claude plugin install notion@omniagents --config notion_token="ntn_your_secret_here"
 ```
+
+To change it later: `/plugin configure notion@omniagents`.
 
 ### 3. Verify
 

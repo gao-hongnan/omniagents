@@ -181,6 +181,7 @@ dependency the way `google-workspace` does:
   `uvx --version`
 - For `codegraph`: Node.js and npm on PATH (to run `npx`) — `npx --version`
 - For `context7`: a Context7 API key from <https://context7.com/dashboard>
+  (prompted at install via `userConfig`, stored in the OS keychain)
 - For `google-workspace`: Google OAuth credentials — see
   `plugins/google-workspace/README.md`
 - For `playwright`: Node.js 18+ on PATH — `node --version` (first run downloads
@@ -562,19 +563,16 @@ telemetry controls.
 
 ### context7
 
-Set the API key in your shell before launching Claude Code:
+The plugin declares its API key as `userConfig` (`sensitive: true`): when
+you enable it, Claude Code prompts for the key, stores it in the OS keychain,
+and substitutes it into the `CONTEXT7_API_KEY` header — no shell profile
+edits. You can also set it non-interactively:
 
 ```bash
-export CONTEXT7_API_KEY="ctx7sk-your-key-here"
-claude
+claude plugin install context7@omniagents --config context7_api_key="ctx7sk-your-key-here"
 ```
 
-To make it persistent on zsh/macOS:
-
-```bash
-echo 'export CONTEXT7_API_KEY="ctx7sk-your-key-here"' >> ~/.zshrc
-source ~/.zshrc
-```
+To change it later, run `/plugin configure context7@omniagents`.
 
 Verify:
 
@@ -595,14 +593,20 @@ configured to send one when present.
 
 ### google-workspace
 
-The plugin starts the MCP server via `uvx workspace-mcp`. Three environment
-variables must be exported before launching Claude Code:
+The plugin starts the MCP server via `uvx workspace-mcp`. Its three
+credentials are declared as `userConfig`: when you enable it, Claude Code
+prompts for them (the client secret is `sensitive` and stored in the OS
+keychain; the client ID and email go to `settings.json`) and substitutes them
+into the server's environment — no shell profile edits:
 
 ```bash
-export GOOGLE_OAUTH_CLIENT_ID="<your-client-id>.apps.googleusercontent.com"
-export GOOGLE_OAUTH_CLIENT_SECRET="<your-client-secret>"
-export USER_GOOGLE_EMAIL="your.email@gmail.com"
+claude plugin install google-workspace@omniagents \
+  --config google_oauth_client_id="<your-client-id>.apps.googleusercontent.com" \
+  --config google_oauth_client_secret="<your-client-secret>" \
+  --config user_google_email="your.email@gmail.com"
 ```
+
+To change them later, run `/plugin configure google-workspace@omniagents`.
 
 Full credential setup (Google Cloud project, OAuth consent screen, client ID) is
 documented in `plugins/google-workspace/README.md`.

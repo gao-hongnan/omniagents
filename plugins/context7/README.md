@@ -14,7 +14,7 @@ The plugin MCP config is in `.mcp.json`:
       "type": "http",
       "url": "https://mcp.context7.com/mcp",
       "headers": {
-        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+        "CONTEXT7_API_KEY": "${user_config.context7_api_key}"
       }
     }
   }
@@ -31,20 +31,16 @@ configured to use one. Create a key from:
 
 <https://context7.com/dashboard>
 
-Keep the key out of this repository. Set it in your shell before launching
-Claude Code:
+Keep the key out of shell profiles and this repository. The plugin declares
+it as `userConfig` (`sensitive: true`) in `.claude-plugin/plugin.json`, so
+Claude Code prompts for it when the plugin is enabled, stores it in the OS
+keychain, and substitutes it into the header above. Non-interactive:
 
 ```bash
-export CONTEXT7_API_KEY="ctx7sk-your-key-here"
-claude
+claude plugin install context7@omniagents --config context7_api_key="ctx7sk-your-key-here"
 ```
 
-For zsh on macOS, you can make it persistent with:
-
-```bash
-echo 'export CONTEXT7_API_KEY="ctx7sk-your-key-here"' >> ~/.zshrc
-source ~/.zshrc
-```
+To change it later: `/plugin configure context7@omniagents`.
 
 ## Verification
 

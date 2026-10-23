@@ -15,5 +15,14 @@
     "productivity",
     "wiki",
     "knowledge-base"
-  ]
+  ],
+  "userConfig": {
+    "notion_token": {
+      "type": "string",
+      "title": "Notion connection token",
+      "description": "Access-token (ntn_…) from an internal integration created at app.notion.com/developers/connections.",
+      "required": true,
+      "sensitive": true
+    }
+  }
 }

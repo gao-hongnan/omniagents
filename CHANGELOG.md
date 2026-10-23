@@ -9,6 +9,19 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Secrets via `userConfig`, not shell env vars (gap M2)** — `context7`,
+  `google-workspace`, and `notion` declare their credentials in
+  `userConfig` (`sensitive: true` for API keys, OAuth client secret, and
+  Notion token). Claude Code now prompts at enable time, stores secrets in
+  the OS keychain, and substitutes `${user_config.*}` into MCP `env` and
+  `headers` — replacing the README's `export … >> ~/.zshrc` instructions,
+  which put plaintext secrets in dotfiles exposed to every process and easy
+  to commit by accident. Setup is now a prompt instead of a doc page:
+  `claude plugin install <plugin> --config <KEY>=<VALUE>` or
+  `/plugin configure <plugin>` to change later.
+
 ## [1.3.0] - 2026-10-15
 
 ### Added

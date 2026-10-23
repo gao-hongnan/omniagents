@@ -26,22 +26,24 @@ The plugin MCP config is in `.mcp.json`:
       "command": "uvx",
       "args": ["workspace-mcp"],
       "env": {
-        "GOOGLE_OAUTH_CLIENT_ID": "${GOOGLE_OAUTH_CLIENT_ID}",
-        "GOOGLE_OAUTH_CLIENT_SECRET": "${GOOGLE_OAUTH_CLIENT_SECRET}",
-        "USER_GOOGLE_EMAIL": "${USER_GOOGLE_EMAIL}"
+        "GOOGLE_OAUTH_CLIENT_ID": "${user_config.google_oauth_client_id}",
+        "GOOGLE_OAUTH_CLIENT_SECRET": "${user_config.google_oauth_client_secret}",
+        "USER_GOOGLE_EMAIL": "${user_config.user_google_email}"
       }
     }
   }
 }
 ```
 
-All three environment variables must be set before launching Claude Code. See
-[Credentials](#credentials) below.
+All three credentials are declared as `userConfig` and prompted for when the
+plugin is enabled — see [Credentials](#credentials) below.
 
 ## Credentials
 
-This server uses Google OAuth 2.0. You need to create credentials in Google
-Cloud Console and export them as environment variables.
+This server uses Google OAuth 2.0. You create credentials in Google Cloud
+Console and provide them via the plugin's `userConfig` (Claude Code prompts at
+enable time; the client secret is `sensitive` and stored in the OS keychain,
+the client ID and email in `settings.json`).
 
 ### 1. Create a Google Cloud project
 
@@ -95,21 +97,20 @@ After the consent screen exists:
 See the official guide for screenshots and detail:
 <https://developers.google.com/identity/protocols/oauth2/native-app>
 
-### 5. Export the environment variables
+### 5. Provide the credentials via `userConfig`
 
-Add these lines to your shell profile (`~/.zshrc` on macOS with zsh):
-
-```bash
-export GOOGLE_OAUTH_CLIENT_ID="<your-client-id>.apps.googleusercontent.com"
-export GOOGLE_OAUTH_CLIENT_SECRET="<your-client-secret>"
-export USER_GOOGLE_EMAIL="your.email@gmail.com"
-```
-
-Then reload:
+When the plugin is enabled, Claude Code prompts for all three values.
+Non-interactive:
 
 ```bash
-source ~/.zshrc
+claude plugin install google-workspace@omniagents \
+  --config google_oauth_client_id="<your-client-id>.apps.googleusercontent.com" \
+  --config google_oauth_client_secret="<your-client-secret>" \
+  --config user_google_email="your.email@gmail.com"
 ```
+
+To change them later: `/plugin configure google-workspace@omniagents`.
+Nothing is written to your shell profile.
 
 ### 6. Authenticate on first run
 

@@ -15,5 +15,13 @@
     "library-docs",
     "mcp",
     "upstash"
-  ]
+  ],
+  "userConfig": {
+    "context7_api_key": {
+      "type": "string",
+      "title": "Context7 API key",
+      "description": "API key from context7.com/dashboard. Sent as the CONTEXT7_API_KEY header. Optional: the server works without a key at reduced rate limits.",
+      "sensitive": true
+    }
+  }
 }
