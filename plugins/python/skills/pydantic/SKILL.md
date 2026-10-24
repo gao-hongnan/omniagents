@@ -1,18 +1,15 @@
 ---
 name: pydantic
 description: >-
-  Use when writing or reviewing modern Pydantic v2 or pydantic-settings code:
-  BaseModel boundaries, SettingsConfigDict, BaseSettings, nested environment
-  configuration, Annotated Field constraints, validators, computed fields,
-  TypeAdapter, RootModel, discriminated unions, SecretStr, serialization, or
-  production validation patterns.
+  Use when writing or reviewing Pydantic v2 or pydantic-settings code:
+  BaseModel boundaries, SettingsConfigDict, nested env configuration,
+  Annotated constraints, validators, computed fields, TypeAdapter, RootModel,
+  discriminated unions, SecretStr, or serialization patterns.
 when_to_use: >-
-  Trigger for API payload models, CLI/config models, env var settings,
-  .env/secrets loading, discriminated event payloads, nested settings via
-  env_nested_delimiter, strict validation, extra field policy, model_validate,
-  model_dump, model_copy, field_validator, model_validator, computed_field,
-  TypeAdapter, RootModel, SecretStr, and reviews where dict/Any/untyped
-  config should become explicit Pydantic models.
+  Trigger for API payload or CLI / config models, env-var settings, .env
+  loading, discriminated payloads, model_validate / field_validator /
+  computed_field, extra field policy, or dict / Any config that should
+  become explicit Pydantic models.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

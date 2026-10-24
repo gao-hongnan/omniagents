@@ -1,19 +1,15 @@
 ---
 name: api-design
 description: >-
-  Use when designing, reviewing, or implementing a REST or gRPC API contract:
-  resource names and hierarchy, standard vs custom methods, request/response
-  fields, pagination, filtering, partial updates and field masks,
-  long-running operations, error models and status codes, idempotency,
-  etags, soft delete, batch methods, versioning, or breaking changes, where
-  choices should follow Google's API Improvement Proposals (AIPs) or API
-  Design Guide.
+  Use when designing, reviewing, or implementing a REST or gRPC API
+  contract: resource hierarchy, standard vs custom methods, pagination,
+  filtering, field masks, long-running operations, error models,
+  idempotency, etags, batch methods, versioning, or breaking changes —
+  grounded in Google's AIPs.
 when_to_use: >-
-  Trigger for .proto files, OpenAPI or Swagger specs, endpoint lists, the API
-  section of a design doc or RFC, and asks like "design an endpoint", "review
-  this API", "is this a breaking change", "how should List paginate", "which
-  error code", or "cite the AIP". Do not design or review an API contract
-  from memory; load this skill first.
+  Trigger for .proto files, OpenAPI / Swagger specs, endpoint lists, the API
+  section of a design doc, and asks like "design an endpoint", "review this
+  API", "is this a breaking change", or "cite the AIP".
 argument-hint: "[design|review|implement|evolve] <spec, proto, or feature>"
 disable-model-invocation: false
 user-invocable: true

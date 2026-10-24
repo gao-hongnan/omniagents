@@ -2,15 +2,13 @@
 name: operability-review
 description: >-
   Use when reviewing code for operability issues such as missing or noisy
-  logging, absent metrics or tracing on new code paths, unreported errors,
-  unbounded timeouts or retries, unsafe migrations, missing rollout/rollback
-  paths, ungraceful shutdown, or config and secrets handling problems.
+  logging, absent metrics or tracing on new paths, unreported errors,
+  unbounded timeouts or retries, unsafe migrations, missing rollback paths,
+  ungraceful shutdown, or config and secrets handling problems.
 when_to_use: >-
-  Trigger for operability review: silent failure, log without context, PII in
-  logs, missing metric, missing trace span, swallowed error not reported,
-  hardcoded timeout, retry without budget, migration locks table, no rollback
-  path, feature flag missing, ungraceful shutdown, config drift, secret in
-  config, health check gap.
+  Trigger for operability review: silent failure, context-free logs, PII in
+  logs, missing metric or span, retry without budget, migration locking a
+  table, no rollback path, ungraceful shutdown, or secrets in config.
 disable-model-invocation: false
 user-invocable: false
 ---

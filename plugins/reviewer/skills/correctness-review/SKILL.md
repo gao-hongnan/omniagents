@@ -6,14 +6,10 @@ description: >-
   usage, broken contracts, missing error handling, edge-case gaps, or
   state-management bugs.
 when_to_use: >-
-  Trigger for correctness code review: logic bugs, type mismatches,
-  unchecked Optional/None/null, off-by-one errors, fencepost errors,
-  integer overflow, floating-point comparison, TOCTOU races, data races,
-  deadlocks, bare except, exception swallowing, missing re-raise,
-  finally-with-return, return-type violations, invariant breaks, Liskov
-  violations, mutable shared state, uninitialized variables,
-  use-after-close, empty collections, boundary values, Unicode handling,
-  timezone issues.
+  Trigger for correctness code review: fencepost and off-by-one errors,
+  floating-point comparison, TOCTOU and data races, bare except, exception
+  swallowing, finally-with-return, invariant and Liskov violations,
+  use-after-close, boundary values, Unicode handling.
 disable-model-invocation: false
 user-invocable: false
 ---

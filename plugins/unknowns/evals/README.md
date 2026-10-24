@@ -11,8 +11,22 @@ nothing: bigger is the failure the skill exists to prevent.
 
 ## Layout
 
+Cases are in the **`claude plugin eval` format** (one directory per case:
+`prompt.md` + `graders/*.md`). Run the suite with:
+
+```bash
+claude plugin eval plugins/unknowns \
+  --model claude-sonnet-4-5 --judge-model claude-sonnet-4-5 \
+  --trust-plugin --no-publish
 ```
-evals.json    # skill-creator-compatible eval set
+
+```
+<case>/
+  prompt.md          # the raw request (pasted verbatim as the baseline to beat)
+  graders/
+    shape.md         # regex floor: the response carries a 'Deeper prompt' block
+    depth-rubric.md  # llm judge: named practitioner, raw material, methods, check
+    scope-rubric.md  # llm judge: same deliverable, no work done, nothing invented
 ```
 
 Assertions carry a `kind`: `shape` (the output contract), `depth`, `scope`, or

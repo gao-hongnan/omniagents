@@ -3,18 +3,15 @@ name: docker
 description: >-
   Use when writing or reviewing Dockerfiles or docker-compose files with
   production discipline: multi-stage builds, BuildKit cache mounts,
-  base-image choice and digest pinning, non-root runtime, exec-form and
-  PID-1 signal handling, healthchecks, the canonical uv two-phase Python
-  install, compose file layering vs profiles, service_healthy dependency
-  gating, compose secrets, resource limits, SBOM/provenance, image
-  scanning and signing, tag strategy, and CI build-push shape.
+  base-image digest pinning, non-root runtime, exec-form and PID-1 signals,
+  healthchecks, the uv two-phase Python install, compose layering vs
+  profiles, SBOM / provenance, scanning and signing, and CI build-push
+  shape.
 when_to_use: >-
-  Trigger for Dockerfile*, compose*.yaml, docker-compose*.yml,
-  .dockerignore, .hadolint.yaml, image build failures, layer-cache
-  misses, container security hardening, uv-in-Docker patterns, Vite
-  static-build stages, compose dev/prod splits, healthcheck or
-  depends_on design, registry tagging, multi-arch builds, hadolint or
-  trivy gates, or "is this image production-grade" tiering questions.
+  Trigger for Dockerfile*, compose*.yml, .dockerignore, image build
+  failures, layer-cache misses, uv-in-Docker patterns, compose dev/prod
+  splits, healthcheck design, hadolint / trivy gates, or production-grade
+  tiering questions.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

@@ -1,18 +1,15 @@
 ---
 name: blindspot-pass
 description: >-
-  Use when the user is entering unfamiliar territory — a new area of the
-  codebase, a new domain, tool, or problem space — or is about to scope
-  substantial work in one, and the gap between what they asked for and what
-  the territory actually demands is likely to be large. Also use when the
-  user asks what they are missing, says they don't know what good looks like,
-  or wants help prompting better before delegating work.
+  Use when the user is entering unfamiliar territory — a new codebase,
+  domain, tool, or problem space — or is about to scope substantial work in
+  one, and the gap between what they asked for and what it demands is likely
+  large. Also for "what am I missing" or sharpening a prompt before
+  delegating.
 when_to_use: >-
   Trigger for "blindspot pass", "unknown unknowns", "what am I missing",
-  "what don't I know", "what would you ask that I haven't", "I'm new to this
-  codebase / module / domain / tool", "I don't know what good looks like
-  here", "help me prompt you better", "teach me X so I can direct the work",
-  or before planning work in an area the user has never touched.
+  "I'm new to this codebase / domain", "help me prompt you better", or
+  before planning work in an area never touched.
 argument-hint: "<task or area, plus how familiar you are with it>"
 disable-model-invocation: false
 user-invocable: true

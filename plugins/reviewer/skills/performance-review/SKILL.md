@@ -2,19 +2,13 @@
 name: performance-review
 description: >-
   Use when reviewing code for performance issues: algorithmic complexity,
-  N+1 queries, unnecessary allocations, unbounded concurrency, cache
-  misuse, blocking I/O in async context, hidden materialization, ReDoS,
-  cold-start cost, missing database indexes, connection pool exhaustion,
-  or memory leaks.
+  N+1 queries, unnecessary allocations, unbounded concurrency, cache misuse,
+  blocking I/O in async context, hidden materialization, ReDoS, missing
+  indexes, pool exhaustion, or memory leaks.
 when_to_use: >-
-  Trigger for performance code review: O(n^2) loops, N+1 queries,
-  missing database indexes, unbounded asyncio.gather, blocking I/O in
-  async, hidden materialization (list/sorted/json on large inputs),
-  cache without eviction, functools.lru_cache unbounded, ReDoS
-  patterns, connection pool exhaustion, memory leaks from retained
-  references, cold-start heavy imports, eager initialization, large
-  payload serialization without streaming, regex backtracking,
-  CPU-bound work in event loop.
+  Trigger for performance code review, profiling sessions, load-test or
+  latency regressions, and production reports of slow endpoints, memory
+  growth, or pool exhaustion.
 disable-model-invocation: false
 user-invocable: false
 ---

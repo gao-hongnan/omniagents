@@ -8,10 +8,14 @@ needed.
 
 A single **Stop** hook fires when Claude finishes responding:
 
-1. Checks `git diff --name-only HEAD` for uncommitted source-file changes
-2. If source files changed → blocks the stop and asks Claude to review docs
+1. Checks `git status` for uncommitted source-file changes
+2. If source files changed → blocks the stop **at most once per distinct
+   change set** and asks Claude to review docs
 3. Claude reads documentation, finds drift, fixes it, then stops again
 4. The hook fires again but `stop_hook_active` is `true` → exits silently
+5. On later turns, a hash of `git diff` plus the untracked list (stored in
+   `${CLAUDE_PLUGIN_DATA}`) skips re-blocking while the tree is unchanged —
+   a new change or a fresh changeset blocks again
 
 **Why not scripts with regex?** Claude is far better at detecting drift than
 pattern matching. It understands semantic changes, diagrams, function
@@ -36,7 +40,9 @@ plugins/doc-drift/
 ├── hooks/
 │   └── hooks.json           ← Stop hook declaration
 ├── scripts/
-│   └── check-doc-drift.sh   ← git diff check + prompt
+│   └── check-doc-drift.sh   ← git diff check + changeset hash + prompt
+├── tests/
+│   └── test-check-doc-drift.sh ← clean/dirty/repeated-stop cases (run in CI)
 └── README.md
 ```
 

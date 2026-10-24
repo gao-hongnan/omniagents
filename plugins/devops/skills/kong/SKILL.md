@@ -1,19 +1,15 @@
 ---
 name: kong
 description: >-
-  Use when working on Kong Gateway or Konnect and the answer must be
-  current rather than recalled: declarative configuration, GitOps with
-  decK or kongctl, Kubernetes via KIC or the Kong Operator, the
-  Terraform providers, plugin selection and ordering, auth strategy, or
-  writing a custom Lua plugin. Runs a research pass against Kong's own
-  docs before answering, because edition and version change the answer.
+  Use when working on Kong Gateway or Konnect and the answer must be current
+  rather than recalled: declarative config, GitOps with decK or kongctl,
+  Kubernetes via KIC, the Terraform providers, plugin selection, auth
+  strategy, or custom Lua plugins. Researches Kong's own docs before
+  answering.
 when_to_use: >-
-  Trigger for kong.yml, kong.conf, decK state files, KongPlugin or
-  KongIngress CRDs, handler.lua, schema.lua, `deck`/`kongctl` commands,
-  Kong Terraform providers, and questions like "how should we do auth on
-  Kong", "GitOps for Kong", "is this plugin Enterprise-only", or "how do
-  I write a custom Kong plugin" — any Kong answer where being one major
-  version or one edition wrong would be actively harmful.
+  Trigger for kong.yml, kong.conf, decK state files, KongPlugin CRDs,
+  handler.lua / schema.lua, deck / kongctl, Kong Terraform providers, or any
+  Kong question where being one version or edition wrong would be harmful.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

@@ -2,20 +2,14 @@
 name: typings
 description: >-
   Use when writing or reviewing TypeScript 6.0+ with strict type-safety:
-  tsconfig defaults and deprecations, explicit global types, rootDir / paths /
-  moduleResolution, import attributes, generics with T-prefix names, branded
-  types, discriminated unions with `never` exhaustiveness, Result types,
-  magic strings / numbers vs literal unions and named constants, Zod
-  boundaries, `satisfies`, assertion functions, inferred type predicates,
-  `using`, standard decorators, `unknown` vs `any`, or `// @ts-expect-error`.
+  tsconfig defaults, explicit global types, generics, branded types,
+  discriminated unions with `never` exhaustiveness, Result types, literal
+  unions over magic strings, Zod boundaries, `satisfies`, assertion
+  functions, or `unknown` vs `any`.
 when_to_use: >-
   Trigger for TypeScript files, tsconfig.json, eslint.config.* — typing
-  design, TS 6.0 migration, strict checker failures, deprecation warnings,
-  generics, branded types, discriminated unions, Result vs throw, Zod schema
-  boundaries, `using` / Disposable, standard decorators, inferred type
-  predicates, `satisfies`, assertion functions, const type parameters,
-  template literal types, magic-string and magic-number promotion,
-  stringly-typed parameters, or public API typing reviews.
+  design, TS 6.0 migration, strict checker failures, Result vs throw, Zod
+  boundaries, template literal types, or API typing reviews.
 paths:
   - "**/*.ts"
   - "**/*.tsx"

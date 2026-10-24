@@ -3,16 +3,13 @@ name: performance
 description: >-
   Use when Python code may fail at scale: profiling hot paths, memory
   pressure, unbounded async fan-out, backpressure, queue design, hidden
-  materialization, cache growth, expensive logging, timeouts, cancellation,
-  cProfile, tracemalloc, or performance reviews that need measurement before
-  refactoring.
+  materialization, cache growth, timeouts, cancellation, cProfile,
+  tracemalloc, or reviews that need measurement before refactoring.
 when_to_use: >-
-  Trigger for Python hot paths, memory pressure, streaming large files or
-  iterables, bounded async fan-out, asyncio.TaskGroup / gather choices,
-  asyncio.Queue backpressure, timeout and cancellation behavior, cache
-  lifetime design, functools cache usage, TTL caches, profiling, tracemalloc
-  allocation snapshots, cProfile, logging runtime metrics, or reviews where
-  performance changes need measurement before refactoring.
+  Trigger for Python hot paths, streaming large inputs, TaskGroup / gather
+  choices, queue backpressure, timeout and cancellation behavior, cache
+  lifetime design, profiling, tracemalloc, cProfile, or reviews needing
+  measurement first.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

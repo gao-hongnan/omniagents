@@ -2,18 +2,13 @@
 name: security-review
 description: >-
   Use when reviewing code for security vulnerabilities: injection (SQL,
-  command, template, log), authentication/authorization gaps, secrets in
-  code, unsafe deserialization, path traversal, SSRF, dependency
-  vulnerabilities, cryptographic misuse, data exposure, or OWASP Top 10
-  patterns.
+  command, template, log), authn/authz gaps, secrets in code, unsafe
+  deserialization, path traversal, SSRF, dependency vulnerabilities,
+  cryptographic misuse, data exposure, or OWASP Top 10 patterns.
 when_to_use: >-
-  Trigger for security code review: SQL injection, command injection,
-  template injection, log injection, XSS, CSRF, authentication bypass,
-  authorization gaps, IDOR, hardcoded secrets, API keys in code, JWT
-  misuse, unsafe deserialization, path traversal, SSRF, open redirect,
-  dependency vulnerabilities, cryptographic misuse (MD5, SHA1, ECB,
-  hardcoded keys), PII in logs, error message information leakage,
-  OWASP Top 10, CWE Top 25.
+  Trigger for security code review: XSS, CSRF, IDOR, authentication bypass,
+  JWT misuse, open redirect, PII in logs, error-message leakage, or CWE Top
+  25 patterns.
 disable-model-invocation: false
 user-invocable: false
 ---

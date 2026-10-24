@@ -14,6 +14,10 @@ validate:
 sync-codex:
 	@./scripts/sync-codex.sh
 
+.PHONY: check-frontmatter
+check-frontmatter:
+	@./scripts/check-frontmatter.sh
+
 # ==================================================================
 # Release  (lockstep — every plugin moves together under one version)
 # ==================================================================
@@ -32,6 +36,7 @@ help:
 	@echo "Quality:"
 	@echo "  make validate                Validate the marketplace manifest"
 	@echo "  make sync-codex              Regenerate the Codex marketplace from the Claude manifests"
+	@echo "  make check-frontmatter        Enforce SKILL.md frontmatter rules and listing budget"
 	@echo ""
 	@echo "Release (lockstep — all plugins share one version):"
 	@echo "  make release VERSION=x.y.z   Bump all manifests, stamp CHANGELOG, validate, commit, tag vX.Y.Z"
