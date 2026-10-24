@@ -34,9 +34,6 @@ is fetched (the `source` field inside `marketplace.json`). They are pinned
 independently: marketplace sources support a branch/tag `ref`; plugin sources
 support both `ref` and an exact commit `sha`.
 
-For a visual overview of why this model pays off across an organization, open
-[`marketplace-benefits.html`](./marketplace-benefits.html) in a browser.
-
 ---
 
 ## Creating a marketplace and a plugin
@@ -413,7 +410,7 @@ re-adding the marketplace at a different ref **replaces** the prior registration
 | Channel           | Add command                                             | Tracks                   |
 | ----------------- | ------------------------------------------------------- | ------------------------ |
 | Latest            | `/plugin marketplace add gao-hongnan/omniagents`        | `main`                   |
-| Pinned / rollback | `/plugin marketplace add gao-hongnan/omniagents@v0.1.0` | an immutable version tag |
+| Pinned / rollback | `/plugin marketplace add gao-hongnan/omniagents#v0.1.0` | an immutable version tag |
 
 After switching or rolling back, run `/plugin marketplace update omniagents` and
 `/reload-plugins`.

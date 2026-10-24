@@ -9,6 +9,61 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Tests for the bundled Python tooling (gap M5)** — `pytest` suite
+  (`plugins/reviewer/tests/`) covering `review-contract/schema.py` (the
+  contract validator the reviewer pipeline and evals depend on): one valid and
+  one invalid artifact per schema kind (Finding, SpecialistReport,
+  ReviewReport), renderer citation guarantees, scope enforcement, confidence
+  floors, and CLI exit codes; plus `post_pr_comments.py`'s offline `--dry-run`
+  path (no network, no `gh`, no git repo). Runs in the M1 CI workflow. The
+  dry-run tests caught a real bug: with `gh` absent from PATH the script
+  crashed with `FileNotFoundError` instead of printing placeholder payloads —
+  fixed to raise the `RuntimeError` the dry-run path already handles.
+
+### Fixed
+
+- **`doc-drift` blocks at most once per change set (gap M4)** — the Stop hook
+  re-blocked on every turn while the tree was dirty (`stop_hook_active` only
+  suppresses the loop within one stop sequence), costing tokens every turn
+  until the user commits. It now stores a hash of `git diff` plus the
+  untracked list in `${CLAUDE_PLUGIN_DATA}` and stays silent while the tree
+  is unchanged; a clean tree clears the state so the next change set blocks
+  again. New `plugins/doc-drift/tests/test-check-doc-drift.sh` covers clean
+  pass, first dirty block, repeated-stop silence, new-changeset re-block, and
+  state clearing — and runs in the M1 CI workflow.
+
+### Added
+
+- **`make check-links`** (gap L2) — `scripts/check-links.sh` fails on broken
+  relative markdown links across `README.md` and `plugins/**/*.md`, skipping
+  fenced code blocks and inline code spans. The same check runs in CI (M1).
+- **CI on every pull request and push to `main` (gap M1)** — new
+  `.github/workflows/validate.yml` gates: `claude plugin validate . --strict`
+  plus each `plugins/*/` with `--strict`; Codex artifact drift
+  (`sync-codex.sh` + `git diff --exit-code`); broken relative markdown links
+  (`make check-links`); and skill frontmatter rules (`make
+  check-frontmatter`: `name` equals the directory, `description` 1–1,024
+  chars, `description`+`when_to_use` ≤ 1,536 per skill, and a full-suite
+  listing budget currently ratcheted at 24,000 chars, to be lowered to 15,000
+  by the M3 metadata diet). The workflow is hardened per the repo's own
+  rules: SHA-pinned actions, `permissions: contents: read`, pinned CLI. Also
+  trimmed `python/testing` `when_to_use` by 9 chars — it had regressed past
+  the 1,536 per-skill cap (audit F2).
+
+### Fixed
+
+- **Docs correctness (gap L2)** — removed the stale link to the deleted
+  `marketplace-benefits.html`; corrected the pinned-channel command from
+  `marketplace add gao-hongnan/omniagents@v0.1.0` to the documented
+  `#v0.1.0` ref syntax; rewrote the vendored `drawio` README's
+  upstream-relative links (`../../shared/…`, `../../mcp-tool-server/…`) to
+  absolute URLs at the pinned upstream commit, with the rewrite now applied by
+  `sync-drawio.sh` on every re-sync; de-linked a broken
+  `../patterns/observability/intro` reference in
+  `omniagents-writing:measured-persuasion`.
+
 ## [1.3.0] - 2026-10-15
 
 ### Added
