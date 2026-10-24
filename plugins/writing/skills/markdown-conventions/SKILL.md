@@ -5,11 +5,9 @@ description: >-
   Markdown, MyST, README files, docs pages, Markdown tables, fenced code
   examples, links, images, citations, or markdownlint / Prettier output.
 when_to_use: >-
-  Trigger for `.md` / `.markdown` files, generated docs, READMEs, markdownlint
-  warnings, Prettier markdown formatting, CommonMark syntax choices, MyST
-  citations, table cleanup, heading hierarchy, code-fence language tags,
-  bare URLs, missing image alt text, noisy line wrapping, or citation hygiene
-  in Markdown documents.
+  Trigger for `.md` / `.markdown` files, READMEs, markdownlint warnings,
+  Prettier markdown formatting, MyST citations, table cleanup, heading
+  hierarchy, code-fence language tags, bare URLs, or missing alt text.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

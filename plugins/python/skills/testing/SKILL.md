@@ -2,28 +2,15 @@
 name: testing
 description: >-
   Use when writing or reviewing Python tests: pytest suite architecture and
-  gate tiers, fixtures and conftest layering, parametrize and subtests, mock /
-  monkeypatch boundaries, httpx.MockTransport / respx and the remote-failure
-  taxonomy, retry / circuit-breaker / idempotency assertions, flaky or
-  order-dependent tests, sleep-based waits, time and randomness control,
-  network hermeticity enforcement, pytest-asyncio / anyio, hypothesis
-  property-based tests, testcontainers integration suites, syrupy snapshots,
-  type-level tests, log and OpenTelemetry span assertions, coverage and
-  mutation gates, memory and benchmark gates, LLM eval boundaries, or pytest
-  configuration in pyproject.toml.
+  gate tiers, fixtures and conftest layering, parametrize, mock boundaries
+  and the remote-failure taxonomy, flaky tests, sleeps and time control,
+  network hermeticity, pytest-asyncio, hypothesis, testcontainers, coverage
+  and mutation gates, or pytest configuration in pyproject.toml.
 when_to_use: >-
-  Trigger for test files (test_*.py, conftest.py), writing unit or
-  integration tests, adding a regression test for a bugfix, test-only diffs,
-  flaky tests, sleep in tests, unseeded randomness, mock or patch target
-  choices, autospec, fixture scope and autouse decisions, async test hangs,
-  mutation testing (mutmut), xdist parallelization, filterwarnings,
-  tmp_path / env-var isolation, caplog / capsys log assertions, test data
-  factories (polyfactory), Pact / schemathesis contract testing,
-  assert_type / pytest-mypy-plugins,
-  benchmark or performance-regression gates (pytest-benchmark, codspeed),
-  memory limits and leak detection (memray), tests reaching the real network,
-  deadlocks or thread-race stress, fuzzing, chaos or fault-injection requests,
-  LLM / agent eval suites (deepeval), or pytest config changes.
+  Trigger for test files (test_*.py, conftest.py), test-only diffs,
+  regression tests, flaky tests, sleeps, autospec / patch targets, fixture
+  scope and autouse, async hangs, mutmut, xdist, tmp_path isolation, caplog,
+  polyfactory, Pact, or pytest config edits.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

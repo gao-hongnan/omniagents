@@ -1,16 +1,14 @@
 ---
 name: review-contract
 description: >-
-  Use when producing or consuming structured code review findings.
-  Defines the shared output contract, severity rubric, finding schema,
-  per-specialist report shape, and final aggregated report shape
-  that all reviewer specialist agents must follow and the verifier
-  agent enforces.
+  Use when producing or consuming structured code review findings. Defines
+  the output contract, severity rubric, finding schema, per-specialist
+  report shape, and final aggregated report that specialist agents follow
+  and the verifier enforces.
 when_to_use: >-
-  Trigger for any reviewer specialist agent (correctness, security,
-  performance, design, testing) producing findings, or the verifier agent aggregating
-  and deduplicating findings into a final review report. Also use
-  when reviewing or validating structured review reports.
+  Trigger for any reviewer specialist agent producing findings, the verifier
+  agent aggregating and deduplicating them, or reviewing / validating
+  structured review reports.
 disable-model-invocation: false
 user-invocable: false
 ---

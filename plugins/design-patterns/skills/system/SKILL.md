@@ -1,13 +1,11 @@
 ---
 name: system
 description: >-
-  Use when designing or reviewing cross-service, cross-process, regional, or
-  operator-facing system shape: timeouts, retries, circuit breakers, bulkheads,
-  rate limits, idempotency, DLQs, REST/gRPC/GraphQL/pub-sub, service mesh,
-  webhooks, Saga, Raft/Paxos, distributed locks, CQRS, event sourcing, outbox,
-  sharding, replication, caching, autoscaling, sidecars, strangler migrations,
-  distributed monoliths, cascading failures, retry storms, shared databases,
-  capacity planning, or what breaks at the next 10× load.
+  Use when designing or reviewing cross-service or operator-facing system
+  shape: timeouts, retries, circuit breakers, bulkheads, rate limits,
+  idempotency, DLQs, pub-sub, distributed locks, CQRS, event sourcing,
+  outbox, sharding, replication, caching, autoscaling, strangler
+  migrations, or what breaks at the next 10x load.
 ---
 
 # System Patterns — Across Services

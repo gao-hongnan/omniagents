@@ -3,15 +3,13 @@ name: library-patterns
 description: >-
   Use when writing or reviewing TypeScript that wraps a network service or
   authors a client SDK: client construction, per-request options, retry
-  policy with maxNetworkRetries, idempotency keys, `APIError` hierarchies,
-  structured outputs via `zodResponseFormat` / `zodTextFormat`, streaming
-  with AbortController, cursor pagination, or telemetry hooks.
+  policy, idempotency keys, `APIError` hierarchies, zod-typed outputs,
+  streaming with AbortController, cursor pagination, or telemetry hooks.
 when_to_use: >-
-  Trigger when designing an HTTP/SDK client, wrapping openai / anthropic /
-  stripe SDKs, defining error classes, building Zod-typed config, threading
-  a `requestId` through logs, implementing streaming with cancellation,
-  parsing model output through Zod, or reviewing any module owning an
-  outbound connection.
+  Trigger when designing an HTTP / SDK client, wrapping openai / anthropic /
+  stripe SDKs, defining error classes, threading a `requestId`, streaming
+  with cancellation, parsing output through Zod, or reviewing any module
+  owning an outbound connection.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

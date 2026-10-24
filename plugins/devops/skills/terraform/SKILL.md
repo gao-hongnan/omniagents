@@ -1,20 +1,16 @@
 ---
 name: terraform
 description: >-
-  Use when writing or reviewing Terraform 1.11+ modules with strict
-  hygiene enforced: standard module structure, variable/output
-  conventions, composition and dependency inversion, feature flags,
-  remote state with S3 native locking, directory-per-environment layout,
-  version pinning, secrets via ephemeral resources / write-only
-  arguments, security-group least privilege, default_tags, and the
-  fmt/validate/tflint/trivy gate pipeline.
+  Use when writing or reviewing Terraform 1.11+ modules with strict hygiene:
+  standard module structure, variable / output conventions, composition and
+  dependency inversion, remote state with S3 native locking,
+  directory-per-environment layout, version pinning, write-only secrets,
+  default_tags, and the tflint / trivy gate.
 when_to_use: >-
   Trigger for .tf / .tfvars / .tftest.hcl files, module design reviews,
-  terraform init/plan/apply hygiene, backend or state layout decisions,
-  environment splitting, provider/module version pinning,
-  .terraform.lock.hcl, tagging standards, IaC security gates, tflint or
-  trivy config, terraform test authoring, moved/import/removed refactors,
-  or "is this module enterprise-grade" tiering questions.
+  init/plan/apply hygiene, backend or state layout, environment splitting,
+  tflint / trivy config, moved/import/removed refactors, or enterprise-grade
+  tiering questions.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

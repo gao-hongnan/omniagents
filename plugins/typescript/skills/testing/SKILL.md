@@ -1,22 +1,16 @@
 ---
 name: testing
 description: >-
-  Use when writing or reviewing TypeScript tests: Vitest 4 suite architecture
-  and projects config, typed mocks and vi.fn / vi.spyOn / vi.mock choices, MSW
-  at the network boundary, fake timers and async assertion ordering, flaky or
-  order-dependent tests, Testing Library component tests, fast-check
-  property-based tests, expectTypeOf type-level tests, testcontainers
-  integration suites, snapshots, coverage thresholds, or vitest.config /
-  ESLint test-rule configuration.
+  Use when writing or reviewing TypeScript tests: Vitest 4 suite
+  architecture, typed mocks and vi.fn / vi.mock choices, MSW at the network
+  boundary, fake timers and async assertion ordering, flaky tests, Testing
+  Library component tests, fast-check, expectTypeOf, testcontainers, or
+  vitest configuration.
 when_to_use: >-
-  Trigger for *.test.ts(x) / *.test-d.ts files, vitest.config.*, writing unit
-  or integration tests, adding a regression test for a bugfix, test-only
-  diffs, flaky tests, real setTimeout waits in tests, unawaited
-  expect().rejects, unseeded randomness, vi.mock vs dependency injection
-  decisions, mock restore/reset hygiene, jsdom vs node environment choices,
-  snapshot bloat, coverage thresholds, vi.stubEnv / vi.stubGlobal isolation,
-  vi.hoisted mock setup, test data builders, Pact contract testing,
-  vitest-axe accessibility, or ESLint rules for test files.
+  Trigger for *.test.ts(x) / *.test-d.ts files, vitest.config.*, test-only
+  diffs, regression tests, flaky tests, setTimeout waits, unawaited
+  expect().rejects, vi.mock vs DI, snapshot bloat, vi.stubEnv isolation, or
+  ESLint test rules.
 paths:
   - "**/*.test.ts"
   - "**/*.test.tsx"

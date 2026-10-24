@@ -3,15 +3,14 @@ name: library-patterns
 description: >-
   Use when writing or reviewing Python that wraps a network service or
   authors a client SDK: client construction, async lifecycle, granular
-  timeouts, retry policy, idempotency keys, structured exception hierarchies,
-  per-request overrides, structured outputs with Pydantic, streaming via
-  async context managers, request-id propagation, or pagination.
+  timeouts, retry policy, idempotency keys, exception hierarchies, Pydantic
+  outputs, streaming via async context managers, request-id propagation, or
+  pagination.
 when_to_use: >-
-  Trigger when designing an HTTP/SDK client, wrapping openai / anthropic /
-  stripe / httpx / requests, defining error classes, building a config
-  object for a network call, threading a request_id through logs,
-  implementing streaming with cancellation, parsing model output into
-  Pydantic models, or reviewing any module owning an outbound connection.
+  Trigger when designing an HTTP / SDK client, wrapping openai / anthropic /
+  stripe / httpx, defining error classes, threading a request_id, streaming
+  with cancellation, parsing output into Pydantic models, or reviewing a
+  module owning an outbound connection.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

@@ -6,10 +6,10 @@ description: >-
   cases, snapshot overuse, flaky timing, or tests that miss user-visible
   behavior.
 when_to_use: >-
-  Trigger for testing review: missing tests, no regression test, weak
-  assertion, assert called not outcome, brittle mock, over-mocking, fixture
-  pollution, snapshot-only test, flaky async test, sleep in test, time-based
-  flake, randomness, missing error path, missing edge case, untested public API.
+  Trigger for testing review: missing or no regression tests, weak
+  assertions, assert-called-not-outcome, brittle or over-used mocks, fixture
+  pollution, snapshot-only tests, flaky async or time-based tests, untested
+  public API.
 disable-model-invocation: false
 user-invocable: false
 ---

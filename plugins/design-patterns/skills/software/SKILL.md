@@ -1,12 +1,10 @@
 ---
 name: software
 description: >-
-  Use when designing or reviewing Python code shape inside one service:
-  module/class boundaries, GoF patterns, DDD, functional Result/Option/ADT
-  shapes, in-process concurrency, package architecture, code smells,
-  anti-patterns, refactors, "what pattern?", "where should X live?", or
-  "how should I model this?". For cross-service or distributed concerns, use
-  the system skill instead.
+  Use when designing or reviewing implementation-level patterns and
+  anti-patterns within a service: GoF catalogue, functional error
+  handling, concurrency primitives, DDD tactical patterns, and the
+  named anti-pattern catalogues (architectural, functional, concurrency).
 ---
 
 # Software Patterns — Inside One Service

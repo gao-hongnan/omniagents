@@ -3,13 +3,12 @@ name: coding-teacher
 description: >-
   Use when the user wants to deeply understand a bug, PR, refactor, feature,
   codebase flow, or design decision through structured Socratic dialogue.
-  Triggers on "teach me", "explain deeply", "I want to understand", "walk me
-  through", "help me learn", "deep dive", or /coding-teacher.
+  Triggers on "teach me", "explain deeply", "I want to understand", or
+  /coding-teacher.
 when_to_use: >-
-  Trigger for: understanding a bug's root cause, reviewing a PR for learning
-  (not just approval), tracing a feature's code path, unpacking a design
-  decision, a debugging session walkthrough, or any request where the goal
-  is verified understanding rather than task completion.
+  Trigger for: understanding a bug's root cause, reviewing a PR for
+  learning, tracing a code path, unpacking a design decision, or any request
+  where the goal is verified understanding, not task completion.
 argument-hint: "[topic, file, PR, bug, or task]"
 disable-model-invocation: true
 user-invocable: true

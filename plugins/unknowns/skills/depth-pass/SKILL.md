@@ -2,16 +2,15 @@
 name: depth-pass
 description: >-
   Use when the user wants a deeper version of a task rather than a bigger
-  one: the same deliverable, done the way a top professional in the field
-  would do it. Also use when they ask to deepen a prompt before work starts,
-  or say an answer feels generic. Do not answer a request for depth with a
-  longer or broader version of the same work; load this skill first.
+  one: the same deliverable, done the way a top professional would do it.
+  Also when they ask to deepen a prompt before work starts, or say an answer
+  feels generic. Never answer a request for depth by making it longer or
+  broader — load this skill first.
 when_to_use: >-
   Trigger for "deeper, not bigger", "depth pass", "what would a top
-  professional do here", "how would an expert actually do this", "where
-  would a pro start", "this feels surface-level", or "upgrade my prompt
-  before I run it". Not for tasks the user simply wants done; for
-  unfamiliar territory, run blindspot-pass first.
+  professional do here", "this feels surface-level", or "upgrade my prompt
+  before I run it". Not for tasks simply wanted done; for unfamiliar
+  territory, run blindspot-pass first.
 argument-hint: "<the prompt or task to deepen>"
 disable-model-invocation: false
 user-invocable: true

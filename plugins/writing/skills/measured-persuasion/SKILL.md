@@ -2,15 +2,13 @@
 name: measured-persuasion
 description: >-
   Use when writing technical strategy memos, proposals, experiment designs,
-  RFCs, investment justifications, executive narratives, or persuasive
-  documents where skeptical decision-makers need evidence, caveats, tradeoffs,
-  and a measured, intellectually honest tone.
+  RFCs, investment justifications, or executive narratives where skeptical
+  decision-makers need evidence, caveats, tradeoffs, and a measured,
+  intellectually honest tone.
 when_to_use: >-
-  Trigger for "write a proposal", "draft a memo", "strategy document",
-  "make the case for", "persuade leadership", "justify investment",
-  "experiment design", "executive narrative", "technical brief", or any draft
-  where the reader must decide whether to approve, fund, prioritize, or change
-  direction based on evidence.
+  Trigger for "write a proposal", "draft a memo", "make the case for",
+  "persuade leadership", "justify investment", "experiment design", or any
+  draft where the reader must approve, fund, or reprioritize on evidence.
 argument-hint: "<TARGET>"
 disable-model-invocation: false
 user-invocable: true

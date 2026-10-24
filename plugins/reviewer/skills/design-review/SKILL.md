@@ -2,14 +2,13 @@
 name: design-review
 description: >-
   Use when reviewing code for maintainability issues such as coupling,
-  cohesion, abstraction leaks, boundary drift, code smells, naming problems,
-  duplicated logic, premature generalization, or design-pattern misuse.
+  cohesion, abstraction leaks, boundary drift, code smells, duplicated
+  logic, premature generalization, or design-pattern misuse.
 when_to_use: >-
-  Trigger for design code review: high coupling, low cohesion, leaky
-  abstraction, unclear boundary, misplaced responsibility, feature envy,
-  shotgun surgery, long function, duplicated logic, primitive obsession,
-  boolean flag parameter, god object, premature abstraction, inconsistent
-  local pattern, misleading name, SOLID violation, layer violation.
+  Trigger for design code review: coupling and cohesion problems, leaky
+  abstractions, feature envy, shotgun surgery, primitive obsession, god
+  objects, premature abstraction, SOLID or layer violations, misleading
+  names.
 disable-model-invocation: false
 user-invocable: false
 ---

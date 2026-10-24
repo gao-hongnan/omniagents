@@ -1,22 +1,16 @@
 ---
 name: typings
 description: >-
-  Use when writing or reviewing Python 3.14+ with strict type-safety enforced:
-  generics with PEP 695 syntax, annotationlib / deferred annotations,
-  Protocol vs ABC, ParamSpec decorators, TypeIs / TypeGuard narrowing,
-  TypedDict / ReadOnly, magic strings / numbers vs Literal / StrEnum / Final,
-  NewType vs aliases, domain IDs vs bare str/int primitives (primitive
-  obsession), or any time mypy / pyright / pyrefly / ty is configured, run,
-  or failing.
+  Use when writing or reviewing Python 3.14+ with strict type-safety
+  enforced: PEP 695 generics, deferred annotations, Protocol vs ABC,
+  ParamSpec decorators, TypeIs narrowing, TypedDict / ReadOnly, Literal /
+  StrEnum / Final over magic strings, NewType domain IDs, or any time mypy
+  or pyright is configured, run, or failing.
 when_to_use: >-
   Trigger for Python files, pyproject typing configuration, strict checker
-  failures, type annotation design, runtime annotation introspection,
-  PEP 695 generics, PEP 696 defaults, PEP 705 ReadOnly TypedDict keys,
-  PEP 742 TypeIs predicates, PEP 649 / PEP 749 deferred annotations, decorator
-  signatures, Protocol boundaries, NewType identifiers, enum/literal choices,
-  magic-string and magic-number promotion, stringly-typed parameters,
-  isinstance coercion helpers, bare-primitive parameters needing domain IDs,
-  or public API typing reviews.
+  failures, annotation design, runtime introspection, Protocol boundaries,
+  isinstance coercion helpers, bare primitives needing domain IDs, or API
+  typing reviews.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

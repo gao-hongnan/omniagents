@@ -1,12 +1,11 @@
 ---
 name: codebase-design
 description: >-
-  Use when designing or improving a module's interface, judging whether a
-  wrapper or layer earns its keep, deciding where a seam belongs, or making code
-  testable through its interface. Supplies the interface-depth vocabulary — deep
-  vs shallow modules, information hiding, the deletion test, seams, design it
-  twice. The depth lens that complements the pattern catalogue: it answers "is
-  this interface earning its complexity?", not "which pattern?".
+  Use when reviewing or deciding codebase-level module design the Ousterhout
+  way: deep vs shallow modules, information hiding, the deletion test,
+  design-it-twice, interface depth over surface area — for service
+  boundaries, layering, package structure, or when a refactor is really a
+  redesign.
 ---
 
 # Codebase Design — Interface Depth

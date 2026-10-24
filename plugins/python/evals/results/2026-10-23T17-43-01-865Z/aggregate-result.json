@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.296",
+  "startedAt": "2026-10-23T17:43:01.865Z",
+  "durationSeconds": 0,
+  "costUsd": 0,
+  "partial": true,
+  "partialReason": "auth_failed",
+  "suite": {
+    "root": "/Users/donda/Projects/omniagents/plugins/python",
+    "ablation": "with-without",
+    "modelOverride": "claude-sonnet-4-5",
+    "judgeModel": "claude-sonnet-4-5",
+    "caseFilter": "typings-should-trigger",
+    "threshold": 1,
+    "concurrency": 1,
+    "plugins": [
+      {
+        "name": "omniagents-python",
+        "version": "1.3.0",
+        "path": "/Users/donda/Projects/omniagents/plugins/python"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "typings-should-trigger",
+      "dir": "evals/typings-should-trigger",
+      "source": "prose",
+      "promptMarkdown": "Here is a Python function from our billing service — the parameters and return type are untyped and callers keep passing the wrong things. Tighten its type hints to production standard (closed sets as Literal, no bare dict/str soup, precise generics) and explain each choice briefly:\n\n```python\ndef find_invoices(customer, status, since, limit=None):\n    ...\n```",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?typings\""
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0,
+            "judgeCostUsd": 0,
+            "durationSeconds": 0,
+            "startedAt": "2026-10-23T17:43:01.879Z",
+            "error": "exit 1: Not logged in · Please run /login",
+            "tracePath": "/private/tmp/e-yW4dmU/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0,
+        "passRate": 0
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 1,
+    "casesPassed": 0,
+    "overallScore": 0,
+    "overallPassRate": 0
+  }
+}

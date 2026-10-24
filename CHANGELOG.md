@@ -9,6 +9,93 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Skill listing metadata diet (gap M3)** — the full-suite total of
+  `description` + `when_to_use` across all 32 skills is trimmed from 22,618
+  to **14,970 characters**, back under the ~15,000-character default listing
+  budget (≈1% of context). Above it, Claude Code silently drops skill
+  descriptions least-invoked-first — installed skills become inert without
+  anyone noticing. Method: the audit's F2 rule — delete `when_to_use` items
+  duplicated by the description, keep every primary trigger as the first
+  sentence (truncation cuts from the end), keep file-type triggers. The
+  frontmatter gate now enforces the 15,000 budget in CI, so the diet holds.
+  The H1 trigger evals (`python:typings`, `python:testing`,
+  `devops:github-actions` should/should-not-fire cases) are the regression
+  net for activation.
+
+### Added
+
+- **Evals in the official `claude plugin eval` format (gap H1)** — the reviewer
+  (7 cases) and `depth-pass` (6 cases) suites are ported from the manual
+  skill-creator `evals.json` layout to per-case directories (`prompt.md`,
+  `case.yaml`, `graders/*.md`), reusing the seeded-bug fixtures via per-case
+  `scaffold_script`s; recall assertions became `regex` graders on
+  `review.json`, artifact checks became `file_exists`/`regex`, precision and
+  depth/scope assertions became `llm` rubric graders. New trigger guards —
+  `python:typings`, `python:testing`, `devops:github-actions` — each with a
+  should-fire and a should-not-fire case scored by a `tool_used` (Skill)
+  grader, so description edits that silently kill activation show as a
+  with-vs-without delta. A manual (`workflow_dispatch`) **VALIDATE** job runs
+  every suite with pinned models, `--trust-plugin`, a `--max-cost-usd`
+  ceiling, and archives `results.json`; the release checklist now records the
+  pass rate and the ablation delta in each release's CHANGELOG section.
+
+### Added
+
+- **Tests for the bundled Python tooling (gap M5)** — `pytest` suite
+  (`plugins/reviewer/tests/`) covering `review-contract/schema.py` (the
+  contract validator the reviewer pipeline and evals depend on): one valid and
+  one invalid artifact per schema kind (Finding, SpecialistReport,
+  ReviewReport), renderer citation guarantees, scope enforcement, confidence
+  floors, and CLI exit codes; plus `post_pr_comments.py`'s offline `--dry-run`
+  path (no network, no `gh`, no git repo). Runs in the M1 CI workflow. The
+  dry-run tests caught a real bug: with `gh` absent from PATH the script
+  crashed with `FileNotFoundError` instead of printing placeholder payloads —
+  fixed to raise the `RuntimeError` the dry-run path already handles.
+
+### Fixed
+
+- **`doc-drift` blocks at most once per change set (gap M4)** — the Stop hook
+  re-blocked on every turn while the tree was dirty (`stop_hook_active` only
+  suppresses the loop within one stop sequence), costing tokens every turn
+  until the user commits. It now stores a hash of `git diff` plus the
+  untracked list in `${CLAUDE_PLUGIN_DATA}` and stays silent while the tree
+  is unchanged; a clean tree clears the state so the next change set blocks
+  again. New `plugins/doc-drift/tests/test-check-doc-drift.sh` covers clean
+  pass, first dirty block, repeated-stop silence, new-changeset re-block, and
+  state clearing — and runs in the M1 CI workflow.
+
+### Added
+
+- **`make check-links`** (gap L2) — `scripts/check-links.sh` fails on broken
+  relative markdown links across `README.md` and `plugins/**/*.md`, skipping
+  fenced code blocks and inline code spans. The same check runs in CI (M1).
+- **CI on every pull request and push to `main` (gap M1)** — new
+  `.github/workflows/validate.yml` gates: `claude plugin validate . --strict`
+  plus each `plugins/*/` with `--strict`; Codex artifact drift
+  (`sync-codex.sh` + `git diff --exit-code`); broken relative markdown links
+  (`make check-links`); and skill frontmatter rules (`make
+  check-frontmatter`: `name` equals the directory, `description` 1–1,024
+  chars, `description`+`when_to_use` ≤ 1,536 per skill, and a full-suite
+  listing budget currently ratcheted at 24,000 chars, to be lowered to 15,000
+  by the M3 metadata diet). The workflow is hardened per the repo's own
+  rules: SHA-pinned actions, `permissions: contents: read`, pinned CLI. Also
+  trimmed `python/testing` `when_to_use` by 9 chars — it had regressed past
+  the 1,536 per-skill cap (audit F2).
+
+### Fixed
+
+- **Docs correctness (gap L2)** — removed the stale link to the deleted
+  `marketplace-benefits.html`; corrected the pinned-channel command from
+  `marketplace add gao-hongnan/omniagents@v0.1.0` to the documented
+  `#v0.1.0` ref syntax; rewrote the vendored `drawio` README's
+  upstream-relative links (`../../shared/…`, `../../mcp-tool-server/…`) to
+  absolute URLs at the pinned upstream commit, with the rewrite now applied by
+  `sync-drawio.sh` on every re-sync; de-linked a broken
+  `../patterns/observability/intro` reference in
+  `omniagents-writing:measured-persuasion`.
+
 ## [1.3.0] - 2026-10-15
 
 ### Added

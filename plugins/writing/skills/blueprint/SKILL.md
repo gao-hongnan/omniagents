@@ -2,21 +2,15 @@
 name: blueprint
 description: >-
   Generate standalone HTML + inline-SVG technical diagrams that come out
-  format-clean every time — text that always fits its box, arrows that actually
-  connect, no overlaps, no drift. Works by planning a coordinate grid first and
-  sizing every box with monospace arithmetic instead of guessing pixels, then
-  self-checking the geometry before delivery. Output is a single self-contained
-  .html file (no build step, no dependencies) that opens in any browser.
+  format-clean every time — text that fits its box, arrows that connect, no
+  overlaps. Plans a coordinate grid first, sizes boxes with monospace
+  arithmetic, and self-checks the geometry; one self-contained .html file
+  opens anywhere.
 when_to_use: >-
-  Use whenever the user asks you to draw, generate, build, or hand-code a
-  diagram as HTML or SVG — architecture diagrams, layered system maps,
-  flowcharts, box-and-arrow diagrams, pipelines, data flows, network topology,
-  request lifecycles, or a "diagram in HTML". Reach for it ESPECIALLY when the
-  user has been fighting format problems in generated diagrams (text spilling
-  out of boxes, arrows landing in empty space, overlapping nodes, messy
-  alignment), wants a single copy-paste HTML file rather than a rendered tool,
-  or wants to reproduce / extend a dense hand-authored SVG diagram. Prefer this
-  over free-hand SVG whenever geometric precision matters.
+  Use whenever the user asks for a diagram as HTML or SVG — architecture,
+  flowchart, pipeline, data-flow, topology, or lifecycle diagrams;
+  especially when fighting format problems in generated diagrams, when one
+  copy-paste HTML file is wanted, or when reproducing a dense SVG.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:

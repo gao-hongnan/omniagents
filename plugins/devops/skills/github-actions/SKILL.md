@@ -1,21 +1,16 @@
 ---
 name: github-actions
 description: >-
-  Use when writing or reviewing GitHub Actions workflows or custom
-  actions with production discipline: least-privilege GITHUB_TOKEN
-  permissions, SHA-pinned `uses` with automated bumps, script-injection
-  safety, concurrency groups and job timeouts, shell and pipefail
-  discipline, matrix and cache design, reusable workflows vs composite
-  actions, fork-PR trust boundaries, OIDC instead of long-lived cloud
-  secrets, environments and deployment gates, and the actionlint/zizmor
-  gate.
+  Use when writing or reviewing GitHub Actions workflows or custom actions
+  with production discipline: least-privilege permissions, SHA-pinned `uses`
+  with automated bumps, script-injection safety, concurrency and timeouts,
+  shell discipline, matrix and cache design, reusable vs composite actions,
+  fork-PR trust boundaries, OIDC, and actionlint / zizmor gates.
 when_to_use: >-
-  Trigger for .github/workflows/*.yml, action.yml, composite or
-  JavaScript action authoring, dependabot.yml, workflow review, slow or
-  flaky pipelines, cache misses, required checks stuck pending,
-  merge-queue failures, secrets in CI, fork-PR hardening, self-hosted
-  runners, release/publish automation, or "is this workflow
-  production-grade" tiering questions.
+  Trigger for .github/workflows/*.yml, action.yml, composite or JavaScript
+  action authoring, dependabot.yml, slow or flaky pipelines, cache misses,
+  required checks stuck pending, merge-queue failures, secrets in CI, or
+  fork-PR hardening.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []

@@ -2,17 +2,14 @@
 name: docstrings
 description: >-
   Use when writing or reviewing Python docstrings for public modules,
-  classes, functions, methods, properties, generators, overloads, doctest
-  examples, or generated Sphinx API documentation, especially when choosing
-  NumPy vs Sphinx style or deciding which Parameters, Returns, Yields,
-  Raises, Warns, Attributes, Notes, See Also, and Examples sections belong.
+  classes, functions, methods, generators, overloads, or doctests,
+  especially choosing NumPy vs Sphinx style or which Parameters, Returns,
+  Yields, and Raises sections belong.
 when_to_use: >-
-  Trigger for Python public API documentation, numpydoc / Sphinx Napoleon
-  output, missing or noisy docstrings, doctest examples, properties,
-  dataclasses, Pydantic models, generators, async APIs, overloads,
-  deprecated APIs, module docstrings, or reviews where docstrings repeat type
-  annotations instead of documenting semantics, invariants, side effects, and
-  edge cases.
+  Trigger for public API documentation, numpydoc / Sphinx Napoleon output,
+  missing or noisy docstrings, doctests, properties, dataclasses, Pydantic
+  models, generators, async APIs, or docstrings restating annotations
+  instead of semantics and edge cases.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []
