@@ -1,6 +1,6 @@
 {
   "name": "omniagents-unknowns",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Pre-work passes that end in a sharper prompt: a blindspot pass that surveys unfamiliar territory for the user's unknown unknowns, and a depth pass that rewrites a task the way a top professional would do it — rawest material, named methods, and a check that can fail",
   "author": {
     "name": "GAO Hongnan",

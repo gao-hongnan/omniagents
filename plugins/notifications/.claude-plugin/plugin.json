@@ -1,6 +1,6 @@
 {
   "name": "notifications",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "macOS system notifications when Claude Code requires attention (Notification hook: sound + banner)",
   "author": {
     "name": "GAO Hongnan",
