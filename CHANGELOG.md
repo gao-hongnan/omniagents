@@ -9,6 +9,15 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Licensing (gap L3)** — added the root `LICENSE` (MIT, GAO Hongnan). The
+  README said "MIT" and 15 manifests declare it, but no license text existed.
+  `plugins/drawio/LICENSE` now carries the vendored plugin's Apache-2.0 text
+  (§4(a) requires giving recipients a copy), and `sync-drawio.sh` re-copies it
+  from the upstream repo root on every sync, failing loudly if upstream moves
+  it.
+
 ## [1.3.0] - 2026-10-15
 
 ### Added

@@ -50,9 +50,16 @@ SRC="$(find "$TMP" -maxdepth 3 -type d -path "*/$SUBDIR" | head -1)"
 
 # Full mirror: wipe and repopulate so upstream deletions/renames are reflected.
 say "mirroring into $DEST …"
+
+UPSTREAM_ROOT="$(dirname "$(dirname "$SRC")")"
+[ -f "$UPSTREAM_ROOT/LICENSE" ] \
+	|| die "upstream repo root has no LICENSE to vendor (Apache-2.0 §4(a) requires it)"
+cp "$UPSTREAM_ROOT/LICENSE" "$TMP/root-license"
+
 rm -rf "$DEST"
 mkdir -p "$DEST"
 cp -R "$SRC/." "$DEST/"
+cp "$TMP/root-license" "$DEST/LICENSE"
 
 # Provenance stamp (regenerated every sync).
 cat > "$DEST/UPSTREAM.md" <<EOF

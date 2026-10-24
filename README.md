@@ -757,4 +757,7 @@ OpenAI Codex documentation and sources for the
 
 ## License
 
-MIT. See individual `plugin.json` files for per-plugin authorship.
+MIT — see [LICENSE](./LICENSE). The vendored `drawio` plugin keeps its
+upstream Apache-2.0 license at `plugins/drawio/LICENSE` (copied by
+`scripts/sync-drawio.sh` on every re-sync). See individual `plugin.json`
+files for per-plugin authorship.
