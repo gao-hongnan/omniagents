@@ -15,15 +15,15 @@ when_to_use: >-
   Trigger for test files (test_*.py, conftest.py), writing unit or
   integration tests, adding a regression test for a bugfix, test-only diffs,
   flaky tests, sleep in tests, unseeded randomness, mock or patch target
-  choices, autospec, fixture scope and autouse decisions, async test hangs,
+  choices, autospec, fixture scope / autouse choices, async test hangs,
   mutation testing (mutmut), xdist parallelization, filterwarnings,
   tmp_path / env-var isolation, caplog / capsys log assertions, test data
   factories (polyfactory), Pact / schemathesis contract testing,
   assert_type / pytest-mypy-plugins,
   benchmark or performance-regression gates (pytest-benchmark, codspeed),
-  memory limits and leak detection (memray), tests reaching the real network,
+  memory limits / leak detection (memray), tests hitting the real network,
   deadlocks or thread-race stress, fuzzing, chaos or fault-injection requests,
-  LLM / agent eval suites (deepeval), or pytest config changes.
+  LLM / agent eval suites (deepeval), or pytest config edits.
 disable-model-invocation: false
 user-invocable: true
 allowed-tools: []
