@@ -7,9 +7,25 @@ reviewer that catches everything by flagging everything has learned nothing.
 
 ## Layout
 
+Cases are in the **`claude plugin eval` format** (one directory per case:
+`prompt.md` + `case.yaml` + `graders/*.md`); the runner materializes each
+fixture into the workspace via the case's `scaffold_script`. Run the suite
+with:
+
+```bash
+claude plugin eval plugins/reviewer --scaffold \
+  --model claude-sonnet-4-5 --judge-model claude-sonnet-4-5 \
+  --trust-plugin --no-publish
 ```
-evals.json                  # skill-creator-compatible eval set
-setup_fixture.sh            # fixture -> throwaway git repo with patch applied
+
+```
+<case>/
+  prompt.md                 # the review request
+  case.yaml                 # scaffold + execution (tools, turns, timeout)
+  fixture.sh                # materializes ../fixtures/<name> into the workspace
+  graders/                  # artifact (file_exists/regex) + recall (regex) +
+                            # precision (llm rubric) graders
+setup_fixture.sh            # fixture -> git repo with patch applied (shared)
 fixtures/<name>/
   repo/                     # pre-change state (committed as base)
   patch.diff                # the change under review (working-tree diff)
