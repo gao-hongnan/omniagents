@@ -5,14 +5,18 @@ on:
     tags:
       - v*
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     name: Validate marketplace
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - run: npm install -g @anthropic-ai/claude-code
-      - run: claude plugin validate .
+      # v6 (d23441a48e516b6c34aea4fa41551a30e30af803)
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - run: npm install -g @anthropic-ai/claude-code@2.1.296
+      - run: claude plugin validate . --strict
 
   github_release:
     name: Create GitHub Release
@@ -21,7 +25,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      # v6 (d23441a48e516b6c34aea4fa41551a30e30af803)
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
       - name: Extract release notes from CHANGELOG
@@ -39,7 +44,8 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        # v3 (efb35369e0ad2afab669f228072c1b0d510eae64)
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64
         with:
           body: ${{ steps.changelog.outputs.notes }}
           draft: false

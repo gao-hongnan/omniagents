@@ -9,6 +9,16 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Release workflow hardening (gap L5)** — the only workflow in a repo that
+  teaches workflow hardening now practices it: `actions/checkout` and
+  `softprops/action-gh-release` are pinned to full commit SHAs with version
+  comments; a top-level `permissions: contents: read` restricts the validate
+  job (only the release job keeps `contents: write`); the Claude Code CLI is
+  pinned (`@anthropic-ai/claude-code@2.1.296`, bumped in normal PRs); and
+  validation runs with `--strict` as the official docs recommend for CI.
+
 ## [1.3.0] - 2026-10-15
 
 ### Added
