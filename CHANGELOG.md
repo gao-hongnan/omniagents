@@ -9,6 +9,14 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`notifications` cross-platform safety (gap L4)** — the three hook scripts
+  called `osascript` unconditionally under `set -euo pipefail`, so every
+  Notification/Stop event failed on Linux/Windows. Each script now exits 0
+  silently when `osascript` is not on `PATH`; the README states the plugin is a
+  no-op on non-macOS and safe to install at project scope on mixed-OS teams.
+
 ## [1.3.0] - 2026-10-15
 
 ### Added

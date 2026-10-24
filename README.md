@@ -82,7 +82,7 @@ for the authoritative pages.
 | `context7`                   | MCP (HTTP)       | Library documentation lookup                                                                                                                                                                           | `CONTEXT7_API_KEY`                                                                              |
 | `google-workspace`           | MCP (stdio)      | Gmail, Drive, Calendar, Docs, Contacts, Tasks, Chat                                                                                                                                                    | `uv` on PATH + Google OAuth creds                                                               |
 | `playwright`                 | MCP (stdio)      | Browser automation + accessibility-tree page snapshots                                                                                                                                                 | Node.js 18+ on PATH                                                                             |
-| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention                                                                                                                                                       | macOS                                                                                           |
+| `notifications`              | Hooks            | macOS banner + sound when Claude needs attention (no-op on non-macOS)                                                                                                                                  | macOS                                                                                           |
 | `doc-drift`                  | Hooks            | Prompts Claude to review docs for drift after code changes (broken refs, stale line numbers, snippets, diagrams)                                                                                       | `git` + `bash`                                                                                  |
 | `omniagents-pedagogy`        | Skills           | `omniagents-pedagogy:coding-teacher` — `/coding-teacher [topic]` starts an incremental Socratic teaching session                                                                                       | —                                                                                               |
 | `omniagents-unknowns`        | Skills           | `omniagents-unknowns:blindspot-pass` — `/blindspot-pass [task/area]` surveys unfamiliar territory and reports your unknown unknowns, ending in a sharper prompt; `omniagents-unknowns:depth-pass` — `/depth-pass <prompt>` rewrites a task into its deeper, not bigger, version: a top professional's moves, the rawest material, named methods and tools, and a check other than you or the model | —                                                                                               |
@@ -185,7 +185,8 @@ dependency the way `google-workspace` does:
   `plugins/google-workspace/README.md`
 - For `playwright`: Node.js 18+ on PATH — `node --version` (first run downloads
   a browser)
-- For `notifications`: macOS (uses built-in `osascript`)
+- For `notifications`: macOS (uses built-in `osascript`); the hooks are a
+  silent no-op on non-macOS systems
 - For `doc-drift`: `git` and `bash` (standard on macOS/Linux)
 
 ---
@@ -657,6 +658,9 @@ appended to the `args` array; see `plugins/playwright/README.md`.
 
 No configuration is required beyond installing the plugin on macOS. The hook
 fires automatically via `osascript` whenever Claude Code needs your attention.
+On Linux and Windows the hooks are a silent no-op (each script exits 0 when
+`osascript` is not on `PATH`), so the plugin is safe to install at project
+scope on mixed-OS teams.
 
 Grant notification permission to your terminal app the first time it fires:
 **System Settings → Notifications → [Terminal / iTerm2]**.
