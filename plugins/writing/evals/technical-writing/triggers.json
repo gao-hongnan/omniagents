@@ -1,0 +1,22 @@
+[
+  {"query": "can you write a README for scripts/backfill.py? it takes --since and --dry-run and people keep pinging me on slack asking how to run it", "should_trigger": true},
+  {"query": "review docs/runbooks/redis-failover.md before the on-call handoff tomorrow, it's gotten long and nobody can follow step 4", "should_trigger": true},
+  {"query": "write the PR description for this branch, it switches the uploader to only retry 5xx and 429", "should_trigger": true},
+  {"query": "draft release notes for v2.3 from the Unreleased section of CHANGELOG.md, users need to know the config key rename is breaking", "should_trigger": true},
+  {"query": "this section of our onboarding doc reads like chatgpt wrote it, can you make it clearer and less fluffy? pasting it below", "should_trigger": true},
+  {"query": "turn my notes into a how-to for rotating the jwt signing key: generate key, upload to vault, flip KEY_ID, wait 24h, revoke old one", "should_trigger": true},
+  {"query": "our getting started page mixes the full config reference with a history of why we chose sqlite. restructure it with diataxis", "should_trigger": true},
+  {"query": "write a commit message for the staged changes, the repo uses conventional commits", "should_trigger": true},
+  {"query": "tighten up docs/api/errors.md, it's wordy and everything is passive voice", "should_trigger": true},
+  {"query": "I need an explanation page for new hires on why we shard postgres by tenant instead of by region, put it in docs/architecture/", "should_trigger": true},
+  {"query": "write a proposal for leadership arguing we should fund a dedicated docs team next quarter, they're skeptical about the ROI", "should_trigger": false},
+  {"query": "fix the markdownlint MD040 errors in docs/, the code fences don't have a language tag", "should_trigger": false},
+  {"query": "add numpy-style docstrings to the public functions in src/stats/regression.py", "should_trigger": false},
+  {"query": "draw an architecture diagram of the ingest pipeline as a single html file with inline svg", "should_trigger": false},
+  {"query": "change the button label in the settings modal from 'Submit' to 'Save changes' and update the snapshot test", "should_trigger": false},
+  {"query": "write pytest tests for the retry module in uploader/retry.py, cover the 429 backoff path", "should_trigger": false},
+  {"query": "translate docs/README.ja.md back into english so I can check what our japanese docs actually say", "should_trigger": false},
+  {"query": "write me a cover letter for a senior backend engineer role at a payments company", "should_trigger": false},
+  {"query": "summarize RFC-0042 for me in three bullets, I have a meeting about it in ten minutes", "should_trigger": false},
+  {"query": "set up adr-tools in this repo and create the docs/adr directory with the first ADR template", "should_trigger": false}
+]

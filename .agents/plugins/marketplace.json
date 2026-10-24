@@ -54,10 +54,13 @@
     {
       "name": "omniagents-writing",
       "source": "./plugins/writing",
-      "description": "Measured-persuasion writing, markdown conventions, and blueprint format-clean HTML/SVG diagram generation",
+      "description": "Technical writing (Diátaxis modes, Google developer style, STE, Global English), measured-persuasion writing, markdown conventions, and blueprint format-clean HTML/SVG diagram generation",
       "category": "writing",
       "keywords": [
         "writing",
+        "technical-writing",
+        "documentation",
+        "diataxis",
         "markdown",
         "persuasion",
         "diagrams",

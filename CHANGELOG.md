@@ -9,6 +9,27 @@ the bump rules and the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **`omniagents-writing:technical-writing`** — a layered standard for prose
+  that instructs or informs, from READMEs and runbooks to PR descriptions and
+  commit messages. Its layers are Diátaxis modes, the Google developer
+  documentation style guide, ASD-STE100 Issue 9, and Kohl's Global English
+  rules. A source audit of the pasted draft added a precedence order for
+  colliding rules and a pass that proves every documented fact. The skill also
+  owns its catalog of machine-writing tells, because this marketplace has no
+  `unslop` skill. Five references hold the mode skeletons, the word list, the
+  tells, commit and PR templates, and before-and-after examples.
+  `scripts/lint_prose.py` checks the 26 rules that a pattern can catch, with 52
+  self-tests, and `plugins/writing/evals/` holds six scenarios and 20 trigger
+  queries.
+
+### Changed
+
+- **`omniagents-writing`** — plugin and marketplace descriptions name the new
+  skill. `measured-persuasion` and `markdown-conventions` each point to
+  `technical-writing` for the prose that they don't cover.
+
 ## [1.3.0] - 2026-10-15
 
 ### Added
