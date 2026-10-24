@@ -54,6 +54,14 @@ rm -rf "$DEST"
 mkdir -p "$DEST"
 cp -R "$SRC/." "$DEST/"
 
+say "rewriting upstream-relative README links to the pinned commit …"
+README="$DEST/README.md"
+UPSTREAM_BASE="https://github.com/$REPO/blob/$SHA"
+for frag in shared mcp-tool-server mcp-app-server project-instructions; do
+	sed -i.bak "s|](../../$frag/|]($UPSTREAM_BASE/$frag/|g" "$README"
+done
+rm -f "$README.bak"
+
 # Provenance stamp (regenerated every sync).
 cat > "$DEST/UPSTREAM.md" <<EOF
 # Vendored — do not edit by hand

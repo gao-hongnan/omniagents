@@ -10,6 +10,10 @@ MARKETPLACE := .claude-plugin/marketplace.json
 validate:
 	claude plugin validate .
 
+.PHONY: check-links
+check-links:
+	@./scripts/check-links.sh
+
 .PHONY: sync-codex
 sync-codex:
 	@./scripts/sync-codex.sh
@@ -31,6 +35,7 @@ release:
 help:
 	@echo "Quality:"
 	@echo "  make validate                Validate the marketplace manifest"
+	@echo "  make check-links             Fail on broken relative markdown links"
 	@echo "  make sync-codex              Regenerate the Codex marketplace from the Claude manifests"
 	@echo ""
 	@echo "Release (lockstep — all plugins share one version):"
