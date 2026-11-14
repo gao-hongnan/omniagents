@@ -26,8 +26,6 @@ the bump rules and the release workflow.
   ceiling, and archives `results.json`; the release checklist now records the
   pass rate and the ablation delta in each release's CHANGELOG section.
 
-### Added
-
 - **Tests for the bundled Python tooling (gap M5)** — `pytest` suite
   (`plugins/reviewer/tests/`) covering `review-contract/schema.py` (the
   contract validator the reviewer pipeline and evals depend on): one valid and
@@ -38,20 +36,6 @@ the bump rules and the release workflow.
   dry-run tests caught a real bug: with `gh` absent from PATH the script
   crashed with `FileNotFoundError` instead of printing placeholder payloads —
   fixed to raise the `RuntimeError` the dry-run path already handles.
-
-### Fixed
-
-- **`doc-drift` blocks at most once per change set (gap M4)** — the Stop hook
-  re-blocked on every turn while the tree was dirty (`stop_hook_active` only
-  suppresses the loop within one stop sequence), costing tokens every turn
-  until the user commits. It now stores a hash of `git diff` plus the
-  untracked list in `${CLAUDE_PLUGIN_DATA}` and stays silent while the tree
-  is unchanged; a clean tree clears the state so the next change set blocks
-  again. New `plugins/doc-drift/tests/test-check-doc-drift.sh` covers clean
-  pass, first dirty block, repeated-stop silence, new-changeset re-block, and
-  state clearing — and runs in the M1 CI workflow.
-
-### Added
 
 - **`make check-links`** (gap L2) — `scripts/check-links.sh` fails on broken
   relative markdown links across `README.md` and `plugins/**/*.md`, skipping
@@ -71,6 +55,25 @@ the bump rules and the release workflow.
 
 ### Fixed
 
+- **Catalogue hygiene (gap L1)** — deleted the orphaned `plugins/tech-lead/`
+  directory (a bare manifest that was never listed in the marketplace and never
+  shipped an agent), and properly catalogued `notion` (a working MCP wrapper
+  that the root `.mcp.json` already used but that was missing from
+  `marketplace.json`, the README catalogue, and the install/update/uninstall
+  lists). The 2026-07-31 skill-quality audit now carries a correction noting
+  its §3 imports were never committed. `release.sh` no longer bumps two
+  never-published manifests on every release.
+
+- **`doc-drift` blocks at most once per change set (gap M4)** — the Stop hook
+  re-blocked on every turn while the tree was dirty (`stop_hook_active` only
+  suppresses the loop within one stop sequence), costing tokens every turn
+  until the user commits. It now stores a hash of `git diff` plus the
+  untracked list in `${CLAUDE_PLUGIN_DATA}` and stays silent while the tree
+  is unchanged; a clean tree clears the state so the next change set blocks
+  again. New `plugins/doc-drift/tests/test-check-doc-drift.sh` covers clean
+  pass, first dirty block, repeated-stop silence, new-changeset re-block, and
+  state clearing — and runs in the M1 CI workflow.
+
 - **Docs correctness (gap L2)** — removed the stale link to the deleted
   `marketplace-benefits.html`; corrected the pinned-channel command from
   `marketplace add gao-hongnan/omniagents@v0.1.0` to the documented
@@ -80,6 +83,29 @@ the bump rules and the release workflow.
   `sync-drawio.sh` on every re-sync; de-linked a broken
   `../patterns/observability/intro` reference in
   `omniagents-writing:measured-persuasion`.
+
+## [1.4.0] - 2026-10-24
+
+### Added
+
+- **`omniagents-writing:technical-writing`** — a layered standard for prose
+  that instructs or informs, from READMEs and runbooks to PR descriptions and
+  commit messages. Its layers are Diátaxis modes, the Google developer
+  documentation style guide, ASD-STE100 Issue 9, and Kohl's Global English
+  rules. A source audit of the pasted draft added a precedence order for
+  colliding rules and a pass that proves every documented fact. The skill also
+  owns its catalog of machine-writing tells, because this marketplace has no
+  `unslop` skill. Five references hold the mode skeletons, the word list, the
+  tells, commit and PR templates, and before-and-after examples.
+  `scripts/lint_prose.py` checks the 26 rules that a pattern can catch, with 52
+  self-tests, and `plugins/writing/evals/` holds six scenarios and 20 trigger
+  queries.
+
+### Changed
+
+- **`omniagents-writing`** — plugin and marketplace descriptions name the new
+  skill. `measured-persuasion` and `markdown-conventions` each point to
+  `technical-writing` for the prose that they don't cover.
 
 ## [1.3.0] - 2026-10-15
 

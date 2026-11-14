@@ -278,6 +278,8 @@ Do not use this voice for:
 - **Short internal messages** (Slack, PR descriptions, status updates). If the
   message is a two-liner, write a two-liner.
 
+For these, use the `technical-writing` skill instead.
+
 A useful heuristic: if you cannot identify a _decision the reader needs to
 make_, they probably do not need to be persuaded, and this voice is probably
 overkill. For details on document-type calibration, see

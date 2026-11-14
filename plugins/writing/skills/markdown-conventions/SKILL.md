@@ -26,6 +26,9 @@ This skill defines project Markdown policy. It is not a Markdown tutorial.
 When a local formatter or linter config exists, follow it first; this skill
 fills the gaps that formatters cannot infer from intent.
 
+It covers Markdown syntax, not prose. For document structure and for the
+wording of headings and sentences, use `technical-writing`.
+
 The baseline syntax target is CommonMark-compatible Markdown, with
 GitHub-Flavored Markdown tables where the renderer supports them. The linting
 model follows `markdownlint` rule names, and formatting assumes Prettier only

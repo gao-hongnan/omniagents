@@ -128,6 +128,14 @@ mechanical**, not prose.
 4. Not released: everything above is invisible to installed marketplaces until
    `make release VERSION=… ` + push (cache keys on version).
 
+> **Correction (2026-10-24).** The §3 imports above never landed: none of
+> `plugins/workflow`, `plugins/sre`, or `plugins/data`, and no
+> `omniagents-tech-lead` marketplace entry, exist anywhere in git history — the
+> work was lost before it was committed. Only item 3 (the F2 trim) was actually
+> committed. The stranded `plugins/tech-lead` manifest was deleted and `notion`
+> was properly catalogued on 2026-10-24; see the 2026-10-24 plugin gap analysis
+> (L1), `2026-10-24-plugin-gap-analysis.md` in this directory.
+
 ## 4. Backlog (recommended, not applied)
 
 | Priority | Work | Notes |

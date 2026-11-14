@@ -1,0 +1,100 @@
+{
+  "skill_name": "technical-writing",
+  "evals": [
+    {
+      "id": 1,
+      "name": "review-planted-defects",
+      "prompt": "/technical-writing review this section from docs/cache.md before I publish it. Don't rewrite it yet, just tell me what to fix.\n\n## Configuring The Cache\n\nThe cache layer is a robust, seamless solution that leverages Redis — it's basically a game-changer for read-heavy services. In order to turn it on, the `cache.enabled` flag should be set to `true` in `config.yaml`. Since the cache is shared with the worker, it can return stale data. Simply restart the worker(s) after changing the TTL/size settings and/or the eviction policy. The cache config, the caching settings, and the cache options all live in the same file. This will be improved soon.",
+      "expected_output": "A review, not a rewrite. It opens with one sentence naming what the section is for and its mode, says what already works (the real flag and file names), then lists findings in the skill's template (location, severity, rule, quote, rewrite), ordered wrong, then misread, then style. The judgment-level catches that no pattern finds: three names for one thing, the ambiguous 'it', and the condition placed after the instruction.",
+      "files": [],
+      "assertions": [
+        {"text": "the report opens with one sentence naming what the section is for and its mode (how-to or reference) before listing findings", "kind": "shape"},
+        {"text": "each finding quotes the original text, names the rule it breaks, and gives a rewrite", "kind": "shape"},
+        {"text": "flags that 'the cache config', 'the caching settings', and 'the cache options' name one thing three ways, and proposes one name", "kind": "judgment"},
+        {"text": "flags 'it' in 'it can return stale data' as ambiguous between the cache and the worker", "kind": "judgment"},
+        {"text": "flags the condition placed after the instruction in 'restart the worker(s) after changing...' and moves the condition first", "kind": "judgment"},
+        {"text": "flags 'Since' as ambiguous between 'because' and 'after', or rewrites it with 'because'", "kind": "rule"},
+        {"text": "flags the passive instruction 'the `cache.enabled` flag should be set' and rewrites it as a command such as 'Set `cache.enabled` to `true`'", "kind": "rule"},
+        {"text": "flags the heading 'Configuring The Cache' for Title Case and its -ing start, and proposes a sentence-case verb phrase such as 'Enable the cache'", "kind": "rule"},
+        {"text": "flags the em dash, 'worker(s)', the 'TTL/size' slash, and 'and/or'", "kind": "rule"},
+        {"text": "flags 'This will be improved soon' as a pre-announcement to delete", "kind": "rule"},
+        {"text": "flags at least three of the slop words: robust, seamless, leverages, basically, game-changer", "kind": "rule"},
+        {"text": "does not rewrite the whole section, and offers to apply the fixes instead", "kind": "scope"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "howto-from-notes",
+      "prompt": "turn my notes into a how-to page for docs/runbooks/rotate-signing-key.md. notes:\n- generate a new key: `keyctl generate --alg ed25519 --out new.pem`\n- upload it to vault at secret/signing/next with `vault kv put secret/signing/next pem=@new.pem`\n- flip SIGNING_KEY_ID in the deploy config (deploy/prod.env) to the new key id that keyctl printed, then redeploy with `make deploy ENV=prod`\n- wait 24h so old tokens expire!! (tokens live 24h)\n- revoke old key: `keyctl revoke <old-id>` -- don't do this before 24h or everyone gets logged out\n- check: `curl -s https://auth.example.com/.well-known/jwks.json | jq '.keys | length'` should be 1 after revoke",
+      "expected_output": "A how-to guide titled by the task, with a one-sentence problem statement, numbered steps with one instruction each, the 24-hour warning placed before the revoke step, and a final check that runs the jwks command and expects 1. Commands are verbatim from the notes, the new key ID is a marked placeholder, and nothing is invented.",
+      "files": [],
+      "assertions": [
+        {"text": "the title names the task as a verb phrase ('How to rotate the signing key' or 'Rotate the signing key'), not a noun phrase such as 'Signing key rotation'", "kind": "shape"},
+        {"text": "the steps are a numbered list with one instruction per step", "kind": "shape"},
+        {"text": "the warning to wait 24 hours appears before the revoke step, not after it", "kind": "rule"},
+        {"text": "conditions and goals come before actions, for example 'After 24 hours, revoke the old key'", "kind": "rule"},
+        {"text": "ends with a verification step that runs the jwks curl command and states the expected result of 1 key", "kind": "rule"},
+        {"text": "every command matches the notes exactly, and the new key ID appears as a marked placeholder rather than an invented value", "kind": "fact"},
+        {"text": "lint_prose.py reports no em-dash, semicolon, minimizer, or soft-minimizer hits in the steps", "kind": "rule"},
+        {"text": "adds no background on JWTs or key cryptography beyond one clause and a link", "kind": "scope"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "pr-description",
+      "prompt": "write the PR description for my branch. here's what changed and my rough draft:\n\ndiff summary: uploader.py now retries only on network errors, 429 and 5xx (was: every failure). new test test_401_not_retried. sync.py updated to catch HTTPError instead of TimeoutError. CI run: https://ci.example.com/runs/8812 (212 passed)\n\nmy draft:\n## Summary\nThis PR introduces comprehensive improvements to the retry logic! 🚀\nI started by exploring the codebase and found that the uploader had some issues with retries. Then I refactored the retry module, updated the tests, and fixed some edge cases.\n## Changes\n- Modified uploader.py\n- Modified sync.py\n- Modified test_uploader.py\n## Tests\n```\n============================= test session starts ==============================\ncollected 212 items\ntests/test_uploader.py ........................................ [ 18%]\n...\n============================= 212 passed in 4.31s ==============================\n```\nAll tests pass ✅",
+      "expected_output": "A briefing: an imperative title, two opening sentences that state the problem (a bad token caused retries that ended in a timeout and hid the 401) and the change, a verification section that names the result and links the CI run, and a risk line about callers that caught TimeoutError. No pasted log, file list, emoji, or process story.",
+      "files": [],
+      "assertions": [
+        {"text": "has a title in the imperative mood of 72 characters or fewer, such as 'Stop retrying 4xx responses in the uploader'", "kind": "shape"},
+        {"text": "the first two sentences say what problem the change fixes and what changed", "kind": "shape"},
+        {"text": "verification gives the result (212 passed) and links https://ci.example.com/runs/8812 instead of pasting the log", "kind": "rule"},
+        {"text": "contains no pasted test output, no file-by-file list, no emoji, and no narration such as 'I started by exploring'", "kind": "rule"},
+        {"text": "names the change for callers (HTTPError instead of TimeoutError) and says that sync.py was updated", "kind": "judgment"},
+        {"text": "states no test names, counts, files, or behaviors that the prompt did not give", "kind": "fact"},
+        {"text": "the description body is 200 words or fewer", "kind": "shape"}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "commit-message-repo-convention",
+      "prompt": "write the commit message for what's staged. the repo uses git-style 'area: summary' subjects with a lowercase verb, like `uploader: stop retrying 4xx responses`. change: config loader now reads APP_CONFIG env var before config.yaml; previously config.yaml always won, which broke our container deploys where we can't edit files. closes #512",
+      "expected_output": "A subject such as 'config: read APP_CONFIG before config.yaml' (area prefix, lowercase imperative, 50 characters or fewer, no period), a blank line, a body wrapped at 72 that states the problem in the present tense and why the change fixes container deploys, and a trailer that closes #512.",
+      "files": [],
+      "assertions": [
+        {"text": "the subject uses an 'area: ' prefix followed by a lowercase imperative verb", "kind": "rule"},
+        {"text": "the subject is 50 characters or fewer and has no trailing period", "kind": "rule"},
+        {"text": "a blank line separates the subject from the body, and every body line is 72 characters or fewer", "kind": "shape"},
+        {"text": "the body states the problem in the present tense (config.yaml always wins over the environment) and why the change fixes container deploys", "kind": "rule"},
+        {"text": "references issue #512", "kind": "fact"},
+        {"text": "contains no em dashes and no slop words such as 'comprehensive', 'robust', or 'enhance'", "kind": "rule"}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "split-mixed-mode-page",
+      "prompt": "our docs/getting-started.md has turned into a mess. it walks you through installing and running the first sync, but halfway through it dumps a table of all 31 config keys, and the last third is the story of why we picked SQLite over Postgres in 2023. clean up the structure. I don't need the prose polished yet, just tell me what goes where and give me the new outline.",
+      "expected_output": "Names the three modes mixed in the page (tutorial or how-to, reference, explanation), proposes three docs with titles that fit their modes, leaves a sentence and a link where each moved block was, and gives a step outline for the getting-started page in which each step ends in a visible result. No polished prose and no invented config keys.",
+      "files": [],
+      "assertions": [
+        {"text": "names three modes in the page: a tutorial or how-to (install and first sync), reference (the config table), and explanation (the SQLite decision)", "kind": "judgment"},
+        {"text": "proposes moving the config table and the SQLite story into separate docs that the getting-started page links to", "kind": "shape"},
+        {"text": "titles fit their modes: a task or result for the getting-started page, the name of the thing for the reference, and a noun phrase or why-question for the explanation", "kind": "rule"},
+        {"text": "gives a new outline for the getting-started page in which each step ends in a visible result", "kind": "shape"},
+        {"text": "does not polish the prose and does not invent config key names", "kind": "scope"}
+      ]
+    },
+    {
+      "id": 6,
+      "name": "typo-only-scope",
+      "prompt": "fix the typo in the second sentence, nothing else:\n\nThe deploy script is a robust, seamless way to ship — it handles everything. It uploads the bundel to the bucket and then invalidates the CDN. Simply run it from the repo root.",
+      "expected_output": "Only 'bundel' becomes 'bundle'. The first and third sentences stay exactly as written. The reply may mention the other problems in one line, but applies none of them.",
+      "files": [],
+      "assertions": [
+        {"text": "corrects 'bundel' to 'bundle'", "kind": "scope"},
+        {"text": "leaves the first and third sentences exactly as written, including the em dash, 'robust', 'seamless', and 'Simply'", "kind": "scope"},
+        {"text": "mentions the other problems in at most a sentence or two, without applying them", "kind": "scope"}
+      ]
+    }
+  ]
+}

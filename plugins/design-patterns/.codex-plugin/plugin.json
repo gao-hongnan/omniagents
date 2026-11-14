@@ -1,6 +1,6 @@
 {
   "name": "omniagents-design-patterns",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Design pattern catalogue and API contract design, split into four skills: software (strict-typed Python 3.13+ in-service patterns — GoF, functional/ADTs, DDD, architectural, in-process concurrency, code anti-patterns), system (strict-typed Python 3.13+ cross-service patterns — reliability, communication, distributed, data, scaling, cloud, distributed anti-patterns), codebase-design (Ousterhout interface depth — deep vs shallow modules, information hiding, deletion test, design-it-twice), and api-design (REST/gRPC API contracts grounded in Google's API Improvement Proposals — retrieved live and cited, never recalled).",
   "author": {
     "name": "GAO Hongnan",
