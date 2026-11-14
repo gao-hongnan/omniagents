@@ -1,0 +1,86 @@
+name: VALIDATE
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate marketplace, plugins, and repo hygiene
+    runs-on: ubuntu-latest
+    steps:
+      # v6 (d23441a48e516b6c34aea4fa41551a30e30af803)
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - run: npm install -g @anthropic-ai/claude-code@2.1.296
+
+      - name: Validate marketplace and every plugin (strict)
+        run: |
+          claude plugin validate . --strict
+          for d in plugins/*/; do
+            claude plugin validate "${d%/}" --strict
+          done
+
+      - name: Codex artifacts are in sync
+        run: |
+          ./scripts/sync-codex.sh
+          git diff --exit-code
+
+      - name: No broken relative markdown links
+        run: ./scripts/check-links.sh
+
+      - name: Skill frontmatter rules and listing budget
+        run: ./scripts/check-frontmatter.sh
+
+      - name: Plugin hook tests
+        run: bash plugins/doc-drift/tests/test-check-doc-drift.sh
+
+      - name: Bundled Python tests
+        run: |
+          python3 --version  # schema.py needs 3.11+ (StrEnum)
+          python3 -m pip install --quiet pytest
+          python3 -m pytest plugins/reviewer/tests -q
+
+  evals:
+    name: Plugin evals (manual)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      # v6 (d23441a48e516b6c34aea4fa41551a30e30af803)
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - run: npm install -g @anthropic-ai/claude-code@2.1.296
+      - name: Run eval suites (pinned models, cost-capped)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # repo secret
+        run: |
+          set -euo pipefail
+          mkdir -p eval-results
+          run_evals() {
+            name="$1"; shift
+            set +e
+            claude plugin eval "$@"               --model claude-sonnet-4-5 --judge-model claude-sonnet-4-5               --trust-plugin --no-publish --max-cost-usd 15               --json "eval-results/${name}.json"
+            rc=$?
+            set -e
+            [ "$rc" -eq 0 ] || [ "$rc" -eq 2 ] || exit "$rc"  # 2 = cost ceiling, partial results kept
+          }
+          run_evals python    plugins/python --ablation with-without
+          run_evals devops    plugins/devops --ablation with-without
+          run_evals unknowns  plugins/unknowns --ablation none
+          run_evals reviewer  plugins/reviewer --scaffold --ablation none
+      - name: Archive results.json
+        if: always()
+        # v5 (330a01c490aca151604b8cf639adc76d48f6c5d4)
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        with:
+          name: eval-results
+          path: eval-results/

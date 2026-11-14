@@ -92,14 +92,17 @@ def _load_schema() -> ModuleType:
 
 
 def _gh(args: list[str], *, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        ["gh", *args],
-        input=stdin,
-        capture_output=True,
-        text=True,
-        timeout=60,
-        check=False,
-    )
+    try:
+        return subprocess.run(
+            ["gh", *args],
+            input=stdin,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError("gh not found on PATH") from exc
 
 
 def _repo_slug(explicit: str | None) -> str:

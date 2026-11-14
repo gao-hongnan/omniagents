@@ -1,24 +1,39 @@
 #!/usr/bin/env bash
-# Stop hook: prompt Claude to review documentation for drift after source changes.
-#
-# Checks git diff for uncommitted source-file changes. If found, blocks the
-# stop and asks Claude to review docs for stale references. On the next stop
-# attempt, stop_hook_active is true so the hook exits silently — no infinite
-# loop.
+# Stop hook: prompt Claude to review documentation for drift after source
+# changes. Blocks at most once per distinct change set.
 set -euo pipefail
 
-# --- Guard: prevent infinite loop ----------------------------------------
+# --- Guard 1: prevent infinite loop within one stop sequence -------------
 input=$(cat)
 if echo "$input" | grep -q '"stop_hook_active": *true'; then
-  exit 0
+	exit 0
 fi
 
 # --- Check for uncommitted source-file changes ---------------------------
 # -u shows individual untracked files (not just the directory name).
 if ! git status --porcelain -u 2>/dev/null \
      | grep -qE '\.(py|ts|js|jsx|tsx|go|rs|java|rb|c|cpp|h|hpp|cs|kt|swift|sh|bash|zsh|lua)$'; then
-  exit 0
+	STATE_DIR="${CLAUDE_PLUGIN_DATA:-${XDG_STATE_HOME:-$HOME/.local/state}/omniagents-doc-drift}"
+	rm -f "$STATE_DIR/last-changeset.sha" 2>/dev/null || true
+	exit 0
 fi
+
+# --- Guard 2: block at most once per distinct change set -----------------
+CHANGESET_HASH="$(
+	{
+		git diff
+		git status --porcelain -u
+	} | shasum -a 256 | cut -d' ' -f1
+)"
+STATE_DIR="${CLAUDE_PLUGIN_DATA:-${XDG_STATE_HOME:-$HOME/.local/state}/omniagents-doc-drift}"
+STATE_FILE="$STATE_DIR/last-changeset.sha"
+
+if [ -f "$STATE_FILE" ] && [ "$(cat "$STATE_FILE")" = "$CHANGESET_HASH" ]; then
+	exit 0
+fi
+
+mkdir -p "$STATE_DIR"
+printf '%s\n' "$CHANGESET_HASH" > "$STATE_FILE"
 
 # --- Prompt Claude to review docs ----------------------------------------
 cat <<'EOF'

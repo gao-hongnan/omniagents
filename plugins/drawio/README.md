@@ -114,7 +114,7 @@ is kept so you have a persistent local copy to re-edit or share.
 `url` mode uses only Node.js's built-in `zlib` (deflate-raw compression) and
 `child_process` (browser open) — no external dependencies. The resulting
 `https://app.diagrams.net/#create=...` URL is the same format used by the
-[MCP Tool Server](../../mcp-tool-server/README.md), so behavior is identical.
+[MCP Tool Server](https://github.com/jgraph/drawio-mcp/blob/662417735af194d750bda1cdf10cc374df6577a9/mcp-tool-server/README.md), so behavior is identical.
 
 ## References
 
@@ -122,10 +122,10 @@ The skill fetches two shared guides from GitHub at runtime — the single source
 of truth for all draw.io MCP prompts across the repository. No extra files need
 to be copied during installation.
 
-- [`shared/xml-reference.md`](../../shared/xml-reference.md) — draw.io XML
+- [`shared/xml-reference.md`](https://github.com/jgraph/drawio-mcp/blob/662417735af194d750bda1cdf10cc374df6577a9/shared/xml-reference.md) — draw.io XML
   generation (edge routing, containers, layers, tags, metadata, dark mode,
   etc.), used when authoring XML
-- [`shared/mermaid-reference.md`](../../shared/mermaid-reference.md) — Mermaid
+- [`shared/mermaid-reference.md`](https://github.com/jgraph/drawio-mcp/blob/662417735af194d750bda1cdf10cc374df6577a9/shared/mermaid-reference.md) — Mermaid
   syntax for all supported diagram types plus flowchart styling, used when
   authoring Mermaid
 
@@ -148,9 +148,9 @@ there is no server dependency.
 
 This repository offers multiple ways to integrate draw.io with AI assistants:
 
-- **[MCP App Server](../../mcp-app-server/README.md)** — Inline diagrams in chat
+- **[MCP App Server](https://github.com/jgraph/drawio-mcp/blob/662417735af194d750bda1cdf10cc374df6577a9/mcp-app-server/README.md)** — Inline diagrams in chat
   (Claude.ai, VS Code)
-- **[MCP Tool Server](../../mcp-tool-server/README.md)** — Opens diagrams in
+- **[MCP Tool Server](https://github.com/jgraph/drawio-mcp/blob/662417735af194d750bda1cdf10cc374df6577a9/mcp-tool-server/README.md)** — Opens diagrams in
   browser via MCP (Claude Desktop)
-- **[Project Instructions](../../project-instructions/README.md)** — Claude.ai
+- **[Project Instructions](https://github.com/jgraph/drawio-mcp/blob/662417735af194d750bda1cdf10cc374df6577a9/project-instructions/README.md)** — Claude.ai
   Projects, no install needed

@@ -54,6 +54,20 @@ rm -rf "$DEST"
 mkdir -p "$DEST"
 cp -R "$SRC/." "$DEST/"
 
+# Upstream README.md links to sibling directories of the vendored subdirectory
+# (../../shared/…, ../../mcp-tool-server/…) that don't exist in this repo.
+# Rewrite them to absolute URLs at the pinned commit so no link is broken here.
+# The only surviving ../../ path is .claude-plugin/marketplace.json, which
+# happens to resolve at the same depth in our tree and intentionally points at
+# OUR marketplace manifest.
+say "rewriting upstream-relative README links to the pinned commit …"
+README="$DEST/README.md"
+UPSTREAM_BASE="https://github.com/$REPO/blob/$SHA"
+for frag in shared mcp-tool-server mcp-app-server project-instructions; do
+	sed -i.bak "s|](../../$frag/|]($UPSTREAM_BASE/$frag/|g" "$README"
+done
+rm -f "$README.bak"
+
 # Provenance stamp (regenerated every sync).
 cat > "$DEST/UPSTREAM.md" <<EOF
 # Vendored — do not edit by hand
